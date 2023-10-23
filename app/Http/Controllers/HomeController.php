@@ -7,8 +7,10 @@ use Illuminate\Support\Facades\App;
 
 class HomeController extends Controller
 {
-    public function index(Request $request, $lang = null)
+    public function index(Request $request)
     {
+        $lang = $request->input('lang');
+
         if ($lang && in_array($lang, ['en', 'ar'])) {
             App::setLocale($lang);
         }

@@ -2,20 +2,17 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Support\Facades\App;
-
 use Illuminate\Http\Request;
 
-class LanguageController extends Controller
+class AuthController extends Controller
 {
-    public function switchLanguage(Request $request)
+    public function login_index(Request $request)
     {
         $lang = $request->input('lang');
 
         if ($lang && in_array($lang, ['en', 'ar'])) {
             App::setLocale($lang);
         }
-
-        // Redirect back to the previous page or a specific route
-        return redirect()->back();
+        return view('FrontEnd.Auth.login');
     }
 }

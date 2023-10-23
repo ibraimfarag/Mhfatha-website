@@ -6,7 +6,7 @@
 
       <nav id="navbar" class="navbar">
         
-      <a href="index.html" class="logo d-flex align-items-center scrollto me-auto me-lg-0">
+      <a href="/" class="logo d-flex align-items-center scrollto me-auto me-lg-0">
         <!-- Uncomment the line below if you also wish to use an image logo -->
         <img src="{{ asset('/FrontEnd/assets/images/logo/logo.png') }}" alt="">
 
@@ -14,12 +14,12 @@
         <ul>
 
 
-          <li><a class="nav-link scrollto " href="index.html#hero">{{ app()->getLocale() === 'ar' ? 'الرئيسية' : 'Home' }}</a></li>
-          <li><a class="nav-link scrollto" href="index.html#about">{{ app()->getLocale() === 'ar' ? 'من نحن' : 'About us' }} </a></li>
-          <li><a class="nav-link scrollto" href="index.html#meza">{{ app()->getLocale() === 'ar' ? 'مميزاتنا' : 'Advantages' }}</a></li>
-          <li><a class="nav-link scrollto" href="index.html#app">{{ app()->getLocale() === 'ar' ? 'التطبيق' : 'App' }}</a></li>
-          <li><a class="nav-link scrollto" href="index.html#portfolio">{{ app()->getLocale() === 'ar' ? 'السياسة والشروط' : 'Policy and terms' }}</a></li>
-          <li><a class="nav-link scrollto" href="index.html#contact">{{ app()->getLocale() === 'ar' ? 'اتصل بنا' : 'contact us' }} </a></li>
+          <li><a class="nav-link scrollto " href="{{ route('home')}}#hero">{{ app()->getLocale() === 'ar' ? 'الرئيسية' : 'Home' }}</a></li>
+          <li><a class="nav-link scrollto" href="{{ route('home')}}#about">{{ app()->getLocale() === 'ar' ? 'من نحن' : 'About us' }} </a></li>
+          <li><a class="nav-link scrollto" href="{{ route('home')}}#meza">{{ app()->getLocale() === 'ar' ? 'مميزاتنا' : 'Advantages' }}</a></li>
+          <li><a class="nav-link scrollto" href="{{ route('home')}}#app">{{ app()->getLocale() === 'ar' ? 'التطبيق' : 'App' }}</a></li>
+          <li><a class="nav-link scrollto" href="{{ route('home')}}#portfolio">{{ app()->getLocale() === 'ar' ? 'السياسة والشروط' : 'Policy and terms' }}</a></li>
+          <li><a class="nav-link scrollto" href="{{ route('home')}}#contact">{{ app()->getLocale() === 'ar' ? 'اتصل بنا' : 'contact us' }} </a></li>
         </ul>
         <i class="bi bi-list mobile-nav-toggle d-none"></i>
       </nav><!-- .navbar -->
@@ -33,13 +33,15 @@
           <ul>
   
   
-            <li><a class="nav-link  " href="#">{{ app()->getLocale() === 'ar' ? 'الدخول' : 'login' }}</a></li><span>|</span>
-            <li><a class="nav-link " href="#">{{ app()->getLocale() === 'ar' ? 'التسجيل' : 'register' }}</a></li><span>|</span>
+            <li><a class="nav-link scrollto" href="{{ route('login', ['lang' => app()->getLocale()]) }}">
+              {{ app()->getLocale() === 'ar' ? 'الدخول' : 'login' }}
+          </a></li>
+          <span>|</span>            <li><a class="nav-link " href="#">{{ app()->getLocale() === 'ar' ? 'التسجيل' : 'register' }}</a></li><span>|</span>
 
             @if (App::getLocale() == 'en')
-            <li><a class="nav-link" href="{{ route('home', ['lang' => 'ar']) }}">عربي</a></li>
+            <li><a class="nav-link" href="{{ route(request()->route()->getName(), ['lang' => 'ar']) }}">عربي</a></li>
         @elseif (App::getLocale() == 'ar')
-        <li><a class="nav-link"href="{{ route('home', ['lang' => 'en']) }}">EN</a></li>
+        <li><a class="nav-link"href="{{ route(request()->route()->getName(), ['lang' => 'en']) }}">EN</a></li>
         @endif
           
 

@@ -25,8 +25,12 @@
   <!-- Variables CSS Files. Uncomment your preferred color scheme -->
   <link href="{{ asset('/FrontEnd/assets/css/main/variables.css') }}" rel="stylesheet">
   <!-- Template Main CSS File -->
-  <link href="{{ asset('/FrontEnd/assets/css/main/main.css') }}" rel="stylesheet">
 
+  @if (App::getLocale() == 'en')
+  <link href="{{ asset('/FrontEnd/assets/css/main/ltr.css') }}" rel="stylesheet">
+@elseif (App::getLocale() == 'ar')
+<link href="{{ asset('/FrontEnd/assets/css/main/main.css') }}" rel="stylesheet">
 
+@endif
 
   <link rel="stylesheet"  href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
