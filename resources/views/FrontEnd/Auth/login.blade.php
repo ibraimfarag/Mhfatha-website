@@ -7,15 +7,11 @@
     <section id="login" class="about about-background ">
         <div class="container" data-aos="fade-up">
   
-          <div class="section-header">
-            <h2>من نحن </h2>
-            <p>مؤسسة "محفظة" هي مؤسسة سعودية متخصصة في مجال توفير وسيلة للتجار لعرض ونشر الخصومات والعروض للمستخدمين بطريقة مبتكرة وملائمة. نحن نعمل بشغف لتقديم تجربة تسوق مميزة وميسرة للمستخدمين في المملكة العربية السعودية.
-  
-            </p>
+       
             {{-- <h1>{{ app()->getLocale() === 'ar' ? 'مرحبًا بك في موقعنا' : 'Welcome to our website' }}</h1> --}}
   
   
-          </div>
+         
   
           <div class="row g-4 g-lg-5" data-aos="fade-up" data-aos-delay="200">
   

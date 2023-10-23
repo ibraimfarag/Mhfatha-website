@@ -33,7 +33,7 @@
           <ul>
   
   
-            <li><a class="nav-link scrollto" href="{{ route('login', ['lang' => app()->getLocale()]) }}">
+            <li><a class="nav-link scrollto" href="{{ route('login', ['lang' => app()->getLocale()]) }}#login">
               {{ app()->getLocale() === 'ar' ? 'الدخول' : 'login' }}
           </a></li>
           <span>|</span>            <li><a class="nav-link " href="#">{{ app()->getLocale() === 'ar' ? 'التسجيل' : 'register' }}</a></li><span>|</span>
