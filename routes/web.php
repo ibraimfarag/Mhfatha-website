@@ -34,5 +34,6 @@ use Illuminate\Support\Facades\App;
 Route::get('/home', [HomeController::class,'index'])->name('home');
 
 Route::get('/login', [AuthController::class, 'login_index'])->name('login');
+Route::get('/register', [AuthController::class, 'register_index'])->name('register');
 
 Route::get('/switch-language', [LanguageController::class, 'switchLanguage'])->name('switchLanguage');

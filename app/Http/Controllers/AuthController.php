@@ -15,4 +15,13 @@ class AuthController extends Controller
         }
         return view('FrontEnd.Auth.login');
     }
+    public function register_index(Request $request)
+    {
+        $lang = $request->input('lang');
+
+        if ($lang && in_array($lang, ['en', 'ar'])) {
+            App::setLocale($lang);
+        }
+        return view('FrontEnd.Auth.register');
+    }
 }

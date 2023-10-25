@@ -36,7 +36,7 @@
             <li><a class="nav-link scrollto" href="{{ route('login', ['lang' => app()->getLocale()]) }}#login">
               {{ app()->getLocale() === 'ar' ? 'الدخول' : 'login' }}
           </a></li>
-          <span>|</span>            <li><a class="nav-link " href="#">{{ app()->getLocale() === 'ar' ? 'التسجيل' : 'register' }}</a></li><span>|</span>
+          <span>|</span>            <li><a class="nav-link scrollto" href="{{ route('register', ['lang' => app()->getLocale()]) }}#register">{{ app()->getLocale() === 'ar' ? 'التسجيل' : 'register' }}</a></li><span>|</span>
 
             @if (App::getLocale() == 'en')
             <li><a class="nav-link" href="{{ route(request()->route()->getName(), ['lang' => 'ar']) }}">عربي</a></li>

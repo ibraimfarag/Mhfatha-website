@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>{{ app()->getLocale() === 'ar' ? 'محفظة' : 'Mhfatha' }}</title>
+  <title>{{ app()->getLocale() === 'ar' ? 'محفظة' : 'Mhfatha' }}  @yield('title')</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
   @include('FrontEnd.layouts.css')
