@@ -35,5 +35,6 @@ Route::get('/home', [HomeController::class,'index'])->name('home');
 
 Route::get('/login', [AuthController::class, 'login_index'])->name('login');
 Route::get('/register', [AuthController::class, 'register_index'])->name('register');
+Route::post('/register-post', [AuthController::class, 'register_post'])->name('register_post');
 
 Route::get('/switch-language', [LanguageController::class, 'switchLanguage'])->name('switchLanguage');

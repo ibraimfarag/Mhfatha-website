@@ -25,19 +25,21 @@
 
 
               <div class="register-form">
-                <form action="your_registration_handler.php" method="post">
+                <form action="{{ route('register_post') }}" method="post">
+                    @csrf
+                    <input type="hidden" name="lang" value="{{ app()->getLocale() }}">
                     <div class="form-group">
                         <div class="name-group">
-                            <label for="firstName">{{ app()->getLocale() === 'ar' ? 'الاسم الأول' : 'First Name' }}</label>
-                            <input id="firstName" type="text" placeholder="{{ app()->getLocale() === 'ar' ? 'الاسم الأول' : 'First Name' }}" />
+                            <label for="first_name">{{ app()->getLocale() === 'ar' ? 'الاسم الأول' : 'First Name' }}</label>
+                            <input id="firstName"  name="first_name" placeholder="{{ app()->getLocale() === 'ar' ? 'الاسم الأول' : 'First Name' }}" />
                         </div>
                         <div class="name-group">
                             <label for="middleName">{{ app()->getLocale() === 'ar' ? 'الاسم الأوسط' : 'Middle Name' }}</label>
-                            <input id="middleName" type="text" placeholder="{{ app()->getLocale() === 'ar' ? 'الاسم الأوسط' : 'Middle Name' }}" />
+                            <input id="middleName" name="middle_name" type="text" placeholder="{{ app()->getLocale() === 'ar' ? 'الاسم الأوسط' : 'Middle Name' }}" />
                         </div>
                         <div class="name-group">
                             <label for="lastName">{{ app()->getLocale() === 'ar' ? 'اسم العائلة' : 'Family Name' }}</label>
-                            <input id="lastName" type="text" placeholder="{{ app()->getLocale() === 'ar' ? 'اسم العائلة' : 'Family Name' }}" />
+                            <input id="lastName" name="last_name" type="text" placeholder="{{ app()->getLocale() === 'ar' ? 'اسم العائلة' : 'Family Name' }}" />
                         </div>
                     </div>
                     
@@ -50,8 +52,8 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="gender">{{ app()->getLocale() === 'ar' ? 'تاريخ الميلاد' : 'birthday' }}</label>
-                        <input type="date" id="male" name="gender" value="male">
+                        <label for="birthday">{{ app()->getLocale() === 'ar' ? 'تاريخ الميلاد' : 'birthday' }}</label>
+                        <input type="date" id="male" name="birthday" >
                       
                     </div>
                     
@@ -89,37 +91,51 @@
                         <div class="name-group">
                             <label for="phoneNumber">{{ app()->getLocale() === 'ar' ? 'رقم الجوال' : 'Phone Number' }}</label>
                          
-                            <input id="phoneNumber" type="tel" style=" direction:ltr;" placeholder=" {{ app()->getLocale() === 'ar' ? 'ادخل رقم الجوال ' : 'Phone Number' }}" value="" pattern='^(1-)?[0-9]{3}-[0-9]{3}-[0-9]{4}' oninput='formatPhoneNum(this)' />
+                            <input id="phoneNumber" name="mobile" type="tel" style=" direction:ltr;" placeholder=" {{ app()->getLocale() === 'ar' ? 'ادخل رقم الجوال ' : 'Phone Number' }}" value="" pattern='^(1-)?[0-9]{3}-[0-9]{3}-[0-9]{4}' oninput='formatPhoneNum(this)' />
                          
                         </div>
                         
                         
                     <div class="name-group">
                         <label for="email">{{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني' : 'Email' }}</label>
-                        <input id="email" type="email" placeholder="{{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني' : 'Email' }}" />
+                        <input id="email" name="email" type="email" placeholder="{{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني' : 'Email' }}" />
                     </div>
                     </div>
                     <div class="form-group">
                     <div class="name-group">
                         <label for="password">{{ app()->getLocale() === 'ar' ? 'كلمة السر' : 'Password' }}</label>
-                        <input id="password" type="password" placeholder="{{ app()->getLocale() === 'ar' ? 'كلمة السر' : 'Password' }}" />
+                        <input id="password"  name="password" type="password" placeholder="{{ app()->getLocale() === 'ar' ? 'كلمة السر' : 'Password' }}" />
                     </div>
                     <div class="name-group">
                         <label for="confirmPassword">{{ app()->getLocale() === 'ar' ? 'تأكيد كلمة السر' : 'Confirm Password' }}</label>
-                        <input id="confirmPassword" type="password" placeholder="{{ app()->getLocale() === 'ar' ? 'تأكيد كلمة السر' : 'Confirm Password' }}" />
+                        <input id="confirmPassword" name="password_confirmation"  type="password" placeholder="{{ app()->getLocale() === 'ar' ? 'تأكيد كلمة السر' : 'Confirm Password' }}" />
                     </div>
                     </div>
                     <div class="form-group">
                         <label for="userType">{{ app()->getLocale() === 'ar' ? 'تسجيل كـ' : 'Register As' }}</label>
-                        <select id="userType" name="userType">
-                            <option value="merchant">{{ app()->getLocale() === 'ar' ? 'تاجر' : 'Merchant' }}</option>
-                            <option value="user">{{ app()->getLocale() === 'ar' ? 'مستخدم' : 'User' }}</option>
+                        <select id="userType" name="is_vendor">
+                            <option value="1">{{ app()->getLocale() === 'ar' ? 'تاجر' : 'Merchant' }}</option>
+                            <option value="0">{{ app()->getLocale() === 'ar' ? 'مستخدم' : 'User' }}</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <button type="submit">{{ app()->getLocale() === 'ar' ? 'تسجيل' : 'Register' }}</button>
                     </div>
                 </form>          </div>
+                @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+@if (session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
             </div>
             <div class="col-lg-7 section-titles">
                 <h5 class="pt-0 pt-lg-5">نحن نسعى إلى توفير منصة تقنية موثوقة تربط التجار بجمهورهم بأسلوب سهل وفعال. نحن ملتزمون بالاستدامة والامتثال للقوانين واللوائح السارية في المملكة العربية السعودية.</h5>
