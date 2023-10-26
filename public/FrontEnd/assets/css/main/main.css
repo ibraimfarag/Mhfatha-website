@@ -1827,7 +1827,38 @@ border-radius: 60px; /* Add rounded corners */
 
 }
 
+/*--------------------------------------------------------------
+# dashbord user Section
+--------------------------------------------------------------*/
+    /* CSS for the right sidebar */
+    .sidebar {
+      background-color: transparent;
+      padding: 10px;
+      /* Add more styles as needed */
+  }
 
+  .sidebar ul {
+      list-style: none;
+      padding: 0;
+  }
+
+  .sidebar li {
+      margin-bottom: 10px;
+  }
+  .user_sideBar{
+    display: inline-block !important;
+  }
+  @media (min-width: 1280px) {
+    .user_sideBar{
+      display: inline-block !important;
+    }
+  }
+  /* CSS for the left panel */
+  #left-panel {
+      background-color: #fff;
+      padding: 20px;
+      /* Add more styles as needed */
+  }
 
 /*--------------------------------------------------------------
 # Contact Section

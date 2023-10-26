@@ -4,7 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\App;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,24 +19,40 @@ use Illuminate\Support\Facades\App;
 |
 */
 
-// Route::get('/', function () {
-//     $languages = ['en', 'ar']; // Define your supported languages
-//     $userLanguages = explode(',', request()->server('HTTP_ACCEPT_LANGUAGE'));
-//     foreach ($userLanguages as $userLang) {
-//         $lang = substr($userLang, 0, 2);
-//         if (in_array($lang, $languages)) {
-//             App::setLocale($lang); // Set the detected language as the application's locale
-//             return redirect('/' . $lang);
-//         }
-//     }
-//     // If no supported language is detected, set a default language (e.g., 'ar')
-//     App::setLocale('ar');
-//     return redirect('/ar');
-// });
+
+
+
+
+
+Route::get('/', [HomeController::class,'index'])->name('main');
 Route::get('/home', [HomeController::class,'index'])->name('home');
 
-Route::get('/login', [AuthController::class, 'login_index'])->name('login');
-Route::get('/register', [AuthController::class, 'register_index'])->name('register');
-Route::post('/register-post', [AuthController::class, 'register_post'])->name('register_post');
+Route::group(['middleware' => 'guest'], function () {
+    Route::get('/login', [AuthController::class, 'login_index'])->name('login');
+    Route::post('/login-post', [AuthController::class, 'login_post'])->name('login_post');
+    Route::get('/register', [AuthController::class, 'register_index'])->name('register');
+    Route::post('/register-post', [AuthController::class, 'register_post'])->name('register_post');
+});
 
 Route::get('/switch-language', [LanguageController::class, 'switchLanguage'])->name('switchLanguage');
+
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [UserController::class, 'dashboard_user'])->name('dashboard_user');
+    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    
+});
+
+Route::middleware(['vendor'])->group(function () {
+    // Routes accessible only to vendors
+    // Route::get('/register', [AuthController::class, 'register_index'])->name('register');    // Add other vendor-specific routes here
+});
+
+Route::middleware(['admin'])->group(function () {
+    // Routes accessible only to admins
+    // Route::get('/admin-dashboard', 'AdminController@index');
+    // Add other admin-specific routes here
+});
+

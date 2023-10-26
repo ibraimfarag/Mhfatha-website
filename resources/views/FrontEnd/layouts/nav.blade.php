@@ -33,11 +33,23 @@
           <ul>
   
   
+            @if (Auth::check())
+            <li><a class="nav-link " href="#">                {{ app()->getLocale() === 'ar' ? 'مرحبا' : 'hello' }}
+              {{ Auth::user()->first_name }}</a></li>
+              <span>|</span>
+            <li><a href="{{ route('logout') }}"> {{ app()->getLocale() === 'ar' ? 'تسجيل الخروج' : 'logout' }}</a>
+            </li>
+            @else
+            <!-- User is not authenticated, show the login and register links -->
             <li><a class="nav-link scrollto" href="{{ route('login', ['lang' => app()->getLocale()]) }}#login">
-              {{ app()->getLocale() === 'ar' ? 'الدخول' : 'login' }}
-          </a></li>
-          <span>|</span>            <li><a class="nav-link scrollto" href="{{ route('register', ['lang' => app()->getLocale()]) }}#register">{{ app()->getLocale() === 'ar' ? 'التسجيل' : 'register' }}</a></li><span>|</span>
-
+                {{ app()->getLocale() === 'ar' ? 'الدخول' : 'login' }}
+            </a></li>
+            <span>|</span>
+            <li><a class="nav-link scrollto" href="{{ route('register', ['lang' => app()->getLocale()]) }}#register">
+                {{ app()->getLocale() === 'ar' ? 'التسجيل' : 'register' }}
+            </a></li>
+            <span>|</span>
+        @endif
             @if (App::getLocale() == 'en')
             <li><a class="nav-link" href="{{ route(request()->route()->getName(), ['lang' => 'ar']) }}">عربي</a></li>
         @elseif (App::getLocale() == 'ar')

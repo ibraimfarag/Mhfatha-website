@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 
-class IsVendor
+class AdminMiddleware
 {
     /**
      * Handle an incoming request.
@@ -14,8 +14,13 @@ class IsVendor
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
-    public function handle(Request $request, Closure $next)
-    {
+    public function handle($request, Closure $next)
+{
+    if (auth()->check() && auth()->user()->is_admin) {
         return $next($request);
     }
+
+    return redirect('/'); // Redirect to the home page or another route if not an admin.
+}
+
 }

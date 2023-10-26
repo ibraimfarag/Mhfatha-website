@@ -32,9 +32,9 @@
                         <div class="name-group">
                             <label for="first_name">{{ app()->getLocale() === 'ar' ? 'الاسم الأول' : 'First Name' }}</label>
                             <input id="firstName"  name="first_name" placeholder="{{ app()->getLocale() === 'ar' ? 'الاسم الأول' : 'First Name' }}" />
-                            @error('first_name') <!-- Check if there's an error for the first_name field -->
+                            {{-- @error('first_name') <!-- Check if there's an error for the first_name field -->
                             <span class="text-danger">{{ $message }}</span> <!-- Display the error message -->
-                        @enderror
+                        @enderror --}}
                         </div>
                         <div class="name-group">
                             <label for="middleName">{{ app()->getLocale() === 'ar' ? 'الاسم الأوسط' : 'Middle Name' }}</label>

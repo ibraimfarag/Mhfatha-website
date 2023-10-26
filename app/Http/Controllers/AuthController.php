@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
 use  App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 
 class AuthController extends Controller
@@ -17,6 +19,36 @@ class AuthController extends Controller
             App::setLocale($lang);
         }
         return view('FrontEnd.Auth.login');
+    }
+    public function login_post(Request $request)
+    {
+      
+        $currentLanguage = $request->input('lang');
+        $credentials = $request->only('email_or_mobile', 'password');
+
+        // Add a custom rule to identify whether the input is an email or a mobile number
+        $field = filter_var($request->input('email_or_mobile'), FILTER_VALIDATE_EMAIL) ? 'email' : 'mobile';
+    
+        // Add the field name to the credentials array
+        $credentials[$field] = $request->input('email_or_mobile');
+        unset($credentials['email_or_mobile']);
+    
+        // Attempt to log in the user
+        if (Auth::attempt($credentials)) {
+            // Authentication passed
+            Session::put('user_id', Auth::user()->id); // Create a session variable
+
+            return redirect()->intended('/dashboard' . '?lang=' . $currentLanguage);        }
+    
+        // Authentication failed, redirect back with an error message
+    return redirect()
+        ->back()
+        ->withInput($request->only('email_or_mobile'))
+        ->withErrors(['loginError' => 'Invalid credentials']);
+
+
+
+
     }
     public function register_index(Request $request)
     {
@@ -49,6 +81,20 @@ class AuthController extends Controller
                 'password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
             ];
         }
+        if ($currentLanguage === 'en') {
+            $errorMessages = [
+                'first_name.required' => 'The first name field is required.',
+                'last_name.required' => 'The last name field is required.',
+                'gender.required' => 'The gender field is required.',
+                'birthday.required' => 'The birthday field is required.',
+                'mobile.unique' => 'The mobile number is already in use. Please choose a different one.',
+                'mobile.required' => 'The mobile field is required.',
+                'email.required' => 'The email field is required.',
+                'password.required' => 'The password field is required.',
+                'password.min' => 'The password must be at least 8 characters.',
+                'password.confirmed' => 'The password confirmation does not match.',
+            ];
+        }
     
 
         $customMessages = $errorMessages;
@@ -73,6 +119,7 @@ class AuthController extends Controller
                 ->with('error', 'Mobile number is already in use. Please choose a different one.')
                 ->withInput();
         }
+        $mobile = str_replace('-', '', $request->mobile);
 
         // Create a new user record
         User::create([
@@ -83,7 +130,7 @@ class AuthController extends Controller
             'birthday' => $request->birthday,
             'city' => $request->city,
             'region' => $request->region,
-            'mobile' => $request->mobile,
+            'mobile' => $mobile, // Store the cleaned mobile number
             'email' => $request->email,
             'is_vendor' => $request->is_vendor,
             'password' => Hash::make($request->password),
@@ -96,4 +143,11 @@ class AuthController extends Controller
 
         
     }
+    public function logout()
+{
+    Auth::logout(); // Log the user out
+    Session::forget('user_id'); // Clear the user's session data
+    return back(); // Redirect to the login page
+}
+
 }

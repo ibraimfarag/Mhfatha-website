@@ -19,23 +19,37 @@
               {{-- <div class="login-img">
                 <img src="{{ asset('/FrontEnd/assets/images/auth/login.png') }}" class="img-fluid grad" alt="">
               </div> --}}
-                  
-              <div class="form">
-                <div class="title">{{ app()->getLocale() === 'ar' ? 'تسجيل الدخول' : 'Welcome to our website' }}</div>
-                {{-- <div class="subtitle">Let's create your account!</div> --}}
-                <div class="input-container ic1">
-                  <input id="firstname" class="input" type="text" placeholder=" " />
-                  <div class="cut"></div>
-                  <label for="firstname" class="placeholder">الاسم</label>
-                </div>
-                <div class="input-container ic2">
-                  <input id="lastname" class="input" type="text" placeholder=" " />
-                  <div class="cut"></div>
-                  <label for="lastname" class="placeholder">كلمة السر</label>
-                </div>
-              
-                <button type="text" class="submit">submit</button>
-              </div>
+              <form method="POST" action="{{ route('login_post') }}">
+                @csrf
+                <div class="register-form">
+                      <input type="hidden" name="lang" value="{{ app()->getLocale() }}">
+                      
+                      <div class="form-group">
+                                            
+                      <div class="name-group">
+                          <label for="email_or_mobile">{{ app()->getLocale() === 'ar' ? '   البريد الإلكتروني او رقم الجوال' : 'Email or Mobile number' }}</label>
+                          <input id="email_or_mobile" name="email_or_mobile" type="text" placeholder="{{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني او رقم الجوال' : 'Email or Mobile number' }}" />
+                      </div>
+                      </div>
+                      <div class="form-group">
+                      <div class="name-group">
+                          <label for="password">{{ app()->getLocale() === 'ar' ? 'كلمة السر' : 'Password' }}</label>
+                          <input id="password"  name="password" type="password" placeholder="{{ app()->getLocale() === 'ar' ? 'كلمة السر' : 'Password' }}" />
+                      </div>
+                      </div>
+                     
+                      <div class="form-group">
+                          <button type="submit">{{ app()->getLocale() === 'ar' ? 'تسجيل' : 'Register' }}</button>
+                      </div>
+                       
+                </div>    
+                        </form>
+              @if(session('loginError'))
+<div class="alert alert-danger">
+    {{ session('loginError') }}
+</div>
+@endif
+
 
             </div>
             <div class="col-lg-7 section-titles">
