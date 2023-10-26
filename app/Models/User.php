@@ -25,6 +25,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_admin',
         'password',
     ];
+    
 
     protected $hidden = [
         'password',
@@ -34,4 +35,5 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
 }

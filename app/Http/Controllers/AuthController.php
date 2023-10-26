@@ -28,7 +28,31 @@ class AuthController extends Controller
         return view('FrontEnd.Auth.register', ['lang' => $lang]); // Pass the 'lang' variable to the view
     }
     public function register_post (Request $request)
-    {
+    {        $lang = $request->input('lang'); // Get the 'lang' parameter from the request
+
+        $currentLanguage = $request->input('lang');
+
+
+
+        // Check the language and set the appropriate error message
+        if ($currentLanguage === 'ar') {
+            $errorMessages = [
+                'first_name.required' => 'حقل الاسم الأول مطلوب.',
+                'last_name.required' => 'حقل الاسم الأخير مطلوب.',
+                'gender.required' => 'حقل الجنس مطلوب.',
+                'birthday.required' => 'حقل تاريخ الميلاد مطلوب.',
+                'mobile.unique' => 'رقم الجوال مستخدم بالفعل. يرجى اختيار رقم آخر.',
+                'mobile.required' => 'حقل رقم الجوال مطلوب.',
+                'email.required' => 'حقل البريد الإلكتروني مطلوب.',
+                'password.required' => 'حقل كلمة المرور مطلوب.',
+                'password.min' => 'يجب أن تحتوي كلمة المرور على ما لا يقل عن 8 أحرف.',
+                'password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
+            ];
+        }
+    
+
+        $customMessages = $errorMessages;
+
         $request->validate([
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
@@ -37,10 +61,18 @@ class AuthController extends Controller
             'birthday' => 'required|date',
             'city' => 'required|string|max:255',
             'region' => 'required|string|max:255',
-            'mobile' => 'required|string|max:255',
+            'mobile' => 'required|string|max:255|unique:users', // Ensure 'mobile' is unique
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8|confirmed', // Ensure password matches password_confirmation
-        ]);
+        ] ,$customMessages);
+
+        $mobileExists = User::where('mobile', $request->mobile)->exists();
+
+        if ($mobileExists) {
+            return redirect()->back()
+                ->with('error', 'Mobile number is already in use. Please choose a different one.')
+                ->withInput();
+        }
 
         // Create a new user record
         User::create([
@@ -57,7 +89,6 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
 
         ]);
-        $lang = $request->input('lang'); // Get the 'lang' parameter from the request
 
         return redirect()->route('register', ['lang' => $lang])->with('success', 'Registration successful!');
 
