@@ -18,7 +18,7 @@ class UserDiscount extends Model
 
     public function store()
     {
-        return $this->belongsTo(Store::class);
+        return $this->belongsTo(Store::class, 'store_id');
     }
 
     public function user()
@@ -28,6 +28,6 @@ class UserDiscount extends Model
 
     public function discount()
     {
-        return $this->belongsTo(Discount::class);
+        return $this->belongsTo(Discount::class, 'discount_id');
     }
 }

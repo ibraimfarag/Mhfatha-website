@@ -5,6 +5,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PasswordController;
+use App\Http\Controllers\UserDiscountController;
 use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
 
@@ -39,9 +41,23 @@ Route::get('/switch-language', [LanguageController::class, 'switchLanguage'])->n
 
 
 Route::middleware(['auth'])->group(function () {
+
+
     Route::get('/dashboard', [UserController::class, 'dashboard_user'])->name('dashboard_user');
     Route::get('/showProfile', [UserController::class, 'showProfile'])->name('profile');
+    Route::put('/update-profile', [UserController::class, 'update_profile'])->name('profile-update');
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
+
+    Route::get('/password/change', [PasswordController::class,'showChangePasswordForm'])->name('password.change');
+    Route::post('/password/change', [PasswordController::class,'changePassword'])->name('password.change');
+
+
+
+
+    Route::get('/discounts/home', [UserDiscountController::class,'view'])->name('discount.view');
+    
+
 
 
 });

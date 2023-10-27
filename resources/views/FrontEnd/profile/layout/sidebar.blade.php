@@ -9,13 +9,25 @@
 
 <ul class="user_sideBar">
 <li>
-<a class="nav-link scrollto user_sideBar" href="#"  id="profile">
+<a class="nav-link scrollto user_sideBar" href="{{ route('dashboard_user',['lang' => app()->getLocale()]) }}#an"  >
+<i class="fas fa-chart-simple"></i>
+{{ app()->getLocale() === 'ar' ? 'احصائيات' : 'statistics' }}
+</a>
+</li>
+<li>
+<a class="nav-link scrollto user_sideBar" href="{{ route('profile',['lang' => app()->getLocale()]) }}#prfile" >
 <i class="fas fa-user"></i>
 {{ app()->getLocale() === 'ar' ? 'الملف الشخصي' : 'Profile' }}
 </a>
 </li>
 <li>
-<a class="nav-link scrollto user_sideBar" href="javascript:void(0);" onclick="loadPreviousDiscounts">
+<a class="nav-link scrollto user_sideBar" href="{{ route('password.change',['lang' => app()->getLocale()]) }}#ChangePassword" >
+<i class="fas fa-unlock-alt"></i>
+{{ app()->getLocale() === 'ar' ? 'تغير كلة السر' : 'change password' }}
+</a>
+</li>
+<li>
+<a class="nav-link scrollto user_sideBar" href="{{ route('discount.view',['lang' => app()->getLocale()]) }}#history" >
 <i class="fas fa-history"></i>
 {{ app()->getLocale() === 'ar' ? 'سجل الخصومات' : 'Previous Discounts' }}
 </a>

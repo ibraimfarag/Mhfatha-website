@@ -4,7 +4,7 @@
 
 
     <!-- ======= dashbord Section ======= -->
-    <section id="login" class="userdash login-background ">
+    <section id="dashboard_user" class="userdash login-background ">
         <div class="container-fluid" data-aos="fade-up">
   
        
@@ -102,7 +102,17 @@
 </script>
 
 <script>
-
+    // JavaScript to update the image preview
+    document.getElementById('profile_image').addEventListener('change', function() {
+        const fileInput = this;
+        if (fileInput.files && fileInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('image-preview').src = e.target.result;
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        }
+    });
 
 </script>
 

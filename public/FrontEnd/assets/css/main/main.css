@@ -1892,6 +1892,21 @@ font-size: 2rem;
   background-color: transparent !important;
   border: none !important;
 }
+.image-preview{
+  width: 15vw !important;
+  background-color: transparent !important;
+  border: none !important;
+}
+.button_dash{
+  /* background-color: #fff; */
+  color: #fff !important;
+  font-size: 1.2rem !important;
+  font-family: var(--font-secondary) !important;
+  height: 5vh !important;
+  border-radius: 19px !important;
+  min-width: 7vw !important;
+
+}
 /*--------------------------------------------------------------
 # Contact Section
 --------------------------------------------------------------*/

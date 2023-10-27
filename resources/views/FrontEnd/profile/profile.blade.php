@@ -5,19 +5,21 @@
             @extends('FrontEnd.profile.layout.master')
             @section('dash-content')
             
-            
-            <div class="row">
+            <form method="POST" action="{{ route('profile-update') }}" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="lang" value="{{ app()->getLocale() }}">
+
+            <div class="row" id="prfile">
                 <div class="container">
                     <div class="row">
-                        <div class="col-md-5 offset-md-2">
+                       
+                        <div class="col-md-6 offset-md-2">
                             <div class="card update-user">
                                 <div class="card-header">{{ __('Edit Profile') }}</div>
                 
                                 <div class="card-body">
-                                    <form method="POST" action="">
-                                    {{-- <form method="POST" action="{{ route('profile.update', Auth::user()) }}"> --}}
-                                        @csrf
-                                        @method('PUT')
+                                       
                 
                                         <div class="form-group">
                                             <div class="name-group">
@@ -158,16 +160,37 @@
                                         </div>
                                         
                                         <div class="form-group">
-                                            <button type="submit" class="btn btn-primary">
-                                                {{ app()->getLocale() === 'ar' ? 'تحديث الملف الشخصي' : 'Update Profile' }}
+                                            <button type="submit" class="btn btn-primary button_dash">
+                                                {{ app()->getLocale() === 'ar' ? 'تحديث ' : 'Update ' }}
                                             </button>
-                                        </div>                                    </form>
+                                        </div>                                    
                                 </div>
                             </div>
                         </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <img id="image-preview" src="{{ asset('FrontEnd/assets/images/user_images/' . Auth::user()->photo) }}" alt="{{ Auth::user()->name }}" class="img-thumbnail image-preview" >
+                                        </div>
+                                        <div class="form-group">
+
+                                            <div class="name-group">
+                                                <label for="profile_image">
+                                                    {{ app()->getLocale() === 'ar' ? 'صورة الملف الشخصي' : 'Profile Image' }}
+                                                </label>
+                                                <input id="profile_image" type="file" class="form-control @error('profile_image') is-invalid @enderror" name="profile_image">
+                                                @error('profile_image')
+                                                    <span class="invalid-feedback" role="alert">
+                                                        <strong>{{ $message }}</strong>
+                                                    </span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
                     </div>
-                </div
-            </div>
+                </div>
+                </div>
+            </form>
             
             
             @endsection

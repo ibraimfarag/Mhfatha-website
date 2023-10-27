@@ -34,7 +34,7 @@
   
   
             @if (Auth::check())
-            <li><a class="nav-link " href="#">                {{ app()->getLocale() === 'ar' ? 'مرحبا' : 'hello' }}
+            <li><a class="nav-link " href="{{ route('dashboard_user', ['lang' => app()->getLocale()]) }}#dashboard_user">                {{ app()->getLocale() === 'ar' ? 'مرحبا' : 'hello' }}
               {{ Auth::user()->first_name }}</a></li>
               <span>|</span>
             <li><a href="{{ route('logout') }}"> {{ app()->getLocale() === 'ar' ? 'تسجيل الخروج' : 'logout' }}</a>

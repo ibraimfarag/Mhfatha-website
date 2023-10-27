@@ -2,15 +2,37 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
-use app\Models\UserDiscount;
+use App\Models\UserDiscount;
+use Illuminate\Support\Facades\App;
 
 use Illuminate\Http\Request;
 
 class UserDiscountController extends Controller
 {
-    public function create()
+    public function view(Request $request)
     {
-        return view('user_discounts.create');
+        $lang = $request->input('lang');
+
+        if ($lang && in_array($lang, ['en', 'ar'])) {
+            App::setLocale($lang);
+        }
+     
+        $userDiscounts = UserDiscount::with('store', 'discount')
+        ->where('user_id', auth()->user()->id)
+        ->get();
+        return view('FrontEnd.profile.discounts', ['userDiscounts' => $userDiscounts]);
+    }
+    public function create(Request $request)
+    {
+        $lang = $request->input('lang');
+
+        if ($lang && in_array($lang, ['en', 'ar'])) {
+            App::setLocale($lang);
+        }
+     
+        $userDiscounts = UserDiscount::where('user_id', auth()->user()->id)->get();
+
+        return view('user_discounts.create', ['userDiscounts' => $userDiscounts]);
     }
 
     public function store(Request $request)
