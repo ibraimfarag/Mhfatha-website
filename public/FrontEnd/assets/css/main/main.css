@@ -1831,15 +1831,27 @@ border-radius: 60px; /* Add rounded corners */
 # dashbord user Section
 --------------------------------------------------------------*/
     /* CSS for the right sidebar */
+    .userdash{margin-top: 10vh;}
+    .userdash-form {
+      background-color: #04142d61;
+      padding: 50px 20px;
+      border-radius: 20px;
+      width: 90vw;
+      height: 100vh;
+      margin: 0 auto; /* Center horizontally */
+      justify-content: center; /* Center horizontally */
+      align-items: center; /* Center vertically */
+  }
     .sidebar {
       background-color: transparent;
       padding: 10px;
       /* Add more styles as needed */
   }
-
   .sidebar ul {
       list-style: none;
-      padding: 0;
+      border-left: 3px solid #ffffff0f;
+  height: 80vh;
+  padding-left: 50px;
   }
 
   .sidebar li {
@@ -1848,6 +1860,9 @@ border-radius: 60px; /* Add rounded corners */
   .user_sideBar{
     display: inline-block !important;
   }
+  .user_sideBar a i{
+    font-size: 25px !important;
+  }
   @media (min-width: 1280px) {
     .user_sideBar{
       display: inline-block !important;
@@ -1855,11 +1870,28 @@ border-radius: 60px; /* Add rounded corners */
   }
   /* CSS for the left panel */
   #left-panel {
-      background-color: #fff;
+      background-color: transparent;
       padding: 20px;
-      /* Add more styles as needed */
   }
-
+    .gradient-card {
+      background-color: #1346975e;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+    }
+    .gradient-card p{
+font-size: 2rem;
+    }
+    .dashcard_icon{
+      font-size: 4rem;
+    }
+.profile-info h1,h2,h3,h4,h5{
+  color: var(--color-primary);
+}
+.update-user{
+  background-color: transparent !important;
+  border: none !important;
+}
 /*--------------------------------------------------------------
 # Contact Section
 --------------------------------------------------------------*/

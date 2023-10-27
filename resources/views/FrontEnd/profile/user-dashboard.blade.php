@@ -1,90 +1,103 @@
-@extends('FrontEnd.layouts.master')
-@section('title', app()->getLocale() === 'ar' ? '- لوحة التحكم ' : '- Dashboard')
-@section('content')
+@extends('FrontEnd.profile.layout.master')
+@section('dash-content')
 
 
-    <!-- ======= dashbord Section ======= -->
-    <section id="login" class="login login-background ">
-        <div class="container" data-aos="fade-up">
+<div class="row">
+<h4> مرحبا ,  {{ Auth::user()->first_name }}</h4>
+  <div class="container mt-4">
+    <div class="row">
+<div class="col-lg-6">
+
+
+
   
-       
-            {{-- <h1>{{ app()->getLocale() === 'ar' ? 'مرحبًا بك في موقعنا' : 'Welcome to our website' }}</h1> --}}
-  
-  
-         
-  
-          <div class="row g-4 g-lg-5" data-aos="fade-up" data-aos-delay="200">
-  
-      
-
-                <div class="register-form">
-                      <input type="hidden" name="lang" value="{{ app()->getLocale() }}">
-                      
-                      <div class="row">
-                        <!-- Right Sidebar -->
-<div class="col-md-2">
-  <div class="sidebar">
-
-    <nav id="navbar" class="navbar user_sideBar">
-        
-      
-        <ul class="user_sideBar">
-
-          <li><a class="nav-link scrollto user_sideBar" href="javascript:void(0);" onclick="loadProfile()">{{ app()->getLocale() === 'ar' ? 'الملف الشخصي' : 'Profile' }}</a></li>
-          <li><a class="nav-link scrollto user_sideBar" href="javascript:void(0);" onclick="loadPreviousDiscounts()">{{ app()->getLocale() === 'ar' ? 'الخصومات السابقة' : 'Previous Discounts' }}</a></li>
-          <li><a class="nav-link scrollto user_sideBar" href="javascript:void(0);" onclick="loadNearbyStores()">{{ app()->getLocale() === 'ar' ? 'المتاجر القريبة' : 'Nearby Stores' }}</a></li>
-          <li><a class="nav-link scrollto user_sideBar" href="javascript:void(0);" onclick="loadManageStores()">{{ app()->getLocale() === 'ar' ? 'ادارة المتاجر' : 'Manage Stores' }}</a></li>
-        </ul>
-        <i class="bi bi-list mobile-nav-toggle d-none"></i>
-      </nav><!-- .navbar -->
-
-
-      
-</div>
-
-</div>
-                    <!-- Left Panel -->
-<div class="col-md-10" id="left-panel">
-  <!-- Initial content for the left panel -->
-</div>
-
-
-
-                    </div>
-                       
-                </div>    
-                      
-
-
-
-            </div>
-          
-           
+<div class="row m-3">
+  <div class="col-md-6">
+    <div class="card gradient-card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-lg-8"><h5 class="card-title"> عدد الخصومات</h5>
+            <p class="card-text">124</p>
           </div>
-  
+          <div class="col-lg-4"><i class="fa-solid fa-percent dashcard_icon"></i></div>
+
         </div>
-      </section>
-      <!-- End Login Section -->
+        
+      </div>
+    </div>
+  </div>
 
-     
-  @endsection
-@section('js')
-<script>
-  function loadProfile() {
-    $('#left-panel').load('/profile'); // Load the profile view
-}
 
-function loadPreviousDiscounts() {
-    $('#left-panel').load('/previous_discounts'); // Load the previous discounts view
-}
 
-function loadNearbyStores() {
-    $('#left-panel').load('/nearby_stores'); // Load the nearby stores view
-}
+  <div class="col-md-6">
+    <div class="card gradient-card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-lg-8"><h5 class="card-title"> اجمالي المشتريات</h5>
+            <p class="card-text">8000</p>
+          </div>
+          <div class="col-lg-4"><i class="fa-solid fa-dollar-sign dashcard_icon"></i></div>
 
-function loadManageStores() {
-    $('#left-panel').load('/manage_stores'); // Load the manage stores view
-}
+        </div>
+        
+      </div>
+    </div>
+  </div>
 
-</script>
+
+
+</div>
+
+
+
+<div class="row m-3">
+  <div class="col-md-6">
+    <div class="card gradient-card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-lg-8"><h5 class="card-title"> اجمالي التوفير</h5>
+            <p class="card-text">2512.50 </p>
+          </div>
+          <div class="col-lg-4"><i class="fa-solid fa-wallet dashcard_icon"></i></div>
+
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="col-md-6">
+    <div class="card gradient-card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-lg-8"><h5 class="card-title"> عدد الخصومات</h5>
+            <p class="card-text">124</p>
+          </div>
+          <div class="col-lg-4"><i class="fa-solid fa-percent dashcard_icon"></i></div>
+
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+
+
+</div>
+    
+
+
+    </div>
+<div class="col-lg-6">
+
+</div>
+    </div>
+  </div>
+
+
+
+</div>
+
 @endsection

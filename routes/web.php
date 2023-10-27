@@ -40,9 +40,10 @@ Route::get('/switch-language', [LanguageController::class, 'switchLanguage'])->n
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [UserController::class, 'dashboard_user'])->name('dashboard_user');
+    Route::get('/showProfile', [UserController::class, 'showProfile'])->name('profile');
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    
+
 });
 
 Route::middleware(['vendor'])->group(function () {

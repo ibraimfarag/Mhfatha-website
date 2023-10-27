@@ -23,6 +23,7 @@ class CreateUsersTable extends Migration
             $table->string('city');
             $table->string('region');
             $table->string('mobile');
+            $table->string('photo')->nullable();
             $table->string('email')->unique();
             $table->boolean('is_vendor')->default(0);
             $table->boolean('is_admin')->default(0);
