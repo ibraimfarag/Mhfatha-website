@@ -36,6 +36,14 @@
   <link rel="stylesheet"  href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
 
-  <script src="{{ asset('/FrontEnd/assets/js/angularjs/angular.min.js') }}"></script>
-  
+  {{-- <script src="{{ asset('/FrontEnd/assets/js/angularjs/angular.min.js') }}"></script> --}}
+
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+<script src="//unpkg.com/@uirouter/angularjs/release/angular-ui-router.min.js"></script>
+
+
   @yield('css-add')
+
+
