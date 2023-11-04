@@ -37,6 +37,46 @@ class UserController extends Controller
 
 public function update_profile(Request $request)
 {
+
+
+    $currentLanguage = $request->input('lang');
+
+
+
+    // Check the language and set the appropriate error message
+    if ($currentLanguage === 'ar') {
+        $errorMessages = [
+            'first_name.required' => 'حقل الاسم الأول مطلوب.',
+            'last_name.required' => 'حقل الاسم الأخير مطلوب.',
+            'gender.required' => 'حقل الجنس مطلوب.',
+            'birthday.required' => 'حقل تاريخ الميلاد مطلوب.',
+            'mobile.unique' => 'رقم الجوال مستخدم بالفعل. يرجى اختيار رقم آخر.',
+            'mobile.required' => 'حقل رقم الجوال مطلوب.',
+            'email.required' => 'حقل البريد الإلكتروني مطلوب.',
+            'email.unique' => 'البريد الالكتروني مستخد بالفعل .',
+            'password.required' => 'حقل كلمة المرور مطلوب.',
+            'password.min' => 'يجب أن تحتوي كلمة المرور على ما لا يقل عن 8 أحرف.',
+            'password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
+        ];
+    }
+    if ($currentLanguage === 'en') {
+        $errorMessages = [
+            'first_name.required' => 'The first name field is required.',
+            'last_name.required' => 'The last name field is required.',
+            'gender.required' => 'The gender field is required.',
+            'birthday.required' => 'The birthday field is required.',
+            'mobile.unique' => 'The mobile number is already in use. Please choose a different one.',
+            'mobile.required' => 'The mobile field is required.',
+            'email.required' => 'The email field is required.',
+            'password.required' => 'The password field is required.',
+            'password.min' => 'The password must be at least 8 characters.',
+            'password.confirmed' => 'The password confirmation does not match.',
+        ];
+    }
+
+
+    $customMessages = $errorMessages;
+
     $lang = $request->input('lang'); 
     // Validate the incoming request data
     $this->validate($request, [
@@ -50,7 +90,16 @@ public function update_profile(Request $request)
         'mobile' => 'required|string|max:20',
         'email' => 'required|string|email|max:255',
         'profile_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust file type and size as needed
-    ]);
+    ],$customMessages);
+    // Check if the provided mobile number is already in use by another user
+    $userWithMobile = User::where('mobile', $request->input('mobile'))->first();
+
+    if ($userWithMobile && $userWithMobile->id !== Auth::user()->id) {
+        // Redirect back with an error message
+        return redirect()->route('profile', ['lang' => $lang])
+            ->with('error', $customMessages)
+            ->withInput();
+    }
 
     // Update the user's profile information
     $user = User::where('email', $request->input('email'))->first();
@@ -83,8 +132,10 @@ public function update_profile(Request $request)
 
     // Save the updated user data
     $user->save();
+    $successMessage = ($currentLanguage === 'ar') ? 'تم تحديث الملف الشخصي بنجاح.' : 'Profile updated successfully.';
+
     // Redirect back to the profile page or wherever you want
-    return redirect()->route('profile', ['lang' => $lang])->with('success', 'Profile updated successfully');
+    return redirect()->route('profile', ['lang' => $lang])->with('success', $successMessage);
 }
 
 

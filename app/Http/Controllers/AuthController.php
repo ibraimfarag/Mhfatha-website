@@ -116,10 +116,10 @@ class AuthController extends Controller
 
         if ($mobileExists) {
             return redirect()->back()
-                ->with('error', 'Mobile number is already in use. Please choose a different one.')
+                ->with('error', $customMessages)
                 ->withInput();
         }
-        $mobile = str_replace('-', '', $request->mobile);
+        // $mobile = str_replace('-', '', $request->mobile);
 
         // Create a new user record
         User::create([
@@ -130,14 +130,17 @@ class AuthController extends Controller
             'birthday' => $request->birthday,
             'city' => $request->city,
             'region' => $request->region,
-            'mobile' => $mobile, // Store the cleaned mobile number
+            'mobile' => $request->mobile,
+            // 'mobile' => $mobile, // Store the cleaned mobile number
             'email' => $request->email,
             'is_vendor' => $request->is_vendor,
             'password' => Hash::make($request->password),
+            'photo' => 'default_user.png', // Set the default image path here
 
         ]);
+        $successMessage = ($currentLanguage === 'ar') ? 'تم التسجيل بنجاح.' : ' Registration successful!';
 
-        return redirect()->route('register', ['lang' => $lang])->with('success', 'Registration successful!');
+        return redirect()->route('register', ['lang' => $lang])->with('success',  $successMessage);
 
     
 

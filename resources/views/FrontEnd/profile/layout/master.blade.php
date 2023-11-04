@@ -116,4 +116,5 @@
 
 </script>
 
+@yield('sub-js')
 @endsection

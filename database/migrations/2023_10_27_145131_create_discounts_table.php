@@ -20,6 +20,9 @@ class CreateDiscountsTable extends Migration
             $table->string('category');
             $table->date('start_date');
             $table->date('end_date');
+            $table->string('discounts_status')->default('working'); // Default to 'working'
+            $table->boolean('is_deleted')->default(0); // 1 for active, 0 for inactive
+
             $table->timestamps();
     
             $table->foreign('store_id')->references('id')->on('stores');

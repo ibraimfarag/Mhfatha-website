@@ -38,12 +38,26 @@
 {{ app()->getLocale() === 'ar' ? 'المتاجر القريبة' : 'Nearby Stores' }}
 </a>
 </li>
+
+@if (Auth::user()->is_vendor)
 <li>
-<a class="nav-link scrollto user_sideBar" href="javascript:void(0);" onclick="loadManageStores">
+<a class="nav-link scrollto user_sideBar" href="{{ route('Stores.view',['lang' => app()->getLocale()]) }}#stores">
 <i class="fas fa-cog"></i>
 {{ app()->getLocale() === 'ar' ? 'ادارة المتاجر' : 'Manage Stores' }}
 </a>
 </li>
+@endif
+
+@if (Auth::user()->is_admin)
+<li>
+<a class="nav-link scrollto user_sideBar" href="{{ route('Stores.view',['lang' => app()->getLocale()]) }}#stores">
+<i class="fas fa-cog"></i>
+{{ app()->getLocale() === 'ar' ? 'ادارة ' : 'Manage ' }}
+</a>
+</li>
+@endif
+
+
 </ul>
 
 </nav><!-- .navbar -->

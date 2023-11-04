@@ -78,16 +78,18 @@ class PasswordController extends Controller
            'current_password' => 'required',
            'password' => 'required|string|min:8|confirmed',
        ],$customMessages);
-   
+       $successMessage = ($currentLanguage === 'ar') ? 'تم تغير كلمة السر بنجاح.' : ' Password changed successfully';
+       $incorrectMessage = ($currentLanguage === 'ar') ? 'كلمة السر الحالية غير صحيحة' : ' The current password is incorrect.';
+
        if (Hash::check($request->current_password, $user->password)) {
            $user->password = Hash::make($request->password);
            $user->save();
            
            event(new PasswordChanged($user));
    
-           return back()->with('success', 'Password changed successfullyy.');
+           return back()->with('success',  $successMessage);
        } else {
-           return back()->withErrors(['current_password' => 'The current password is incorrect.']);
+           return back()->withErrors(['current_password' => $incorrectMessage]);
        }
    }
 

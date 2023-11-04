@@ -28,6 +28,10 @@ class CreateStoresTable extends Migration
             $table->string('work_hours');
             $table->string('work_days');
             $table->boolean('status')->default(1); // 1 for active, 0 for inactive
+            $table->boolean('is_deleted')->default(0); // 1 for active, 0 for inactive
+            $table->boolean('verifcation')->default(0); // 1 for active, 0 for inactive
+            $table->boolean('is_bann')->default(0); // 1 for active, 0 for inactive
+            $table->text('bann_msg')->nullable();
             $table->timestamps();
     
             $table->foreign('user_id')->references('id')->on('users');

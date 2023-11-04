@@ -1,33 +1,88 @@
 <?php
-
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use app\Models\Discount;
-
+use App\Models\Discount;
+use App\Models\Store;
+use Illuminate\Support\Facades\App;
+use DataTables;
 class DiscountController extends Controller
 {
-    public function create()
+    public function index(Store $store, Request $request)
     {
-        return view('discounts.create');
+        $lang = $request->input('lang');
+
+        if ($lang && in_array($lang, ['en', 'ar'])) {
+            App::setLocale($lang);
+        }
+
+        $storeid = $request->input('storeid');
+        $store = Store::find($storeid);
+        $discounts = $store->discounts->where('is_deleted', 0);
+
+// dd($storeid);
+        return view('FrontEnd.profile.discounts.index', compact('store', 'discounts'));
+    }
+    public function index_api(Store $store, Request $request)
+    {
+        $lang = $request->input('lang');
+
+        if ($lang && in_array($lang, ['en', 'ar'])) {
+            App::setLocale($lang);
+        }
+
+        $storeid = $request->input('storeid');
+        $store = Store::find($storeid);
+        $discounts = $store->discounts->where('is_deleted', 0);
+
+// dd($storeid);
+return response()->json(['discounts' => $discounts]);
+}
+
+    public function create(Request $request)
+    {
+        $lang = $request->input('lang');
+        // $storeiD =  $request->input('storeid');
+        if ($lang && in_array($lang, ['en', 'ar'])) {
+            App::setLocale($lang);
+        }
+        $storeid = $request->input('storeid');
+        $store = Store::find($storeid);
+// dd($storeid);
+        return view('FrontEnd.profile.discounts.create',compact('store'));
     }
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            // Define validation rules for discount creation
+        
+
+    $currentLanguage = $request->input('lang');
+
+
+        $validator = Validator::make($request->all(), [
             'store_id' => 'required|exists:stores,id',
-            'percent' => 'required|numeric',
+            'percent' => 'required|numeric|min:0|max:100',
             'category' => 'required|string',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
-            // Add more fields as needed
+            'start_date' => 'required|date_format:Y-m-d',
+            'end_date' => 'required|date_format:Y-m-d|after:start_date',
         ]);
 
-        Discount::create($data);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
 
-        return redirect()->route('discounts.create')->with('success', 'Discount created successfully.');
+        $discount = Discount::create([
+            'store_id' => $request->store_id,
+            'percent' => $request->percent,
+            'category' => $request->category,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+        ]);
+
+
+
+        return response()->json(['message' => 'Discount created successfully', 'discount' => $discount], 201);
     }
 
     public function edit(Discount $discount)
@@ -37,24 +92,26 @@ class DiscountController extends Controller
 
     public function update(Request $request, Discount $discount)
     {
-        $data = $request->validate([
-            // Define validation rules for discount updates
+        $validator = Validator::make($request->all(), [
             'percent' => 'required|numeric',
             'category' => 'required|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
-            // Add more fields as needed
         ]);
 
-        $discount->update($data);
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $discount->update($request->all());
 
         return redirect()->route('discounts.edit', $discount)->with('success', 'Discount updated successfully.');
     }
 
-    public function destroy(Discount $discount)
+    public function destroy(Request $request, Discount $discount)
     {
-        $discount->delete();
-
-        return redirect()->route('discounts.create')->with('success', 'Discount deleted successfully.');
+        $discount->update(['is_deleted' => 1]);
+        $lang = $request->input('lang');
+        return back()->with('success', 'Discount deleted successfully')->with('lang', $lang);
     }
 }

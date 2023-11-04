@@ -21,6 +21,10 @@ class Store extends Model
         'work_hours',
         'work_days',
         'status',
+        'verifcation',
+        'is_bann',
+        'bann_msg',
+        "is_deleted",
     ];
 
     public function user()
@@ -31,5 +35,9 @@ class Store extends Model
     public function discounts()
     {
         return $this->hasMany(Discount::class);
+    }
+    public function userDiscounts()
+    {
+        return $this->hasMany(UserDiscount::class);
     }
 }
