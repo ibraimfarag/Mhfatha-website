@@ -1641,6 +1641,130 @@ border-radius: 60px; /* Add rounded corners */
 
 
 /*--------------------------------------------------------------
+# dashbord user Section
+--------------------------------------------------------------*/
+    /* CSS for the right sidebar */
+    .userdash{margin-top: 10vh;}
+    .userdash-form {
+      background-color: #04142d61;
+      padding: 50px 20px;
+      border-radius: 20px;
+      width: 90vw;
+      min-height: 100vh;
+      margin: 0 auto; /* Center horizontally */
+      justify-content: center; /* Center horizontally */
+      align-items: center; /* Center vertically */
+  }
+    .sidebar {
+      background-color: transparent;
+      padding: 10px;
+      /* Add more styles as needed */
+  }
+  .sidebar ul {
+      list-style: none;
+      border-right: 3px solid #ffffff0f;
+  height: 80vh;
+  padding-left: 50px;
+  }
+
+  .sidebar li {
+      margin-bottom: 10px;
+  }
+  .user_sideBar{
+    display: inline-block !important;
+  }
+  .user_sideBar a i{
+    font-size: 25px !important;
+  }
+  @media (min-width: 1280px) {
+    .user_sideBar{
+      display: inline-block !important;
+    }
+  }
+  /* CSS for the left panel */
+  #left-panel {
+      background-color: transparent;
+      padding: 20px;
+  }
+  .transparent{
+    background-color: transparent !important;
+    --bs-table-bg: transparent !important;
+  }
+    .gradient-card {
+      background-color: #1346975e;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+    }
+    .gradient-card p{
+font-size: 2rem;
+    }
+    .dashcard_icon{
+      font-size: 4rem;
+    }
+.profile-info h1,h2,h3,h4,h5{
+  color: var(--color-primary);
+}
+.update-user{
+  background-color: transparent !important;
+  border: none !important;
+}
+.image-preview{
+  width: 15vw !important;
+  background-color: transparent !important;
+  border: none !important;
+}
+.button_dash{
+  /* background-color: #fff; */
+  color: #fff !important;
+  font-size: 1.2rem !important;
+  font-family: var(--font-secondary) !important;
+  height: 5vh !important;
+  border-radius: 19px !important;
+  min-width: 7vw !important;
+
+}
+.float-left {
+ float: left;
+}
+.float-right {
+ float: right;
+}
+/*--------------------------------------------------------------
+# stores Section
+--------------------------------------------------------------*/
+.noBorder{    border: none !important;}
+.transparent th{
+  color: var(--color-primary);
+  font-family: var(--font-secondary) !important;
+  font-weight: lighter;
+
+}
+.light-row {
+  background-color: #021431eb; /* Light color */
+}
+.light-row td , 
+.dark-row td
+{
+  color: var(--color-primary);
+  font-family: var(--font-secondary) !important;
+  font-weight: lighter;
+  border: none !important;
+}
+
+.dark-row {
+  background-color: #011027; /* Dark color */
+  border: none !important;
+}
+
+.text-green {
+  color: #9de99d;
+}
+
+.text-red {
+  color: red;
+}
+/*--------------------------------------------------------------
 # Contact Section
 --------------------------------------------------------------*/
 .contact .map {

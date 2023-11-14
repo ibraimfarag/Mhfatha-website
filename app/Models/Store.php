@@ -20,11 +20,16 @@ class Store extends Model
         'count_times',
         'work_hours',
         'work_days',
+        'city',
+        'region',
+        'latitude',
+        'longitude',
         'status',
         'verifcation',
         'is_bann',
         'bann_msg',
         "is_deleted",
+        
     ];
 
     public function user()
@@ -40,4 +45,7 @@ class Store extends Model
     {
         return $this->hasMany(UserDiscount::class);
     }
+
+
+
 }

@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DiscountController;
+use App\Http\Controllers\UserDiscountController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,5 +19,6 @@ use App\Http\Controllers\DiscountController;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::post('/discounts-post', [UserDiscountController::class, 'postUserDiscount'])->name('discounts.post.api');
 
     Route::get('/discounts', [DiscountController::class, 'index_api'])->name('discounts.index.api');

@@ -33,26 +33,46 @@
 </a>
 </li>
 <li>
-<a class="nav-link scrollto user_sideBar" href="javascript:void(0);" onclick="loadNearbyStores">
-<i class="fas fa-store"></i>
-{{ app()->getLocale() === 'ar' ? 'المتاجر القريبة' : 'Nearby Stores' }}
-</a>
+    <a class="nav-link scrollto user_sideBar" href="#" onclick="watchUserLocation()">
+        <i class="fas fa-store"></i>
+        {{ app()->getLocale() === 'ar' ? 'المتاجر القريبة' : 'Nearby Stores' }}
+    </a>
 </li>
-
-@if (Auth::user()->is_vendor)
+    
+@if (Auth::user()->is_vendor || Auth::user()->is_admin)
 <li>
 <a class="nav-link scrollto user_sideBar" href="{{ route('Stores.view',['lang' => app()->getLocale()]) }}#stores">
 <i class="fas fa-cog"></i>
 {{ app()->getLocale() === 'ar' ? 'ادارة المتاجر' : 'Manage Stores' }}
 </a>
 </li>
+
+<li>
+    <a class="nav-link scrollto user_sideBar" href="{{ route('Stores.view',['lang' => app()->getLocale()]) }}#orders">
+        <i class="fas fa-shopping-cart"></i>
+        {{ app()->getLocale() === 'ar' ? 'طلبات المبيعات' : 'Sales Orders' }}
+        <span id="salesOrderBadge" class="badge badge-Warning"></span>
+    </a>
+</li>
+
+<li>
+    <a class="nav-link scrollto user_sideBar" href="{{ route('Stores.view',['lang' => app()->getLocale()]) }}#messages">
+        <i class="fas fa-envelope"></i>
+        {{ app()->getLocale() === 'ar' ? 'رسائل' : 'Messages' }}
+        <span id="messagesBadge" class="badge badge-danger"></span>
+    </a>
+</li>
 @endif
 
 @if (Auth::user()->is_admin)
 <li>
-<a class="nav-link scrollto user_sideBar" href="{{ route('Stores.view',['lang' => app()->getLocale()]) }}#stores">
-<i class="fas fa-cog"></i>
-{{ app()->getLocale() === 'ar' ? 'ادارة ' : 'Manage ' }}
+<a class="nav-link scrollto user_sideBar" href="{{ route('users.index',['lang' => app()->getLocale()]) }}#UsersList">
+    <i class="fa-solid fa-users-gear"></i>{{ app()->getLocale() === 'ar' ? 'ادارة المستخدمين ' : 'Manage users ' }}
+</a>
+</li>
+<li>
+<a class="nav-link scrollto user_sideBar" href="{{ route('discounts.admin.view',['lang' => app()->getLocale()]) }}#discountsall">
+    <i class="fa-solid fa-percent"></i>{{ app()->getLocale() === 'ar' ? ' الخصومات ' : 'Discounts ' }}
 </a>
 </li>
 @endif
@@ -67,3 +87,5 @@
 </div>
 
 </div>
+
+

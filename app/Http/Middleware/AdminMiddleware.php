@@ -20,7 +20,7 @@ class AdminMiddleware
         return $next($request);
     }
 
-    return redirect('/'); // Redirect to the home page or another route if not an admin.
+    return redirect('/error'); // Redirect to the home page or another route if not an admin.
 }
 
 }

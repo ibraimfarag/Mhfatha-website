@@ -33,7 +33,6 @@
     </div></div>
 
 
-
                     </div>
                        
                 </div>    
@@ -47,6 +46,7 @@
           </div>
   
         </div>
+        
       </section>
       <!-- End Login Section -->
 
@@ -116,5 +116,161 @@
 
 </script>
 
-@yield('sub-js')
+<script>
+
+// Function to update badge counts and play notification sound if counts change
+function updateBadgeCounts() {
+    // Make an AJAX request to get real-time badge counts
+    $.ajax({
+        url: '/get-badge-counts', // Adjust the URL based on your application structure
+        method: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            // Get the current badge counts from the DOM
+            const currentSalesOrderCount = parseInt($('#salesOrderBadge').text());
+            const currentMessagesCount = parseInt($('#messagesBadge').text());
+
+            // Check if the counts have changed
+            if (data.salesOrderBadgeCount !== currentSalesOrderCount) {
+                playNotificationSound(); // Play the notification sound
+            }
+            if (data.messagesBadgeCount !== currentMessagesCount) {
+                playNotificationSound(); // Play the notification sound
+            }
+
+            // Update badge counts in the DOM
+            $('#salesOrderBadge').text(data.salesOrderBadgeCount);
+            $('#messagesBadge').text(data.messagesBadgeCount);
+        },
+        error: function (error) {
+            console.error('Error fetching badge counts:', error);
+        }
+    });
+}
+
+// Function to play the notification sound
+function playNotificationSound() {
+    const audio = new Audio('/FrontEnd/assets/sounds/wr.mp3'); // Adjust the path to your notification sound
+    audio.play();
+}
+
+// Update badge counts on page load
+$(document).ready(function () {
+    updateBadgeCounts();
+});
+
+// Schedule periodic updates (e.g., every 1 minute)
+setInterval(updateBadgeCounts, 2000); // Adjust the interval as needed
+
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js" integrity="sha512-7U4rRB8aGAHGVad3u2jiC7GA5/1YhQcQjxKeaVms/bT66i3LVBMRcBI9KwABNWnxOSwulkuSXxZLGuyfvo7V1A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('Document is ready.');
+
+        // Fetch data for the chart from the server
+        const fetchDataForChart = async (timePeriod) => {
+            try {
+                const response = await fetch(`/vendor/discount-chart-data/${timePeriod}`); // Adjust the route accordingly
+                const data = await response.json();
+    
+                // Ensure the response is in the expected format
+                if (data.success) {
+                    // Extract labels and dataset values from the response
+                    const labels = data.labels;
+                    const datasetValues = data.dataset;
+    
+                    // Render the chart
+                    renderChart(labels, datasetValues);
+                } else {
+                    console.error('Failed to fetch data for the chart.');
+                }
+            } catch (error) {
+                console.error('Error fetching data for the chart:', error);
+            }
+        };
+    
+        // Function to render the chart
+        const renderChart = (labels, datasetValues) => {
+            const ctx = document.getElementById('discountChart').getContext('2d');
+    
+            const chart = new Chart(ctx, {
+                type: 'line', // Choose the chart type (line chart in this case)
+                data: {
+                    labels: labels, // X-axis labels (e.g., days, weeks, months)
+                    datasets: [{
+                        label: 'Total After Discount', // Dataset label
+                        data: datasetValues, // Y-axis values
+                        fill: false, // Disable fill beneath the line
+                        borderColor: 'rgba(75, 192, 192, 1)', // Line color
+                        borderWidth: 2, // Line width
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'time', // Specify time as the x-axis scale
+                            time: {
+                                unit: 'day', // Adjust the time unit (day, week, month, year, seven years)
+                            },
+                        },
+                        y: {
+                            beginAtZero: true,
+                        },
+                    },
+                },
+            });
+        };
+    
+        // Initialize the chart with a default time period (e.g., 'week')
+        fetchDataForChart('week');
+    
+        // Add event listeners to update the chart based on the selected time period
+        document.getElementById('selectTimePeriod').addEventListener('change', function () {
+            const selectedTimePeriod = this.value;
+            fetchDataForChart(selectedTimePeriod);
+        });
+    });
+    </script>
+    <script>
+        let watchId; // Variable to store the watchPosition ID
+    
+        function watchUserLocation() {
+            if (navigator.geolocation) {
+                // Start watching the user's location
+                watchId = navigator.geolocation.watchPosition(
+                    function(position) {
+                        const userLatitude = position.coords.latitude;
+                        const userLongitude = position.coords.longitude;
+    
+                        // Redirect to the nearby stores page with parameters
+                        window.location.href = `{{ route('stores.nearby') }}?lang={{ app()->getLocale() }}&user_latitude=${userLatitude}&user_longitude=${userLongitude}`;
+                    },
+                    function(error) {
+                        console.error('Error getting user location:', error.message);
+                        // Handle the error, show a message, or provide an alternative action
+                    }
+                );
+            } else {
+                console.error('Geolocation is not supported by this browser.');
+                // Handle the case where geolocation is not supported
+            }
+        }
+    
+        // Optional: Stop watching the user's location when they navigate away
+        window.addEventListener('beforeunload', function() {
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+            }
+        });
+    </script>
+    
+
+    @yield('sub-js')
 @endsection

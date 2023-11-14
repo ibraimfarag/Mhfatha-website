@@ -131,7 +131,6 @@ class AuthController extends Controller
             'city' => $request->city,
             'region' => $request->region,
             'mobile' => $request->mobile,
-            // 'mobile' => $mobile, // Store the cleaned mobile number
             'email' => $request->email,
             'is_vendor' => $request->is_vendor,
             'password' => Hash::make($request->password),

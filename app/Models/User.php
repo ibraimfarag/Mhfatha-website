@@ -40,4 +40,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Store::class);
     }    
+    public function userDiscounts()
+{
+    return $this->hasMany(UserDiscount::class);
+}
 }

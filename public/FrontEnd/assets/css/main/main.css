@@ -615,7 +615,8 @@ section {
 
 .grad {
 
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1),rgba(0, 0, 0, 1),rgba(0, 0, 0, 1),rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+          mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 1), rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 1), rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
 }
 .hero-animated {
   width: 100%;
@@ -1837,7 +1838,7 @@ border-radius: 60px; /* Add rounded corners */
       padding: 50px 20px;
       border-radius: 20px;
       width: 90vw;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0 auto; /* Center horizontally */
       justify-content: center; /* Center horizontally */
       align-items: center; /* Center vertically */
@@ -1897,7 +1898,7 @@ font-size: 2rem;
   border: none !important;
 }
 .image-preview{
-  width: 15vw !important;
+  max-width: 15vw !important;
   background-color: transparent !important;
   border: none !important;
 }
@@ -1950,6 +1951,116 @@ font-size: 2rem;
 
 .text-red {
   color: red;
+}
+.reason-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.reason-tooltip .fa-circle-question {
+  cursor: pointer;
+}
+
+.reason-tooltip .tooltip {
+  position: absolute;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 14px;
+  white-space: nowrap;
+  pointer-events: none;
+  display: none;
+}
+
+.reason-tooltip .tooltip.show {
+  display: block;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               BUTTONS                                     */
+/* -------------------------------------------------------------------------- */
+.alert-danger {
+  --bs-alert-color: #e7142a !important;
+  --bs-alert-bg: none !important;
+  --bs-alert-border-color: none !important;
+  --bs-alert-link-color: none !important;
+}
+
+
+/* --------------------------------- alerts --------------------------------- */
+.card_bg{
+  font-size: 152px;
+  color: #fff;
+  opacity: 0.05;
+  position: absolute;
+  top: 25%;
+  width: 15vw;
+}
+.card_nearby h4{padding: 3vh 0;
+  text-align: center;
+}
+.card_nearby p{padding: 3vh 0;
+  text-align: center;
+  color:var(--color-primary)
+}
+.card_nearby{
+  background-color: #121f33;
+  width: 100%;
+  border-radius: 15px;
+  border: none;
+}
+
+#pagination{
+  display: flex;
+  justify-content: center;
+}
+.blocks{
+  width: 40px;
+  line-height: 40px;
+  text-align: center;
+  border: 1px solid #dddddd26;
+  display: inline-block;
+  text-decoration: none;
+  color: #fff;
+}
+.blocks:not(:first-child){
+  margin-left: 5px;
+}
+.blocks:first-child{
+  /* border-radius: 10px 0 0 10px; */
+}
+.blocks:last-child{
+  /* border-radius: 0 10px 10px 0; */
+}
+.blocks:hover{
+  background-color: #DDDDDD;
+}
+#pagination a.active{
+  background-color: #01102799;
+}
+
+
+.qr_show {
+  width: 200px;
+  position: relative;
+  float: left;
+  margin: -70px 0px 0 50px;
+  background-color: #00000054!important;
+  border-radius: 0 0 30px 30px;
+  padding-top: 20px;
+  border: 10px solid #00000000 !important;
+  border-top: none !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  flex-direction: column
+}
+
+.qr_show img {
+  width: 90% !important;
 }
 /*--------------------------------------------------------------
 # Contact Section

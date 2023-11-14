@@ -207,8 +207,14 @@
                         </tr>
                         @php $rowColor = !$rowColor; @endphp
                     @endforeach
+                    
                 </tbody>
             </table>
+            <div id="pagination">
+                {{ $userStores->links('custom.pagination') }}
+            </div>
+
+
         </div>
     @endif
 @endsection

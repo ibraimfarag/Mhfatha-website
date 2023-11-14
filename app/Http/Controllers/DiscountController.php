@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Discount;
 use App\Models\Store;
+use App\Models\User;
+use App\Models\UserDiscount;
 use Illuminate\Support\Facades\App;
 use DataTables;
 class DiscountController extends Controller
@@ -24,7 +26,24 @@ class DiscountController extends Controller
 // dd($storeid);
         return view('FrontEnd.profile.discounts.index', compact('store', 'discounts'));
     }
-    public function index_api(Store $store, Request $request)
+    public function getBadgeCounts()
+    {
+        $userId = auth()->id();
+
+        // Your logic to get real-time badge counts
+        $salesOrderBadgeCount = UserDiscount::whereHas('store.user', function ($query) use ($userId) {
+                $query->where('id', $userId);
+            })
+            ->where('status', 3)
+            ->count();
+        // Set a fixed value for messages badge count (5 in this case)
+        $messagesBadgeCount = 5;
+
+        return response()->json([
+            'salesOrderBadgeCount' => $salesOrderBadgeCount,
+            'messagesBadgeCount' => $messagesBadgeCount,
+        ]);
+    }    public function index_api(Store $store, Request $request)
     {
         $lang = $request->input('lang');
 

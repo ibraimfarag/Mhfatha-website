@@ -14,6 +14,11 @@ class UserDiscount extends Model
         'total_payment',
         'after_discount',
         'date',
+        'status',
+        'reason',
+        'obtained_status',
+        'obtained',
+        'notes',
     ];
 
     public function store()

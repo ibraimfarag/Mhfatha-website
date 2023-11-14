@@ -21,6 +21,11 @@ class CreateUserDiscountsTable extends Migration
             $table->decimal('total_payment', 10, 2);
             $table->decimal('after_discount', 10, 2);
             $table->date('date');
+            $table->unsignedTinyInteger('status')->default(0);
+            $table->text('reason')->nullable();
+            $table->unsignedTinyInteger('obtained_status')->default(0);
+            $table->decimal('obtained', 10, 2)->default(0.00);
+            $table->text('notes')->nullable();
             $table->timestamps();
     
             $table->foreign('store_id')->references('id')->on('stores');
