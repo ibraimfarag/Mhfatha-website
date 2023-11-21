@@ -75,6 +75,12 @@
     <i class="fa-solid fa-percent"></i>{{ app()->getLocale() === 'ar' ? ' الخصومات ' : 'Discounts ' }}
 </a>
 </li>
+<li>
+<a class="nav-link scrollto user_sideBar" href="{{ route('GeneralSection',['lang' => app()->getLocale()]) }}#settings">
+    <i class="fa-solid fa-screwdriver-wrench"></i>{{ app()->getLocale() === 'ar' ? ' الاعدادات ' : 'Settings ' }}
+</a>
+</li>
+
 @endif
 
 

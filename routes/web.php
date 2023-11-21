@@ -9,6 +9,7 @@ use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\UserDiscountController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\DiscountController;
+use App\Http\Controllers\WebsiteManagerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -104,6 +105,15 @@ Route::middleware(['admin'])->group(function () {
 
 
 
+
+    Route::prefix('admin/cpanel/sections')->group(function () {
+        Route::get('/general', [WebsiteManagerController::class, 'GeneralSection'])->name('GeneralSection');
+        Route::get('/hero', [WebsiteManagerController::class, 'HeroSection'])->name('HeroSection');
+        Route::get('/about', [WebsiteManagerController::class, 'AboutSection'])->name('AboutSection');
+        Route::get('/advantages', [WebsiteManagerController::class, 'AdvantagesSection'])->name('AdvantagesSection');
+        Route::get('/app', [WebsiteManagerController::class, 'AppSection'])->name('AppSection');
+        Route::put('/update', [WebsiteManagerController::class, 'update'])->name('Section.update');
+    });
     
 
 });

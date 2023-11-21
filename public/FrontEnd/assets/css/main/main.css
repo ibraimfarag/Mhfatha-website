@@ -611,7 +611,16 @@ section {
 /*--------------------------------------------------------------
 # Animated Hero Section
 --------------------------------------------------------------*/
+.collapse_sidebar{
 
+  height: auto !important;
+  border-left:none !important;
+  padding-right: 50px !important;
+  flex-direction: column;
+}
+.collapse_sidebar li{
+  border-bottom: 1px solid #ffffff14
+}
 
 .grad {
 
@@ -2387,4 +2396,42 @@ font-size: 2rem;
 .footer .footer-legal .social-links a:hover {
   background: var(--color-primary);
   text-decoration: none;
+}
+
+
+
+
+
+.multi-search-filter{
+  border:1px solid #DDD;
+  border-radius: 3px;
+  padding:3px;
+  min-height: 26px;
+}
+.multi-search-filter > input {
+  border: 0px;
+  outline: none;
+  font-size: 20px;
+}
+.multi-search-item {
+  margin: 2px;
+  padding: 2px 24px 2px 8px;
+  float: left;
+  display: flex;
+  background-color: rgb(204, 204, 204);
+  color: rgb(51, 51, 51);
+  border-radius: 3px;
+  position: relative;
+}
+.multi-search-item > span {
+  font-family: 'Muli';
+  line-height: 18px;
+}
+.multi-search-item > .fa {
+  font-size: 12px;
+  line-height: 18px;
+  margin-left: 8px;
+  position: absolute;
+  right: 8px;
+  top: 2px;
 }
