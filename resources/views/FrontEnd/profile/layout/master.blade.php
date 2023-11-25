@@ -151,7 +151,7 @@ function updateBadgeCounts() {
 // Function to play the notification sound
 function playNotificationSound() {
     const audio = new Audio('/FrontEnd/assets/sounds/wr.mp3'); // Adjust the path to your notification sound
-    audio.play();
+    // audio.play();
 }
 
 // Update badge counts on page load

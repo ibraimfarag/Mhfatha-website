@@ -7,7 +7,8 @@ use  App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -37,7 +38,7 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             // Authentication passed
             Session::put('user_id', Auth::user()->id); // Create a session variable
-
+                
             return redirect()->intended('/dashboard' . '?lang=' . $currentLanguage);        }
     
         // Authentication failed, redirect back with an error message
@@ -151,5 +152,72 @@ class AuthController extends Controller
     Session::forget('user_id'); // Clear the user's session data
     return back(); // Redirect to the login page
 }
+
+
+
+
+
+// /* -------------------------------------------------------------------------- */
+// /* ----------------------------------- api ---------------------------------- */
+// /* -------------------------------------------------------------------------- */
+
+public function login_api(Request $request)
+{
+    $credentials = $request->only('email_or_mobile', 'password');
+    
+    // Determine whether the input is an email or a mobile number
+    $field = filter_var($request->input('email_or_mobile'), FILTER_VALIDATE_EMAIL) ? 'email' : 'mobile';
+
+    // Add the field name to the credentials array
+    $credentials[$field] = $request->input('email_or_mobile');
+    unset($credentials['email_or_mobile']);
+
+    // Attempt to log in the user
+    if (Auth::attempt($credentials)) {
+        // Authentication passed, generate and return a bearer token
+        $token = Str::random(60);
+        $user = Auth::user();
+        $user->api_token = $request->bearerToken();
+        
+
+        return response()->json([
+            'token' => $token,
+            'success' => true,
+            'message' => 'Login successful',
+            'user' => Auth::user(),
+
+        
+        ], 200);
+    }
+
+    // Authentication failed, return an error response
+    return response()->json(['error' => 'Invalid credentials'], 401);
+}
+
+
+public function register_api(Request $request)
+{
+    try {
+        $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        // Create a new user record
+        $user = User::create([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        return response()->json(['user' => $user, 'message' => 'Registration successful']);
+    } catch (ValidationException $e) {
+        return response()->json(['errors' => $e->errors()], 422);
+    }
+}
+
 
 }

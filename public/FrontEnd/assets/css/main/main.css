@@ -2435,3 +2435,20 @@ font-size: 2rem;
   right: 8px;
   top: 2px;
 }
+
+.border-box {
+    border: 4px solid #dddddd0f;
+    border-radius: 32px;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+.image-preview-genral {
+  max-width: 10vw !important;
+  background-color: transparent !important;
+  border: none !important;
+  
+}

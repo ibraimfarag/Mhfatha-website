@@ -8,7 +8,7 @@
         
       <a href="/" class="logo d-flex align-items-center scrollto me-auto me-lg-0">
         <!-- Uncomment the line below if you also wish to use an image logo -->
-        <img src="{{ asset('/FrontEnd/assets/images/logo/logo.png') }}" alt="">
+        <img src="{{ $site_logo }}" alt="site logo">
 
       </a>
         <ul>

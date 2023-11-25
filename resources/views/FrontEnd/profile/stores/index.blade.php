@@ -122,6 +122,9 @@
                     @endforeach
                 </tbody>
             </table>
+            <div id="pagination">
+                {{ $userStores->links('custom.pagination') }}
+            </div>
         </div>
     @else
         {{-- /* -------------------------------------------------------------------------- */ --}}

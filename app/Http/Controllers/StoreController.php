@@ -50,7 +50,7 @@ class StoreController extends Controller
             if ($request->has('status') && $request->input('status') === null) {
                 $query->getQuery()->orders = [];
             }
-            $userStores = $query->paginate(10);
+            $userStores = $query->paginate(5);
         } else {
             // User is not an admin, return stores associated with their user ID
             $userStores = Store::where('user_id', $user->id)->where('is_deleted', 0)->paginate(10);

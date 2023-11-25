@@ -8,7 +8,7 @@
     <!-- Common Meta Tags -->
     <title>{{ app()->getLocale() === 'ar' ? $site_title_ar : $site_title_en }} @yield('title')</title>
     <meta name="description" content="{{ app()->getLocale() === 'ar' ? $site_title_ar : $site_title_en }}">
-    <meta name="keywords" content="Your, Keywords, Here">
+    <meta name="keywords" content="{{ app()->getLocale() === 'ar' ? $site_meta_keywords_ar : $site_meta_keywords_en }}">
 
     <!-- Open Graph Meta Tags (Facebook, Twitter, LinkedIn, etc.) -->
     <meta property="og:title" content="{{ app()->getLocale() === 'ar' ? $site_description_ar : $site_description_en }}">
@@ -22,6 +22,9 @@
     <meta name="twitter:title" content="{{ app()->getLocale() === 'ar' ? $site_title_ar : $site_title_en }} @yield('title')">
     <meta name="twitter:description" content="{{ app()->getLocale() === 'ar' ? $site_description_ar : $site_description_en }}">
     <meta name="twitter:image" content="URL to your Twitter image">
+
+    <link rel="icon" href="{{ $site_favicon }}" type="image/x-icon">
+
 
     @include('FrontEnd.layouts.css')
 

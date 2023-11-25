@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\WebsiteManager;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\File;
 
 
 class WebsiteManagerController extends Controller
@@ -96,24 +97,59 @@ public function update(Request $request)
         'site_description.en' => 'required|string',
         'site_meta_keywords.ar' => 'string',
         'site_meta_keywords.en' => 'string',
-            'site_logo' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Example rule for site logo, adjust as needed
+        'site_meta_keywords.en' => 'string',
+        'site_meta_keywords.en' => 'string',
+        'map_distance' => 'string',
+        'commission' => 'string',
+        
         // Add rules for other fields in the General section
     ];
 
     // Validate and update the fields
     $validatedData = $request->validate($rules);
     
-    // Additional processing for specific fields (e.g., uploading files)
-    if ($request->hasFile('site_logo')) {
-        $logoPath = $request->file('site_logo')->store('logos', 'public');
-        dd($logoPath); // Add this line to check the path
-        $validatedData['site_logo'] = $logoPath;
+ 
+
+    if ($request->hasFile('site_favicon')) {
+        // Delete the old favicon image (if it exists)
+        if ($websiteManager->site_favicon) {
+            $oldFaviconPath = public_path('FrontEnd\assets\images\logos' . $websiteManager->site_favicon);
+            if (File::exists($oldFaviconPath)) {
+                File::delete($oldFaviconPath);
+            }
+        }
+    
+        // Store the new favicon image
+        $favicon = $request->file('site_favicon');
+        $faviconName = time() . '_favicon.' . $favicon->getClientOriginalExtension();
+        $favicon->move(public_path('FrontEnd\assets\images\logos'), $faviconName);
+        $websiteManager->site_favicon = $faviconName;
     }
+    
+    if ($request->hasFile('site_logo')) {
+        // Delete the old logo image (if it exists)
+        if ($websiteManager->site_logo) {
+            $oldLogoPath = public_path('FrontEnd\assets\images\logos' . $websiteManager->site_logo);
+            if (File::exists($oldLogoPath)) {
+                File::delete($oldLogoPath);
+            }
+        }
+    
+        // Store the new logo image
+        $logo = $request->file('site_logo');
+        $logoName = time() . '_logo.' . $logo->getClientOriginalExtension();
+        $logo->move(public_path('FrontEnd\assets\images\logos'), $logoName);
+        $websiteManager->site_logo = $logoName;
+    }
+    
+    
+
     
     // Update the Website Manager record
     $websiteManager->update($validatedData);
     // dd(session()->all());
     return redirect()->back()->with('success', __('Website Manager information updated successfully.'), ['lang' => $request->input('lang')]);
 }
+
 
 }
