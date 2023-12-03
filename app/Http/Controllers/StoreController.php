@@ -58,7 +58,6 @@ class StoreController extends Controller
 
         return view('FrontEnd.profile.stores.index', ['userStores' => $userStores, 'lang' => $lang]);
     }
-
     public function create(Request $request)
     {
         $lang = $request->input('lang');
@@ -94,7 +93,6 @@ class StoreController extends Controller
         $store->qr = $filename;
         $store->save();
     }
-
     private function mergeImages($backgroundPath, $qrPath, $outputPath, $qrSize = 100, $qrPosition = ['x' => 0, 'y' => 0])
     {
         // Load the background image
@@ -112,7 +110,6 @@ class StoreController extends Controller
         // Save the merged image to the output path
         $background->save($outputPath);
     }
-
     public function downloadMergedImage($storeId)
     {
         // Get the store information (adjust the logic to fit your needs)
@@ -134,8 +131,6 @@ class StoreController extends Controller
         // Download the merged image
         return response()->download($outputPath, 'merged_image.png');
     }
-
-
     public function store(Request $request)
     {
         $lang = $request->input('lang'); // Get the 'lang' parameter from the request
@@ -230,8 +225,6 @@ class StoreController extends Controller
 
         return redirect()->route('Stores.view', ['lang' => $lang])->with('success', 'Store Added Successfully.');
     }
-
-    // Helper function to handle store image upload
     private function handleStoreImageUpload($store, $image)
     {
         // Delete the old store image (if it exists)
@@ -247,8 +240,6 @@ class StoreController extends Controller
         $image->move(public_path('FrontEnd\assets\images\store_images'), $imageName);
         $store->photo = $imageName;
     }
-
-
     public function edit(Request $request)
     {
         $lang = $request->input('lang');
@@ -363,14 +354,9 @@ class StoreController extends Controller
         // Pass the nearby stores to the Blade view
         return view('FrontEnd.profile.nearstores', ['nearbyStores' => $nearbyStores]);
     }
-
     public function nearbyApi(Request $request)
     {
-        $lang = $request->input('lang');
-
-        if ($lang && in_array($lang, ['en', 'ar'])) {
-            App::setLocale($lang);
-        }
+      
 
         // Get the user's location from the request (assuming you're passing it from the front end)
         $userLatitude = $request->input('user_latitude');
@@ -392,16 +378,33 @@ class StoreController extends Controller
         // Convert distance to a more readable format
         foreach ($nearbyStores as $store) {
             if ($store->distance < 1.0) {
-                $store->distance = number_format($store->distance * 1000, 1, '.', '') . ' ' . ($lang === 'ar' ? 'م' : 'm');
+                $store->distance = number_format($store->distance * 1000, 1, '.', '') . ' ' . ('m');
             } else {
-                $store->distance = number_format($store->distance, 1, '.', '') . ' ' . ($lang === 'ar' ? 'كم' : 'km');
+                $store->distance = number_format($store->distance, 1, '.', '') . ' ' . ('km');
             }
         }
 
         // Return the nearby stores as JSON response
         return response()->json(['nearbyStores' => $nearbyStores]);
     }
+    public function storeInfoApi(Request $request)
+    {
+        $storeId = $request->json('id');
 
+        $store = Store::with(['Discounts' => function ($query) {
+            $query->where('Discounts_status', 'working')->where('is_deleted', 0);
+        }])->find($storeId);
+
+        if (!$store) {
+            return response()->json(['error' => 'Store not found'], 404);
+        }
+
+        if ($store->Discounts->isEmpty()) {
+            return response()->json(['store' => $store, 'message' => 'No discounts available for this store']);
+        }
+
+        return response()->json(['store' => $store]);
+    }
     public function verify(Request $request, Store $store)
     {
         $lang = $request->input('lang');

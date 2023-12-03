@@ -31,7 +31,8 @@ Route::post('/login-post', [AuthController::class, 'login_api']);
 
 Route::post('/register-post', [AuthController::class, 'register_api']);
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware('auth:api')->group(function () {
 
     Route::post('/nearby', [StoreController::class, 'nearbyApi']);
+    Route::post('/store', [StoreController::class, 'storeInfoApi']);
 });

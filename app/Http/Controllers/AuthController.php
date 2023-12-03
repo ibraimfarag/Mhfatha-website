@@ -164,36 +164,31 @@ class AuthController extends Controller
     {
         $credentials = $request->only('email_or_mobile', 'password');
 
-        // Determine whether the input is an email or a mobile number
         $field = filter_var($request->input('email_or_mobile'), FILTER_VALIDATE_EMAIL) ? 'email' : 'mobile';
 
-        // Add the field name to the credentials array
         $credentials[$field] = $request->input('email_or_mobile');
         unset($credentials['email_or_mobile']);
 
-        // Attempt to log in the user
         if (Auth::attempt($credentials)) {
-            // Authentication passed, generate and return a bearer token
             $token = Str::random(60);
+
             /** @var \App\Models\User $user **/
 
             $user = Auth::user();
-            $user->api_token = $request->bearerToken();
             $success['token'] =  $user->createToken('ApiToken')->accessToken;
 
 
             return response()->json([
-                'token' => $token,
+          
+                'token' => $success['token'],
                 'success' => true,
                 'message' => 'Login successful',
                 'user' => Auth::user(),
-                'new tok' => $success['token']
 
 
             ], 200);
         }
 
-        // Authentication failed, return an error response
         return response()->json(['error' => 'Invalid credentials'], 401);
     }
 
