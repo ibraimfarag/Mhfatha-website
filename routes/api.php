@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\UserDiscountController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\StoreController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,10 +23,15 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 Route::post('/discounts-post', [UserDiscountController::class, 'postUserDiscount'])->name('discounts.post.api');
 
-    Route::get('/discounts', [DiscountController::class, 'index_api'])->name('discounts.index.api');
+Route::get('/discounts', [DiscountController::class, 'index_api'])->name('discounts.index.api');
 
 
-    Route::post('/login-post', [AuthController::class, 'login_api']);
+Route::post('/login-post', [AuthController::class, 'login_api']);
 
 
-    Route::post('/register-post', [AuthController::class, 'register_api']);
+Route::post('/register-post', [AuthController::class, 'register_api']);
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::post('/nearby', [StoreController::class, 'nearbyApi']);
+});

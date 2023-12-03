@@ -14,8 +14,11 @@
         "guzzlehttp/guzzle": "^7.0.1",
         "intervention/image": "^2.7",
         "laravel/framework": "^8.0",
+        "laravel/passport": "^10.4",
         "laravel/tinker": "^2.0",
         "laravelcollective/html": "^6.4",
+        "league/oauth2-server": "^8.2",
+        "psr/http-message": "^1.0.1",
         "simplesoftwareio/simple-qrcode": "^4.2"
     },
     "require-dev": {

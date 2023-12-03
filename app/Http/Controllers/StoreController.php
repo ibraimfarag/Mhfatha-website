@@ -99,42 +99,42 @@ class StoreController extends Controller
     {
         // Load the background image
         $background = Image::make($backgroundPath);
-    
+
         // Load the QR code image
         $qrCode = Image::make($qrPath);
-    
+
         // Resize the QR code to the specified size
         $qrCode->resize($qrSize, $qrSize);
-    
+
         // Paste the QR code onto the background at the specified position
         $background->insert($qrCode, 'top-left', $qrPosition['x'], $qrPosition['y']);
-    
+
         // Save the merged image to the output path
         $background->save($outputPath);
-    }    
+    }
 
     public function downloadMergedImage($storeId)
     {
         // Get the store information (adjust the logic to fit your needs)
         $store = Store::find($storeId);
-    
+
         // Paths
         $backgroundPath = public_path('FrontEnd/assets/images/banner/background.png');
         $qrCodePath = public_path('FrontEnd/assets/images/stores_qr/') . $store->qr;
         $outputPath = public_path('FrontEnd/assets/images/stores_qr_banar/merged_image.png'); // Adjust this path as needed
-    
+
         // Check if both images exist
         if (!file_exists($backgroundPath) || !file_exists($qrCodePath)) {
             return response()->json(['error' => 'Image not found'], 404);
         }
-    
+
         // Merge images using $this->mergeImages
         $this->mergeImages($backgroundPath, $qrCodePath, $outputPath, 355, ['x' => 469, 'y' => 2505]);
-    
+
         // Download the merged image
         return response()->download($outputPath, 'merged_image.png');
     }
-    
+
 
     public function store(Request $request)
     {
@@ -364,6 +364,43 @@ class StoreController extends Controller
         return view('FrontEnd.profile.nearstores', ['nearbyStores' => $nearbyStores]);
     }
 
+    public function nearbyApi(Request $request)
+    {
+        $lang = $request->input('lang');
+
+        if ($lang && in_array($lang, ['en', 'ar'])) {
+            App::setLocale($lang);
+        }
+
+        // Get the user's location from the request (assuming you're passing it from the front end)
+        $userLatitude = $request->input('user_latitude');
+        $userLongitude = $request->input('user_longitude');
+
+        // Calculate nearby stores (example using Eloquent)
+        $radius = 5; // Set the radius in kilometers
+        $nearbyStores = Store::select('*')
+            ->selectRaw(
+                '( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) ) *
+            cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) *
+            sin( radians( latitude ) ) ) ) AS distance',
+                [$userLatitude, $userLongitude, $userLatitude]
+            )
+            ->having('distance', '<', $radius)
+            ->orderBy('distance')
+            ->get();
+
+        // Convert distance to a more readable format
+        foreach ($nearbyStores as $store) {
+            if ($store->distance < 1.0) {
+                $store->distance = number_format($store->distance * 1000, 1, '.', '') . ' ' . ($lang === 'ar' ? 'م' : 'm');
+            } else {
+                $store->distance = number_format($store->distance, 1, '.', '') . ' ' . ($lang === 'ar' ? 'كم' : 'km');
+            }
+        }
+
+        // Return the nearby stores as JSON response
+        return response()->json(['nearbyStores' => $nearbyStores]);
+    }
 
     public function verify(Request $request, Store $store)
     {

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
 use  App\Models\User;
@@ -23,33 +24,30 @@ class AuthController extends Controller
     }
     public function login_post(Request $request)
     {
-      
+
         $currentLanguage = $request->input('lang');
         $credentials = $request->only('email_or_mobile', 'password');
 
         // Add a custom rule to identify whether the input is an email or a mobile number
         $field = filter_var($request->input('email_or_mobile'), FILTER_VALIDATE_EMAIL) ? 'email' : 'mobile';
-    
+
         // Add the field name to the credentials array
         $credentials[$field] = $request->input('email_or_mobile');
         unset($credentials['email_or_mobile']);
-    
+
         // Attempt to log in the user
         if (Auth::attempt($credentials)) {
             // Authentication passed
             Session::put('user_id', Auth::user()->id); // Create a session variable
-                
-            return redirect()->intended('/dashboard' . '?lang=' . $currentLanguage);        }
-    
+
+            return redirect()->intended('/dashboard' . '?lang=' . $currentLanguage);
+        }
+
         // Authentication failed, redirect back with an error message
-    return redirect()
-        ->back()
-        ->withInput($request->only('email_or_mobile'))
-        ->withErrors(['loginError' => 'Invalid credentials']);
-
-
-
-
+        return redirect()
+            ->back()
+            ->withInput($request->only('email_or_mobile'))
+            ->withErrors(['loginError' => 'Invalid credentials']);
     }
     public function register_index(Request $request)
     {
@@ -60,8 +58,9 @@ class AuthController extends Controller
         }
         return view('FrontEnd.Auth.register', ['lang' => $lang]); // Pass the 'lang' variable to the view
     }
-    public function register_post (Request $request)
-    {        $lang = $request->input('lang'); // Get the 'lang' parameter from the request
+    public function register_post(Request $request)
+    {
+        $lang = $request->input('lang'); // Get the 'lang' parameter from the request
 
         $currentLanguage = $request->input('lang');
 
@@ -96,7 +95,7 @@ class AuthController extends Controller
                 'password.confirmed' => 'The password confirmation does not match.',
             ];
         }
-    
+
 
         $customMessages = $errorMessages;
 
@@ -111,7 +110,7 @@ class AuthController extends Controller
             'mobile' => 'required|string|max:255|unique:users', // Ensure 'mobile' is unique
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8|confirmed', // Ensure password matches password_confirmation
-        ] ,$customMessages);
+        ], $customMessages);
 
         $mobileExists = User::where('mobile', $request->mobile)->exists();
 
@@ -141,83 +140,85 @@ class AuthController extends Controller
         $successMessage = ($currentLanguage === 'ar') ? 'تم التسجيل بنجاح.' : ' Registration successful!';
 
         return redirect()->route('register', ['lang' => $lang])->with('success',  $successMessage);
-
-    
-
-        
     }
     public function logout()
-{
-    Auth::logout(); // Log the user out
-    Session::forget('user_id'); // Clear the user's session data
-    return back(); // Redirect to the login page
-}
-
-
-
-
-
-// /* -------------------------------------------------------------------------- */
-// /* ----------------------------------- api ---------------------------------- */
-// /* -------------------------------------------------------------------------- */
-
-public function login_api(Request $request)
-{
-    $credentials = $request->only('email_or_mobile', 'password');
-    
-    // Determine whether the input is an email or a mobile number
-    $field = filter_var($request->input('email_or_mobile'), FILTER_VALIDATE_EMAIL) ? 'email' : 'mobile';
-
-    // Add the field name to the credentials array
-    $credentials[$field] = $request->input('email_or_mobile');
-    unset($credentials['email_or_mobile']);
-
-    // Attempt to log in the user
-    if (Auth::attempt($credentials)) {
-        // Authentication passed, generate and return a bearer token
-        $token = Str::random(60);
-        $user = Auth::user();
-        $user->api_token = $request->bearerToken();
-        
-
-        return response()->json([
-            'token' => $token,
-            'success' => true,
-            'message' => 'Login successful',
-            'user' => Auth::user(),
-
-        
-        ], 200);
+    {
+        Auth::logout(); // Log the user out
+        Session::forget('user_id'); // Clear the user's session data
+        return back(); // Redirect to the login page
     }
 
-    // Authentication failed, return an error response
-    return response()->json(['error' => 'Invalid credentials'], 401);
-}
 
 
-public function register_api(Request $request)
-{
-    try {
-        $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
 
-        // Create a new user record
-        $user = User::create([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
 
-        return response()->json(['user' => $user, 'message' => 'Registration successful']);
-    } catch (ValidationException $e) {
-        return response()->json(['errors' => $e->errors()], 422);
+    // /* -------------------------------------------------------------------------- */
+    // /* ----------------------------------- api ---------------------------------- */
+    // /* -------------------------------------------------------------------------- */
+    /**
+     * Login api
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function login_api(Request $request)
+    {
+        $credentials = $request->only('email_or_mobile', 'password');
+
+        // Determine whether the input is an email or a mobile number
+        $field = filter_var($request->input('email_or_mobile'), FILTER_VALIDATE_EMAIL) ? 'email' : 'mobile';
+
+        // Add the field name to the credentials array
+        $credentials[$field] = $request->input('email_or_mobile');
+        unset($credentials['email_or_mobile']);
+
+        // Attempt to log in the user
+        if (Auth::attempt($credentials)) {
+            // Authentication passed, generate and return a bearer token
+            $token = Str::random(60);
+            /** @var \App\Models\User $user **/
+
+            $user = Auth::user();
+            $user->api_token = $request->bearerToken();
+            $success['token'] =  $user->createToken('ApiToken')->accessToken;
+
+
+            return response()->json([
+                'token' => $token,
+                'success' => true,
+                'message' => 'Login successful',
+                'user' => Auth::user(),
+                'new tok' => $success['token']
+
+
+            ], 200);
+        }
+
+        // Authentication failed, return an error response
+        return response()->json(['error' => 'Invalid credentials'], 401);
     }
-}
 
 
+    public function register_api(Request $request)
+    {
+        try {
+            $request->validate([
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users',
+                'password' => 'required|string|min:8|confirmed',
+            ]);
+
+            // Create a new user record
+            $user = User::create([
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
+
+            return response()->json(['user' => $user, 'message' => 'Registration successful']);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        }
+    }
 }
