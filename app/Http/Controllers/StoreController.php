@@ -357,7 +357,11 @@ class StoreController extends Controller
     public function nearbyApi(Request $request)
     {
       
+        $lang = $request->input('lang');
 
+        if ($lang && in_array($lang, ['en', 'ar'])) {
+            App::setLocale($lang);
+        }
         // Get the user's location from the request (assuming you're passing it from the front end)
         $userLatitude = $request->input('user_latitude');
         $userLongitude = $request->input('user_longitude');
@@ -378,9 +382,10 @@ class StoreController extends Controller
         // Convert distance to a more readable format
         foreach ($nearbyStores as $store) {
             if ($store->distance < 1.0) {
-                $store->distance = number_format($store->distance * 1000, 1, '.', '') . ' ' . ('m');
+                $store->distance = number_format($store->distance * 1000, 1, '.', '') . ' ' . ($lang === 'ar' ? 'م' : 'm');
+
             } else {
-                $store->distance = number_format($store->distance, 1, '.', '') . ' ' . ('km');
+                $store->distance = number_format($store->distance, 1, '.', '') . ' ' . ($lang === 'ar' ? 'كم' : 'km');
             }
         }
 
