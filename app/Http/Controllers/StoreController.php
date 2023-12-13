@@ -395,7 +395,7 @@ class StoreController extends Controller
                 'name' => $store->name,
                 'photo' => $store->photo,
                 'distance' => $store->distance,
-                'discounts' =>$store->discounts,
+                'discounts' =>$store->discounts->where('Discounts_status', 'working')->where('is_deleted', 0),
             ];
         });
         
