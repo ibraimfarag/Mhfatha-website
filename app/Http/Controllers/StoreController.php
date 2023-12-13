@@ -388,16 +388,21 @@ class StoreController extends Controller
                 $store->distance = number_format($store->distance, 1, '.', '') . ' ' . ($lang === 'ar' ? 'كم' : 'km');
             }
         }
-
         $filteredStores = $nearbyStores->map(function ($store) {
+            // Filter discounts based on conditions
+            $filteredDiscounts = $store->discounts
+                ->where('Discounts_status', 'working')
+                ->where('is_deleted', 0);
+        
             return [
                 'id' => $store->id,
                 'name' => $store->name,
                 'photo' => $store->photo,
                 'distance' => $store->distance,
-                'discounts' =>$store->discounts->where('Discounts_status', 'working')->where('is_deleted', 0),
+                'discounts' => $filteredDiscounts->toArray(),
             ];
         });
+        
         
 
 
