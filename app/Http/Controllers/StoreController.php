@@ -398,8 +398,8 @@ class StoreController extends Controller
             ];
         });
         // Return the nearby stores as JSON response
-        // return response()->json(['nearbyStores' => $nearbyStores]);
-        return response()->json(['filteredStores' => $filteredStores]);
+        return response()->json(['nearbyStores' => $nearbyStores]);
+        // return response()->json(['filteredStores' => $filteredStores]);
 
     }
     public function storeInfoApi(Request $request)
