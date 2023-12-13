@@ -389,17 +389,12 @@ class StoreController extends Controller
             }
         }
         $filteredStores = $nearbyStores->map(function ($store) {
-            // Filter discounts based on conditions
-            $filteredDiscounts = $store->discounts
-                ->where('Discounts_status', 'working')
-                ->where('is_deleted', 0);
-        
             return [
                 'id' => $store->id,
                 'name' => $store->name,
                 'photo' => $store->photo,
                 'distance' => $store->distance,
-                'discounts' => $filteredDiscounts->toArray(),
+                'discounts' => $store->discounts->where('Discounts_status', 'working')->where('is_deleted', 0),
             ];
         });
         
