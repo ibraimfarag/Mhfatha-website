@@ -395,6 +395,7 @@ class StoreController extends Controller
                 'name' => $store->name,
                 'photo' => $store->photo,
                 'distance' => $store->distance,
+                'discounts' =>$store->discounts,
             ];
         });
         
@@ -409,8 +410,8 @@ class StoreController extends Controller
             return response()->json(['store' => $store, 'message' => 'No discounts available for this store']);
         }
         // Return the nearby stores as JSON response
-        return response()->json(['nearbyStores' => $nearbyStores,'storediscounts' => $storediscounts]);
-        // return response()->json(['filteredStores' => $filteredStores]);
+        // return response()->json(['nearbyStores' => $nearbyStores]);
+        return response()->json(['filteredStores' => $filteredStores]);
 
     }
     public function storeInfoApi(Request $request)
