@@ -397,8 +397,20 @@ class StoreController extends Controller
                 'distance' => $store->distance,
             ];
         });
+        $storeId=$filteredStores->id;
+        $store = Store::with(['Discounts' => function ($query) {
+            $query->where('Discounts_status', 'working')->where('is_deleted', 0);
+        }])->find($storeId);
+
+        if (!$store) {
+            return response()->json(['error' => 'Store not found'], 404);
+        }
+
+        if ($store->Discounts->isEmpty()) {
+            return response()->json(['store' => $store, 'message' => 'No discounts available for this store']);
+        }
         // Return the nearby stores as JSON response
-        return response()->json(['nearbyStores' => $nearbyStores]);
+        return response()->json(['nearbyStores' => $nearbyStores,'store' => $store]);
         // return response()->json(['filteredStores' => $filteredStores]);
 
     }
