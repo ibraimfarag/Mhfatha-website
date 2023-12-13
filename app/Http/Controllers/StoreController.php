@@ -400,15 +400,7 @@ class StoreController extends Controller
         });
         
 
-        $storediscounts = $store->discounts;
 
-        if (!$store) {
-            return response()->json(['error' => 'Store not found'], 404);
-        }
-
-        if ($store->Discounts->isEmpty()) {
-            return response()->json(['store' => $store, 'message' => 'No discounts available for this store']);
-        }
         // Return the nearby stores as JSON response
         // return response()->json(['nearbyStores' => $nearbyStores]);
         return response()->json(['filteredStores' => $filteredStores]);
