@@ -397,7 +397,7 @@ class StoreController extends Controller
                 'distance' => $store->distance,
             ];
         });
-        $storeId=$filteredStores->id;
+        $storeId=$filteredStores['id'];
         $store = Store::with(['Discounts' => function ($query) {
             $query->where('Discounts_status', 'working')->where('is_deleted', 0);
         }])->find($storeId);
