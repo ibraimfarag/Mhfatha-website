@@ -395,6 +395,13 @@ class StoreController extends Controller
                 'photo' => $store->photo,
                 'distance' => $store->distance,
                 'work_days'=> $store->work_days,
+                'city'=> $store->city,
+                'region'=> $store->region,
+                'latitude'=> $store->latitude,
+                'longitude'=> $store->longitude,
+                'location'=> $store->location,
+                'phone'=> $store->phone,
+                'status'=> $store->status,
                 'discounts' => $store->discounts->where('discounts_status', 'working')->where('is_deleted', 0),
 
             ];
