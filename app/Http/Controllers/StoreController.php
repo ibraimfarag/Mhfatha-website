@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\File;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Crypt;
 
 class StoreController extends Controller
 {
@@ -74,56 +73,37 @@ class StoreController extends Controller
 
         return view('FrontEnd.profile.stores.create', compact('userStores'));
     }
-    public function customEncrypt($storeID)
+    public function decryptQrCode($encryptedStoreID)
 {
-    // Your custom encryption logic
-    $encryptedStoreID = 'SA' . str_pad($storeID, 10, '0', STR_PAD_LEFT) . 'VVDV';
+    // Call the decryption function
+    $decryptedStoreID = $this->decryptQrCode($encryptedStoreID);
 
-    return $encryptedStoreID;
+    // Return the decrypted store ID or an appropriate response
+    return response()->json(['decryptedStoreID' => $decryptedStoreID]);
 }
-
-public function customDecrypt($encryptedStoreID)
+public function generateQrCode($storeID)
 {
-    // Your custom decryption logic
-    // Extract the numeric part and remove the prefix and suffix
-    $numericPart = substr($encryptedStoreID, 2, -4);
-    $storeID = ltrim($numericPart, '0');
+    // Convert the numeric store ID to a string
+    $storeIDAsString = strval($storeID);
 
-    return $storeID;
+    // Encrypt and encode the store ID
+    $encryptedStoreID = base64_encode(encrypt($storeIDAsString));
+
+    // Generate QR code
+    $qrCode = QrCode::size(300)->format('png')->generate($encryptedStoreID);
+
+    // Get the filename from the full path
+    $filename = 'qr_code_' . $storeID . '.png';
+
+    // Save the QR code image with the filename
+    $qrCodePath = public_path('FrontEnd/assets/images/stores_qr/') . $filename;
+    file_put_contents($qrCodePath, $qrCode);
+
+    // Update the store record with the filename
+    $store = Store::find($storeID);
+    $store->qr = $filename;
+    $store->save();
 }
-
-    public function decryptQrCode(Request $request)
-    {
-        // Retrieve the encrypted store ID from the JSON request body
-        $encryptedStoreID = $request->json('encryptedStoreID');
-    
-        // Call the decryption function
-        $decryptedStoreID = CustomEncrypter::customEncrypt($encryptedStoreID);
-    
-        // Return the decrypted store ID as JSON response
-        return response()->json(['decryptedStoreID' => $decryptedStoreID]);
-    }
-    
-    public function generateQrCode($storeID)
-    {
-        // Encrypt the store ID
-        $encryptedStoreID = CustomEncrypter::customDecrypt($storeID);
-
-        // Generate QR code
-        $qrCode = QrCode::size(300)->format('png')->generate($encryptedStoreID);
-
-        // Get the filename from the full path
-        $filename = 'qr_code_' . $storeID . '.png';
-
-        // Save the QR code image with the filename
-        $qrCodePath = public_path('FrontEnd/assets/images/stores_qr/') . $filename;
-        file_put_contents($qrCodePath, $qrCode);
-
-        // Update the store record with the filename
-        $store = Store::find($storeID);
-        $store->qr = $filename;
-        $store->save();
-    }
     private function mergeImages($backgroundPath, $qrPath, $outputPath, $qrSize = 100, $qrPosition = ['x' => 0, 'y' => 0])
     {
         // Load the background image
