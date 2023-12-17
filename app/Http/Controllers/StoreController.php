@@ -122,7 +122,7 @@ class StoreController extends Controller
         }
     }
     
-            public function generateQrCode($storeID)
+    public function generateQrCode($storeID)
     {
         $customEncrypter = new CustomEncrypter(); // Instantiate the class
         $encryptedStoreID = $customEncrypter->customEncode($storeID);
@@ -286,7 +286,7 @@ class StoreController extends Controller
 
         // Store the new store image
         $imageName = time() . '.' . $image->getClientOriginalExtension();
-        $image->move(public_path('FrontEnd\assets\images\store_images'), $imageName);
+        $image->move(public_path('FrontEnd/assets/images/store_images'), $imageName);
         $store->photo = $imageName;
     }
     public function edit(Request $request)
