@@ -76,34 +76,31 @@ class StoreController extends Controller
     public function decryptQrCode($encryptedStoreID)
 {
     // Call the decryption function
-    $decryptedStoreID = $this->decryptQrCode($encryptedStoreID);
+    $decryptedStoreID = $this->customDecode($encryptedStoreID);
 
     // Return the decrypted store ID or an appropriate response
     return response()->json(['decryptedStoreID' => $decryptedStoreID]);
 }
-public function generateQrCode($storeID)
-{
-    // Convert the numeric store ID to a string
-    $storeIDAsString = strval($storeID);
+    public function generateQrCode($storeID)
+    {
+        // Encrypt the store ID
+        $encryptedStoreID = $this->customEncode($storeID);
 
-    // Encrypt and encode the store ID
-    $encryptedStoreID = base64_encode(encrypt($storeIDAsString));
+        // Generate QR code
+        $qrCode = QrCode::size(300)->format('png')->generate($encryptedStoreID);
 
-    // Generate QR code
-    $qrCode = QrCode::size(300)->format('png')->generate($encryptedStoreID);
+        // Get the filename from the full path
+        $filename = 'qr_code_' . $storeID . '.png';
 
-    // Get the filename from the full path
-    $filename = 'qr_code_' . $storeID . '.png';
+        // Save the QR code image with the filename
+        $qrCodePath = public_path('FrontEnd/assets/images/stores_qr/') . $filename;
+        file_put_contents($qrCodePath, $qrCode);
 
-    // Save the QR code image with the filename
-    $qrCodePath = public_path('FrontEnd/assets/images/stores_qr/') . $filename;
-    file_put_contents($qrCodePath, $qrCode);
-
-    // Update the store record with the filename
-    $store = Store::find($storeID);
-    $store->qr = $filename;
-    $store->save();
-}
+        // Update the store record with the filename
+        $store = Store::find($storeID);
+        $store->qr = $filename;
+        $store->save();
+    }
     private function mergeImages($backgroundPath, $qrPath, $outputPath, $qrSize = 100, $qrPosition = ['x' => 0, 'y' => 0])
     {
         // Load the background image

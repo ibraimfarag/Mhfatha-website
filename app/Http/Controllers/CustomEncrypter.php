@@ -7,21 +7,26 @@ use Illuminate\Http\Request;
 
 class CustomEncrypter extends Controller
 {
-    public function customEncrypt($storeID)
+    public function customEncode($data)
     {
-        // Your custom encryption logic
-        $encryptedStoreID = 'SA' . str_pad($storeID, 10, '0', STR_PAD_LEFT) . 'VVDV';
+        // Base64 encode the data
+        $encodedData = base64_encode($data);
     
-        return $encryptedStoreID;
+        // Trim the result to 12 characters
+        $trimmedData = substr($encodedData, 0, 12);
+    
+        return $trimmedData;
     }
     
-    public function customDecrypt($encryptedStoreID)
+    public function customDecode($encodedData)
     {
-        // Your custom decryption logic
-        // Extract the numeric part and remove the prefix and suffix
-        $numericPart = substr($encryptedStoreID, 2, -4);
-        $storeID = ltrim($numericPart, '0');
+        // Pad the encoded data with "=" to make its length a multiple of 4
+        $paddedData = str_pad($encodedData, strlen($encodedData) + (4 - strlen($encodedData) % 4) % 4, '=');
     
-        return $storeID;
+        // Base64 decode the padded data
+        $decodedData = base64_decode($paddedData);
+    
+        return $decodedData;
     }
+    
 }
