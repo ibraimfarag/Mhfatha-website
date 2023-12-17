@@ -274,6 +274,7 @@ class StoreController extends Controller
 
         return redirect()->route('Stores.view', ['lang' => $lang])->with('success', 'Store Added Successfully.');
     }
+    
     private function handleStoreImageUpload($store, $image)
     {
         // Delete the old store image (if it exists)
@@ -358,7 +359,7 @@ class StoreController extends Controller
             // Store the new profile image
             $image = $request->file('store_image');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('FrontEnd\assets\images\store_images'), $imageName);
+            $image->move(public_path('FrontEnd/assets/images/store_images'), $imageName);
             $store->photo = $imageName;
         }
         // dd($store);
