@@ -74,14 +74,31 @@ class StoreController extends Controller
 
         return view('FrontEnd.profile.stores.create', compact('userStores'));
     }
-    
+    public function customEncrypt($storeID)
+{
+    // Your custom encryption logic
+    $encryptedStoreID = 'SA' . str_pad($storeID, 10, '0', STR_PAD_LEFT) . 'VVDV';
+
+    return $encryptedStoreID;
+}
+
+public function customDecrypt($encryptedStoreID)
+{
+    // Your custom decryption logic
+    // Extract the numeric part and remove the prefix and suffix
+    $numericPart = substr($encryptedStoreID, 2, -4);
+    $storeID = ltrim($numericPart, '0');
+
+    return $storeID;
+}
+
     public function decryptQrCode(Request $request)
     {
         // Retrieve the encrypted store ID from the JSON request body
         $encryptedStoreID = $request->json('encryptedStoreID');
     
         // Call the decryption function
-        $decryptedStoreID = CustomEncrypter::decrypt($encryptedStoreID);
+        $decryptedStoreID = CustomEncrypter::customEncrypt($encryptedStoreID);
     
         // Return the decrypted store ID as JSON response
         return response()->json(['decryptedStoreID' => $decryptedStoreID]);
@@ -90,7 +107,7 @@ class StoreController extends Controller
     public function generateQrCode($storeID)
     {
         // Encrypt the store ID
-        $encryptedStoreID = CustomEncrypter::encrypt($storeID);
+        $encryptedStoreID = CustomEncrypter::customDecrypt($storeID);
 
         // Generate QR code
         $qrCode = QrCode::size(300)->format('png')->generate($encryptedStoreID);

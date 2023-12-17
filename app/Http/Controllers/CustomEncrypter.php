@@ -7,25 +7,21 @@ use Illuminate\Http\Request;
 
 class CustomEncrypter extends Controller
 {
-    public static function encrypt($storeID)
+    public function customEncrypt($storeID)
     {
-        // Encrypt the store ID using Laravel's Crypt::encryptString
-        $encryptedData = Crypt::encryptString($storeID);
-
-        // Convert the encrypted data to uppercase and remove any non-alphanumeric characters
-        $formattedEncryptedData = strtoupper(preg_replace('/[^A-Z0-9]/', '', $encryptedData));
-
-        return $formattedEncryptedData;
+        // Your custom encryption logic
+        $encryptedStoreID = 'SA' . str_pad($storeID, 10, '0', STR_PAD_LEFT) . 'VVDV';
+    
+        return $encryptedStoreID;
     }
-
-    public static function decrypt($formattedEncryptedData)
+    
+    public function customDecrypt($encryptedStoreID)
     {
-        // Convert the formatted encrypted data to lowercase
-        $encryptedData = strtolower($formattedEncryptedData);
-
-        // Decrypt the data using Laravel's Crypt::decryptString
-        $decryptedData = Crypt::decryptString($encryptedData);
-
-        return $decryptedData;
+        // Your custom decryption logic
+        // Extract the numeric part and remove the prefix and suffix
+        $numericPart = substr($encryptedStoreID, 2, -4);
+        $storeID = ltrim($numericPart, '0');
+    
+        return $storeID;
     }
 }
