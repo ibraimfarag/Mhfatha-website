@@ -74,17 +74,55 @@ class StoreController extends Controller
         return view('FrontEnd.profile.stores.create', compact('userStores'));
     }
     public function decryptQrCode(Request $request)
-{
-    $encryptedStoreID = $request->json('encryptedStoreID');
-
-
-    // Call the decryption function
-    $decryptedStoreID = CustomEncrypter::customDecode($encryptedStoreID);
-
-    // Return the decrypted store ID or an appropriate response
-    return response()->json(['decryptedStoreID' =>' $decryptedStoreID']);
-}
-    public function generateQrCode($storeID)
+    {
+        try {
+            // Retrieve the encrypted store ID and language from the JSON request body
+            $encryptedStoreID = $request->json('encryptedStoreID');
+            $lang = $request->json('lang', 'en'); // Default to English if lang is not provided
+    
+            // Call the decryption function
+            $decryptedStoreID = CustomEncrypter::customDecode($encryptedStoreID);
+    
+            // Fetch store information from your data source (adjust the model and attribute names)
+            $store = Store::find($decryptedStoreID);
+    
+            if (!$store) {
+                return response()->json(['error' => $lang === 'ar' ? 'لم يتم العثور على المتجر.' : 'Store not found.'], 404);
+            }
+    
+            // Check verification status
+            if ($store->verification === 0) {
+                $message = $lang === 'ar' ? 'جاري التحقق من المتجر.' : 'Store verification is pending.';
+                return response()->json(['message' => $message], 200);
+            }
+    
+            // Check if the store is banned
+            if ($store->is_bann === 1) {
+                $message = $lang === 'ar' ? 'هذا المتجر مغلق مؤقتًا من جهة الادارة.' : 'This store is temporarily closed by management.';
+                return response()->json(['message' => $message], 200);
+            }
+    
+            // Check store status
+            if ($store->status === 0) {
+                $message = $lang === 'ar' ? 'هذا المتجر مغلق مؤقتًا من قبل التاجر.' : 'This store is temporarily closed by the merchant.';
+                return response()->json(['message' => $message], 200);
+            }
+    
+            // Check discount attributes
+            if ($store->Discounts && $store->Discounts->isNotEmpty()) {
+                return response()->json(['discounts' => $store->Discounts->all(), 'store' => $store]);
+            } else {
+                $message = $lang === 'ar' ? 'لا توجد خصومات متاحة.' : 'No discount available.';
+                return response()->json(['message' => $message, 'store' => $store], 200);
+            }
+        } catch (\Exception $e) {
+            // Handle decryption errors
+            $errorMessage = $lang === 'ar' ? 'فشل في التعرف على المتجر.' : 'Failed to recognize the store.';
+            return response()->json(['error' => $errorMessage], 500);
+        }
+    }
+    
+            public function generateQrCode($storeID)
     {
         // Encrypt the store ID
         $encryptedStoreID = CustomEncrypter::customEncode($storeID);

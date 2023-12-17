@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -9,6 +11,7 @@ use App\Models\User;
 use App\Models\UserDiscount;
 use Illuminate\Support\Facades\App;
 use DataTables;
+
 class DiscountController extends Controller
 {
     public function index(Store $store, Request $request)
@@ -23,7 +26,7 @@ class DiscountController extends Controller
         $store = Store::find($storeid);
         $discounts = $store->discounts->where('is_deleted', 0);
 
-// dd($storeid);
+        // dd($storeid);
         return view('FrontEnd.profile.discounts.index', compact('store', 'discounts'));
     }
     public function getBadgeCounts()
@@ -32,8 +35,8 @@ class DiscountController extends Controller
 
         // Your logic to get real-time badge counts
         $salesOrderBadgeCount = UserDiscount::whereHas('store.user', function ($query) use ($userId) {
-                $query->where('id', $userId);
-            })
+            $query->where('id', $userId);
+        })
             ->where('status', 3)
             ->count();
         // Set a fixed value for messages badge count (5 in this case)
@@ -43,7 +46,8 @@ class DiscountController extends Controller
             'salesOrderBadgeCount' => $salesOrderBadgeCount,
             'messagesBadgeCount' => $messagesBadgeCount,
         ]);
-    }    public function index_api(Store $store, Request $request)
+    }
+    public function index_api(Store $store, Request $request)
     {
         $lang = $request->input('lang');
 
@@ -55,9 +59,8 @@ class DiscountController extends Controller
         $store = Store::find($storeid);
         $discounts = $store->discounts->where('is_deleted', 0);
 
-// dd($storeid);
-return response()->json(['discounts' => $discounts]);
-}
+        return response()->json(['discounts' => $discounts]);
+    }
 
     public function create(Request $request)
     {
@@ -68,15 +71,14 @@ return response()->json(['discounts' => $discounts]);
         }
         $storeid = $request->input('storeid');
         $store = Store::find($storeid);
-// dd($storeid);
-        return view('FrontEnd.profile.discounts.create',compact('store'));
+        return view('FrontEnd.profile.discounts.create', compact('store'));
     }
 
     public function store(Request $request)
     {
-        
 
-    $currentLanguage = $request->input('lang');
+
+        $currentLanguage = $request->input('lang');
 
 
         $validator = Validator::make($request->all(), [
