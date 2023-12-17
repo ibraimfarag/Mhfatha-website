@@ -35,4 +35,5 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/nearby', [StoreController::class, 'nearbyApi']);
     Route::post('/store', [StoreController::class, 'storeInfoApi']);
+    Route::post('/store/{encryptedStoreID}', [StoreController::class, 'decryptQrCode']);
 });
