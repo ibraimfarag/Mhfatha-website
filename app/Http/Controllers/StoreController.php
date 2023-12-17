@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\File;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Crypt;
 
 class StoreController extends Controller
 {
@@ -73,13 +74,14 @@ class StoreController extends Controller
 
         return view('FrontEnd.profile.stores.create', compact('userStores'));
     }
+    
     public function decryptQrCode(Request $request)
     {
         // Retrieve the encrypted store ID from the JSON request body
         $encryptedStoreID = $request->json('encryptedStoreID');
     
         // Call the decryption function
-        $decryptedStoreID = $this->decryptQrCode($encryptedStoreID);
+        $decryptedStoreID = CustomEncrypter::decrypt($encryptedStoreID);
     
         // Return the decrypted store ID as JSON response
         return response()->json(['decryptedStoreID' => $decryptedStoreID]);
@@ -88,7 +90,7 @@ class StoreController extends Controller
     public function generateQrCode($storeID)
     {
         // Encrypt the store ID
-        $encryptedStoreID = encrypt($storeID);
+        $encryptedStoreID = CustomEncrypter::encrypt($storeID);
 
         // Generate QR code
         $qrCode = QrCode::size(300)->format('png')->generate($encryptedStoreID);
