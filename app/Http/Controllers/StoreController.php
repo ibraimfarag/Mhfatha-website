@@ -82,7 +82,7 @@ class StoreController extends Controller
     $decryptedStoreID = CustomEncrypter::customDecode($encryptedStoreID);
 
     // Return the decrypted store ID or an appropriate response
-    return response()->json(['decryptedStoreID' => $decryptedStoreID]);
+    return response()->json(['decryptedStoreID' =>' $decryptedStoreID']);
 }
     public function generateQrCode($storeID)
     {
