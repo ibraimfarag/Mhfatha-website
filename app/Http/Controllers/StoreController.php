@@ -73,14 +73,18 @@ class StoreController extends Controller
 
         return view('FrontEnd.profile.stores.create', compact('userStores'));
     }
-    public function decryptQrCode($encryptedStoreID)
-{
-    // Call the decryption function
-    $decryptedStoreID = $this->decryptQrCode($encryptedStoreID);
-
-    // Return the decrypted store ID or an appropriate response
-    return response()->json(['decryptedStoreID' => $decryptedStoreID]);
-}
+    public function decryptQrCode(Request $request)
+    {
+        // Retrieve the encrypted store ID from the JSON request body
+        $encryptedStoreID = $request->json('encryptedStoreID');
+    
+        // Call the decryption function
+        $decryptedStoreID = $this->decryptQrCode($encryptedStoreID);
+    
+        // Return the decrypted store ID as JSON response
+        return response()->json(['decryptedStoreID' => $decryptedStoreID]);
+    }
+    
     public function generateQrCode($storeID)
     {
         // Encrypt the store ID
