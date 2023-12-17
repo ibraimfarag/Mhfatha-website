@@ -124,8 +124,8 @@ class StoreController extends Controller
     
             public function generateQrCode($storeID)
     {
-        // Encrypt the store ID
-        $encryptedStoreID = CustomEncrypter::customEncode($storeID);
+        $customEncrypter = new CustomEncrypter(); // Instantiate the class
+        $encryptedStoreID = $customEncrypter->customEncode($storeID);
 
         // Generate QR code
         $qrCode = QrCode::size(300)->format('png')->generate($encryptedStoreID);
