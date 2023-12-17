@@ -76,7 +76,7 @@ class StoreController extends Controller
     public function decryptQrCode($encryptedStoreID)
 {
     // Call the decryption function
-    $decryptedStoreID = $this->customDecode($encryptedStoreID);
+    $decryptedStoreID = CustomEncrypter::customDecode($encryptedStoreID);
 
     // Return the decrypted store ID or an appropriate response
     return response()->json(['decryptedStoreID' => $decryptedStoreID]);
@@ -84,7 +84,7 @@ class StoreController extends Controller
     public function generateQrCode($storeID)
     {
         // Encrypt the store ID
-        $encryptedStoreID = $this->customEncode($storeID);
+        $encryptedStoreID = CustomEncrypter::customEncode($storeID);
 
         // Generate QR code
         $qrCode = QrCode::size(300)->format('png')->generate($encryptedStoreID);
