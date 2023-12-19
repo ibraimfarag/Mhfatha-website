@@ -1,37 +1,64 @@
-name: Laravel CI
 
+name: CI/CD workflow
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "master" ]
+    branches:
+      - main
 jobs:
-  phpunit:
+  testing:
     runs-on: ubuntu-latest
-    container:
-      image: kirschbaumdevelopment/laravel-test-runner:7.4
- 
     services:
       mysql:
         image: mysql:5.7
         env:
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: test
+          MYSQL_ROOT_PASSWORD: passw0rd
+          MYSQL_DATABASE: laravel
         ports:
-          - 33306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
- 
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          fetch-depth: 1
-
-      - name: Install composer dependencies and run tests
-        run: |
-          composer install --no-scripts
-          cp .env.ci .env
-          php artisan key:generate
-          vendor/bin/phpunit tests/
-
-      - name: Generate Laravel application key
+          php-version: '7.4'
+      - name: Copy .env file
+        run: cp .env.example .env
+      - name: Install dependencies
+        run: composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
+      - name: Generate key
         run: php artisan key:generate
+      - name: Storage Permission
+        run: chmod -R 777 storage bootstrap/cache
+      - name: Database Setup
+        env:
+          DB_CONNECTION: mysql
+          DB_DATABASE: laravel
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASSWORD: passw0rd
+        run: php artisan migrate:fresh --seed
+      - name: Execute tests (Unit and Feature tests) via PHPUnit
+        env:
+          DB_CONNECTION: mysql
+          DB_DATABASE: laravel
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASSWORD: passw0rd
+        run: php artisan test
+  building:
+    needs: testing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install NPM dependencies
+        run: npm install
+      - name: Compile assets
+        run: npm run production
