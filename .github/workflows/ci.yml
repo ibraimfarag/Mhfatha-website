@@ -25,7 +25,8 @@ jobs:
       - uses: actions/checkout@v1
         with:
           fetch-depth: 1
- 
+      - name: Generate Laravel application key
+        run: php artisan key:generate
       - name: Install composer dependencies and run tests
         run: |
           composer install --no-scripts
@@ -33,3 +34,5 @@ jobs:
           php artisan key:generate
           vendor/bin/phpunit tests/
 
+      - name: Generate Laravel application key
+        run: php artisan key:generate
