@@ -80,8 +80,9 @@ class StoreController extends Controller
             $encryptedStoreID = $request->json('encryptedStoreID');
             $lang = $request->json('lang', 'en'); // Default to English if lang is not provided
     
-            // Call the decryption function
-            $decryptedStoreID = CustomEncrypter::customDecode($encryptedStoreID);
+            $customEncrypter = new CustomEncrypter();
+            $decryptedStoreID = $customEncrypter->customDecode($encryptedStoreID);
+            
     
             // Fetch store information from your data source (adjust the model and attribute names)
             $store = Store::find($decryptedStoreID);
