@@ -213,7 +213,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'The mobile number is already in use. Please choose a different one.'], 422);
         }
     
-        User::create([
+        $user = User::create([
             'first_name' => $request->input('first_name'),
             'middle_name' => $request->input('middle_name'),
             'last_name' => $request->input('last_name'),
@@ -228,10 +228,17 @@ class AuthController extends Controller
             'photo' => 'default_user.png',
         ]);
     
-        $successMessage = 'Registration successful!';
-        
-        return response()->json(['success' => $successMessage], 200);
-    }
+        $token = $user->createToken('ApiToken')->accessToken;
     
+        $successMessage = 'Registration successful!';
+    
+        return response()->json([
+            'token' => $token,
+            'success' => true,
+            'message' => $successMessage,
+            'user' => $user,
+        ], 200);
+    }
+        
 
     }
