@@ -224,6 +224,16 @@ class AuthController extends Controller
              return response()->json(['success' => false, 'messages' => $errorMessages]);
          }
      
+
+            // Check if a new photo was uploaded
+    if ($request->hasFile('photo')) {
+        $image = $request->file('photo');
+        $imageName = time() . '.' . $image->getClientOriginalExtension();
+        $image->move(public_path('FrontEnd\assets\images\user_images'), $imageName);
+    } else {
+        // Use a default photo if no new photo is uploaded
+        $imageName = 'default_user.png';
+    }
          // Create a new user record
          User::create([
              'first_name' => $request->first_name,
@@ -237,7 +247,7 @@ class AuthController extends Controller
              'email' => $request->email,
              'is_vendor' => $request->is_vendor,
              'password' => Hash::make($request->password),
-             'photo' => 'default_user.png',
+             'photo' => $imageName,
          ]);
      
          $successMessage = ($currentLanguage === 'ar') ? 'تم التسجيل بنجاح.' : 'Registration successful!';
