@@ -195,25 +195,43 @@ class AuthController extends Controller
 
     public function register_api(Request $request)
     {
-        try {
-            $request->validate([
-                'first_name' => 'required|string|max:255',
-                'last_name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users',
-                'password' => 'required|string|min:8|confirmed',
-            ]);
-
-            // Create a new user record
-            $user = User::create([
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-            ]);
-
-            return response()->json(['user' => $user, 'message' => 'Registration successful']);
-        } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->errors()], 422);
+        $request->validate([
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'gender' => 'required|string',
+            'birthday' => 'required|date',
+            'city' => 'required|string|max:255',
+            'region' => 'required|string|max:255',
+            'mobile' => 'required|string|max:255|unique:users',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+    
+        $mobileExists = User::where('mobile', $request->mobile)->exists();
+    
+        if ($mobileExists) {
+            return response()->json(['error' => 'The mobile number is already in use. Please choose a different one.'], 422);
         }
+    
+        User::create([
+            'first_name' => $request->first_name,
+            'middle_name' => $request->middle_name,
+            'last_name' => $request->last_name,
+            'gender' => $request->gender,
+            'birthday' => $request->birthday,
+            'city' => $request->city,
+            'region' => $request->region,
+            'mobile' => $request->mobile,
+            'email' => $request->email,
+            'is_vendor' => $request->is_vendor,
+            'password' => Hash::make($request->password),
+            'photo' => 'default_user.png',
+        ]);
+    
+        $successMessage = 'Registration successful!';
+        
+        return response()->json(['success' => $successMessage], 200);
     }
-}
+    
+    }
