@@ -192,7 +192,6 @@ class AuthController extends Controller
         return response()->json(['error' => 'Invalid credentials'], 401);
     }
 
-
     public function register_api(Request $request)
     {
         $request->validate([
@@ -208,24 +207,24 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
     
-        $mobileExists = User::where('mobile', $request->mobile)->exists();
+        $mobileExists = User::where('mobile', $request->input('mobile'))->exists();
     
         if ($mobileExists) {
             return response()->json(['error' => 'The mobile number is already in use. Please choose a different one.'], 422);
         }
     
         User::create([
-            'first_name' => $request->first_name,
-            'middle_name' => $request->middle_name,
-            'last_name' => $request->last_name,
-            'gender' => $request->gender,
-            'birthday' => $request->birthday,
-            'city' => $request->city,
-            'region' => $request->region,
-            'mobile' => $request->mobile,
-            'email' => $request->email,
-            'is_vendor' => $request->is_vendor,
-            'password' => Hash::make($request->password),
+            'first_name' => $request->input('first_name'),
+            'middle_name' => $request->input('middle_name'),
+            'last_name' => $request->input('last_name'),
+            'gender' => $request->input('gender'),
+            'birthday' => $request->input('birthday'),
+            'city' => $request->input('city'),
+            'region' => $request->input('region'),
+            'mobile' => $request->input('mobile'),
+            'email' => $request->input('email'),
+            'is_vendor' => $request->input('is_vendor'),
+            'password' => Hash::make($request->input('password')),
             'photo' => 'default_user.png',
         ]);
     
@@ -234,4 +233,5 @@ class AuthController extends Controller
         return response()->json(['success' => $successMessage], 200);
     }
     
+
     }
