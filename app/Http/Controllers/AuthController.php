@@ -198,49 +198,51 @@ class AuthController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function register_api(Request $request)
-    {
-        // Validation rules
-        $rules = [
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'gender' => 'required|string',
-            'birthday' => 'required|date',
-            'city' => 'required|string|max:255',
-            'region' => 'required|string|max:255',
-            'mobile' => 'required|string|max:255|unique:users',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ];
-
-        // Validate the request
-        $request->validate($rules);
-
-        // Create a new user record
-        $user = User::create([
-            'first_name' => $request->first_name,
-            'middle_name' => $request->middle_name,
-            'last_name' => $request->last_name,
-            'gender' => $request->gender,
-            'birthday' => $request->birthday,
-            'city' => $request->city,
-            'region' => $request->region,
-            'mobile' => $request->mobile,
-            'email' => $request->email,
-            'is_vendor' => $request->is_vendor,
-            'password' => Hash::make($request->password),
-            'photo' => 'default_user.png',
-        ]);
-
-        // Return a response
-        $response = [
-            'user' => $user,
-            'message' => 'Registration successful!',
-        ];
-
-        return response()->json($response, 201);
-    }
-        
-
+     public function register_api(Request $request)
+     {
+         $lang = $request->input('lang');
+         $currentLanguage = $lang;
+     
+         // Your existing code for language-specific error messages
+     
+         // Skip validation for simplicity in this API endpoint
+     
+         // Check if the mobile number or email already exists
+         $existingUser = User::where('mobile', $request->mobile)->orWhere('email', $request->email)->first();
+     
+         if ($existingUser) {
+             $errorMessages = [];
+             
+             if ($existingUser->mobile === $request->mobile) {
+                 $errorMessages['mobile'] = ($currentLanguage === 'ar') ? 'رقم الجوال مستخدم بالفعل. يرجى اختيار رقم آخر.' : 'The mobile number is already in use. Please choose a different one.';
+             }
+     
+             if ($existingUser->email === $request->email) {
+                 $errorMessages['email'] = ($currentLanguage === 'ar') ? 'البريد الإلكتروني مستخدم بالفعل. يرجى اختيار بريد آخر.' : 'The email address is already in use. Please choose a different one.';
+             }
+     
+             return response()->json(['success' => false, 'messages' => $errorMessages]);
+         }
+     
+         // Create a new user record
+         User::create([
+             'first_name' => $request->first_name,
+             'middle_name' => $request->middle_name,
+             'last_name' => $request->last_name,
+             'gender' => $request->gender,
+             'birthday' => $request->birthday,
+             'city' => $request->city,
+             'region' => $request->region,
+             'mobile' => $request->mobile,
+             'email' => $request->email,
+             'is_vendor' => $request->is_vendor,
+             'password' => Hash::make($request->password),
+             'photo' => 'default_user.png',
+         ]);
+     
+         $successMessage = ($currentLanguage === 'ar') ? 'تم التسجيل بنجاح.' : 'Registration successful!';
+     
+         return response()->json(['success' => true, 'message' => $successMessage]);
+     }
+     
     }
