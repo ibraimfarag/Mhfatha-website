@@ -192,7 +192,7 @@ class AuthController extends Controller
         return response()->json(['error' => 'Invalid credentials'], 401);
     }
 
-    public function register(Request $request)
+    public function register_api(Request $request)
     {
         // Validation rules
         $rules = [
