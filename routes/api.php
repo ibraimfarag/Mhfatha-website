@@ -27,7 +27,7 @@ Route::get('/discounts', [DiscountController::class, 'index_api']);
 
 
 Route::post('/login-post', [AuthController::class, 'login_api']);
-Route::post('/register-post', [AuthController::class, 'register_api']);
+Route::post('/register', [AuthController::class, 'register_api']);
 
 Route::middleware('auth:api')->group(function () {
 
