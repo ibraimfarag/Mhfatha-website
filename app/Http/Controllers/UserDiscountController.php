@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Auth;
 use App\Models\UserDiscount;
 use App\Models\Discount;
@@ -20,13 +21,13 @@ class UserDiscountController extends Controller
         if ($lang && in_array($lang, ['en', 'ar'])) {
             App::setLocale($lang);
         }
-     
+
         $userDiscounts = UserDiscount::with('store', 'discount')
-        ->where('user_id', auth()->user()->id)
-        ->get();
+            ->where('user_id', auth()->user()->id)
+            ->get();
         return view('FrontEnd.profile.discounts', ['userDiscounts' => $userDiscounts]);
     }
-    
+
     public function view_admin(Request $request)
     {
         $lang = $request->input('lang');
@@ -34,10 +35,10 @@ class UserDiscountController extends Controller
         if ($lang && in_array($lang, ['en', 'ar'])) {
             App::setLocale($lang);
         }
-     
+
         $userDiscounts = UserDiscount::with('store', 'discount')
-        ->where('user_id', auth()->user()->id)
-        ->get();
+            ->where('user_id', auth()->user()->id)
+            ->get();
         return view('FrontEnd.profile.discounts.admin', ['userDiscounts' => $userDiscounts]);
     }
     public function fetchDiscounts(Request $request)
@@ -47,12 +48,12 @@ class UserDiscountController extends Controller
         $statusFilter = $request->input('statusFilter');
         $regionFilter = $request->input('regionFilter');
         $cityFilter = $request->input('cityFilter');
-    
+
         $query = UserDiscount::select('user_discounts.*')
             ->join('users', 'users.id', '=', 'user_discounts.user_id')
             ->join('stores', 'stores.id', '=', 'user_discounts.store_id')
             ->join('discounts', 'discounts.id', '=', 'user_discounts.discount_id');
-    
+
         if (!empty($userFilter)) {
             $query->where(function ($q) use ($userFilter) {
                 $q->where('users.first_name', 'like', "%$userFilter%")
@@ -71,9 +72,9 @@ class UserDiscountController extends Controller
         if (!empty($cityFilter)) {
             $query->where('stores.location', 'like', "%$cityFilter%");
         }
-    
+
         $discounts = $query->get();
-    
+
         $discountsData = $discounts->map(function ($discount) {
             return [
                 'user_name' => $discount->user->first_name . ' ' . $discount->user->last_name,
@@ -88,19 +89,19 @@ class UserDiscountController extends Controller
                 'reason' => $discount->reason,
             ];
         });
-    
+
         return response()->json($discountsData);
     }
 
 
-        public function create(Request $request)
+    public function create(Request $request)
     {
         $lang = $request->input('lang');
 
         if ($lang && in_array($lang, ['en', 'ar'])) {
             App::setLocale($lang);
         }
-     
+
         $userDiscounts = UserDiscount::where('user_id', auth()->user()->id)->get();
 
         return view('user_discounts.create', ['userDiscounts' => $userDiscounts]);
@@ -144,7 +145,7 @@ class UserDiscountController extends Controller
         return redirect()->route('user_discounts.edit', $userDiscount)->with('success', 'User discount updated successfully.');
     }
 
-    
+
     public function store_overview(Request $request)
     {
         $lang = $request->input('lang');
@@ -152,7 +153,7 @@ class UserDiscountController extends Controller
         if ($lang && in_array($lang, ['en', 'ar'])) {
             App::setLocale($lang);
         }
-     
+
         $userDiscounts = UserDiscount::where('user_id', auth()->user()->id)->get();
 
         return view('FrontEnd.profile.discounts.storeOverview', ['userDiscounts' => $userDiscounts]);
@@ -170,26 +171,26 @@ class UserDiscountController extends Controller
                 'total_payment' => 'required|numeric',
                 'lang' => 'nullable|string', // Add language validation
             ]);
-    
+
             // Get JSON data from the request body
             $requestData = $request->json()->all();
-    
+
             // Default language to English if not provided
             $lang = $requestData['lang'] ?? 'en';
-    
+
             // Calculate the after_discount based on the discount percentage
             $discount = Discount::find($requestData['discount_id']);
-    
+
             if (!$discount) {
                 $message = $lang === 'ar' ? 'لم يتم العثور على الخصم' : 'Discount not found';
                 return response()->json(['message' => $message], 404);
             }
-    
+
             $percent = $discount->percent;
             $totalPayment = $requestData['total_payment'];
-    
-            $afterDiscount = $totalPayment * ($percent / 100);
-    
+
+            $afterDiscount = $totalPayment - $totalPayment * ($percent / 100);
+
             // Create a new user discount entry
             $userDiscount = new UserDiscount();
             $userDiscount->user_id = $requestData['user_id'];
@@ -199,22 +200,22 @@ class UserDiscountController extends Controller
             $userDiscount->after_discount = $afterDiscount;
             $userDiscount->date = now();
             // You can set other fields like date, status, reason, etc. here
-    
+
             $userDiscount->save();
-    
+
             // Customize success message based on language
             $successMessage = $lang === 'ar' ? 'تمت إضافة خصم المستخدم بنجاح' : 'User discount added successfully';
-    
+
             return response()->json(['message' => $successMessage, 'after_discount' => $afterDiscount]);
         } catch (\Exception $e) {
             // Handle validation or other errors
             return response()->json(['error' => 'Invalid JSON data or internal server error'], 400);
         }
     }
-        
 
 
-    
+
+
 
     public function destroy(UserDiscount $userDiscount)
     {
@@ -226,90 +227,90 @@ class UserDiscountController extends Controller
 
 
     // /* ------------------------------- Api methos ------------------------------- */
-/**
- * Get all user discounts through API.
- *
- * @param Request $request
- * @return \Illuminate\Http\JsonResponse
- */
-public function getAllUserDiscounts(Request $request)
-{
-    try {
-        $userDiscounts = UserDiscount::with(['store:id,name', 'discount:id,category'])
-            ->where('user_id', auth()->user()->id)
-            ->get();
-        $lang = $request->json('lang');
+    /**
+     * Get all user discounts through API.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAllUserDiscounts(Request $request)
+    {
+        try {
+            $userDiscounts = UserDiscount::with(['store:id,name', 'discount:id,category'])
+                ->where('user_id', auth()->user()->id)
+                ->get();
+            $lang = $request->json('lang');
 
-        // Initialize variables for counts, total discount, and total savings
-        $totalDiscount = 0;
-        $totalSavings = 0;
-        $totalDiscountsCount = $userDiscounts->count();
-        $approvedCount = $userDiscounts->where('status', 1)->count();
-        $rejectedCount = $userDiscounts->where('status', 2)->count();
-        $pendingCount = $userDiscounts->where('status', 3)->count();
+            // Initialize variables for counts, total discount, and total savings
+            $totalDiscount = 0;
+            $totalSavings = 0;
+            $totalDiscountsCount = $userDiscounts->count();
+            $approvedCount = $userDiscounts->where('status', 1)->count();
+            $rejectedCount = $userDiscounts->where('status', 2)->count();
+            $pendingCount = $userDiscounts->where('status', 3)->count();
 
-        $formattedUserDiscounts = $userDiscounts->map(function ($userDiscount) use ($lang, &$totalDiscount, &$totalSavings) {
-            // Extract hour from created_at and format it in 12-hour format with AM or PM
-            $hour = date('h:i A', strtotime($userDiscount->created_at));
+            $formattedUserDiscounts = $userDiscounts->map(function ($userDiscount) use ($lang, &$totalDiscount, &$totalSavings) {
+                // Extract hour from created_at and format it in 12-hour format with AM or PM
+                $hour = date('h:i A', strtotime($userDiscount->created_at));
 
-            // Map status based on language
-            $statusMap = [
-                3 => ($lang === 'ar' ? 'في انتظار التاكيد' : 'Pending Confirmation'),
-                2 => ($lang === 'ar' ? 'مرفوض' : 'Rejected'),
-                1 => ($lang === 'ar' ? 'مقبول' : 'Accepted'),
-            ];
+                // Map status based on language
+                $statusMap = [
+                    3 => ($lang === 'ar' ? 'في انتظار التاكيد' : 'Pending Confirmation'),
+                    2 => ($lang === 'ar' ? 'مرفوض' : 'Rejected'),
+                    1 => ($lang === 'ar' ? 'مقبول' : 'Accepted'),
+                ];
 
-            // Initialize savings before the if statement
-            $savings = 0;
+                // Initialize savings before the if statement
+                $savings = 0;
 
-            // If the discount is approved, add its amount to the total discount and calculate savings
-            if ($userDiscount->status == 1) {
-                $totalDiscount += $userDiscount->after_discount;
-                $savings = $userDiscount->total_payment - $userDiscount->after_discount;
-                $totalSavings += $savings;
-            }
+                // If the discount is approved, add its amount to the total discount and calculate savings
+                if ($userDiscount->status == 1) {
+                    $totalDiscount += $userDiscount->after_discount;
+                    $savings = $userDiscount->total_payment - $userDiscount->after_discount;
+                    $totalSavings += $savings;
+                }
 
-            return [
-                'id' => $userDiscount->id,
-                'store_id' => $userDiscount->store_id,
-                'user_id' => $userDiscount->user_id,
-                'discount_id' => $userDiscount->discount_id,
-                'total_payment' => number_format($userDiscount->total_payment, 2),
-                'after_discount' => number_format($userDiscount->after_discount, 2), // Format to 2 decimal places
-                'date' => $userDiscount->date,
-                'status' => $statusMap[$userDiscount->status], // Map status
-                'reason' => $userDiscount->reason,
-                'obtained_status' => $userDiscount->obtained_status,
-                'obtained' => $userDiscount->obtained,
-                'notes' => $userDiscount->notes,
-                'store_name' => $userDiscount->store->name, // Add store name
-                'discount_category' => $userDiscount->discount->category, // Add discount category
-                'hour' => $hour, // Add hour
-                'created_at' => $userDiscount->created_at,
-                'updated_at' => $userDiscount->updated_at,
-                'savings' => number_format($savings, 2), // Format savings to 2 decimal places
-            ];
-        });
+                return [
+                    'id' => $userDiscount->id,
+                    'store_id' => $userDiscount->store_id,
+                    'user_id' => $userDiscount->user_id,
+                    'discount_id' => $userDiscount->discount_id,
+                    'total_payment' => number_format($userDiscount->total_payment, 2),
+                    'after_discount' => number_format($userDiscount->after_discount, 2), // Format to 2 decimal places
+                    'date' => $userDiscount->date,
+                    'status' => $statusMap[$userDiscount->status], // Map status
+                    'reason' => $userDiscount->reason,
+                    'obtained_status' => $userDiscount->obtained_status,
+                    'obtained' => $userDiscount->obtained,
+                    'notes' => $userDiscount->notes,
+                    'store_name' => $userDiscount->store->name, // Add store name
+                    'discount_category' => $userDiscount->discount->category, // Add discount category
+                    'hour' => $hour, // Add hour
+                    'created_at' => $userDiscount->created_at,
+                    'updated_at' => $userDiscount->updated_at,
+                    'savings' => number_format($savings, 2), // Format savings to 2 decimal places
+                ];
+            });
 
-        // Format the total discount and total savings to 2 decimal places
-        $totalDiscount = number_format($totalDiscount, 2);
-        $totalSavings = number_format($totalSavings, 2);
+            // Format the total discount and total savings to 2 decimal places
+            $totalDiscount = number_format($totalDiscount, 2);
+            $totalSavings = number_format($totalSavings, 2);
 
-        return response()->json([
-            'user_discounts' => $formattedUserDiscounts,
-            'total_discount' => $totalDiscount,
-            'total_savings' => $totalSavings,
-            'total_discounts_count' => $totalDiscountsCount,
-            'approved_count' => $approvedCount,
-            'rejected_count' => $rejectedCount,
-            'pending_count' => $pendingCount,
-        ], 200);
-    } catch (\Exception $e) {
-        // Log the exception for debugging
-        // \Log::error($e);
+            return response()->json([
+                'user_discounts' => $formattedUserDiscounts,
+                'total_discount' => $totalDiscount,
+                'total_savings' => $totalSavings,
+                'total_discounts_count' => $totalDiscountsCount,
+                'approved_count' => $approvedCount,
+                'rejected_count' => $rejectedCount,
+                'pending_count' => $pendingCount,
+            ], 200);
+        } catch (\Exception $e) {
+            // Log the exception for debugging
+            // \Log::error($e);
 
-        // Return a more detailed error response
-        return response()->json(['error' => $e->getMessage()], 500);
+            // Return a more detailed error response
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
-}
 }
