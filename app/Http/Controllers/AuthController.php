@@ -192,9 +192,10 @@ class AuthController extends Controller
         return response()->json(['error' => 'Invalid credentials'], 401);
     }
 
-    public function register_api(Request $request)
+    public function register(Request $request)
     {
-        $request->validate([
+        // Validation rules
+        $rules = [
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -205,39 +206,34 @@ class AuthController extends Controller
             'mobile' => 'required|string|max:255|unique:users',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8|confirmed',
-        ]);
-    
-        $mobileExists = User::where('mobile', $request->input('mobile'))->exists();
-    
-        if ($mobileExists) {
-            return response()->json(['error' => 'The mobile number is already in use. Please choose a different one.'], 422);
-        }
-    
+        ];
+
+        // Validate the request
+        $request->validate($rules);
+
+        // Create a new user record
         $user = User::create([
-            'first_name' => $request->input('first_name'),
-            'middle_name' => $request->input('middle_name'),
-            'last_name' => $request->input('last_name'),
-            'gender' => $request->input('gender'),
-            'birthday' => $request->input('birthday'),
-            'city' => $request->input('city'),
-            'region' => $request->input('region'),
-            'mobile' => $request->input('mobile'),
-            'email' => $request->input('email'),
-            'is_vendor' => $request->input('is_vendor'),
-            'password' => Hash::make($request->input('password')),
+            'first_name' => $request->first_name,
+            'middle_name' => $request->middle_name,
+            'last_name' => $request->last_name,
+            'gender' => $request->gender,
+            'birthday' => $request->birthday,
+            'city' => $request->city,
+            'region' => $request->region,
+            'mobile' => $request->mobile,
+            'email' => $request->email,
+            'is_vendor' => $request->is_vendor,
+            'password' => Hash::make($request->password),
             'photo' => 'default_user.png',
         ]);
-    
-        $token = $user->createToken('ApiToken')->accessToken;
-    
-        $successMessage = 'Registration successful!';
-    
-        return response()->json([
-            'token' => $token,
-            'success' => true,
-            'message' => $successMessage,
+
+        // Return a response
+        $response = [
             'user' => $user,
-        ], 200);
+            'message' => 'Registration successful!',
+        ];
+
+        return response()->json($response, 201);
     }
         
 
