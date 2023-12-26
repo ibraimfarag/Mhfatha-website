@@ -247,7 +247,7 @@ class AuthController extends Controller
          if ($request->hasFile('photo')) {
              $image = $request->file('photo');
              $imageName = time() . '.' . $image->getClientOriginalExtension();
-             $image->move(public_path('FrontEnd\assets\images\user_images'), $imageName);
+             $image->move(public_path('FrontEnd/assets/images/user_images'), $imageName);
          } else {
              // Use a default photo if no new photo is uploaded
              $imageName = 'default_user.png';
