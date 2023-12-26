@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -200,40 +201,37 @@ class AuthController extends Controller
 
      public function register_api(Request $request)
      {
-         $lang = $request->input('lang');
-         $currentLanguage = $lang;
+         // Validate the incoming request data
+         $validator = Validator::make($request->all(), [
+             'first_name' => 'required|string',
+             'middle_name' => 'nullable|string',
+             'last_name' => 'required|string',
+             'gender' => 'required|in:male,female', // Adjust the possible values as needed
+             'birthday' => 'required|date',
+             'city' => 'nullable|string',
+             'region' => 'required|string',
+             'mobile' => 'required|numeric|unique:users', // Make sure the mobile is unique
+             'email' => 'required|email|unique:users', // Make sure the email is unique
+             'is_vendor' => 'required|boolean',
+             'password' => 'required|min:8|confirmed', // Adjust the minimum password length as needed
+             'photo' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the photo upload
+         ]);
      
-         // Your existing code for language-specific error messages
-     
-         // Skip validation for simplicity in this API endpoint
-     
-         // Check if the mobile number or email already exists
-         $existingUser = User::where('mobile', $request->mobile)->orWhere('email', $request->email)->first();
-     
-         if ($existingUser) {
-             $errorMessages = [];
-             
-             if ($existingUser->mobile === $request->mobile) {
-                 $errorMessages['mobile'] = ($currentLanguage === 'ar') ? 'رقم الجوال مستخدم بالفعل. يرجى اختيار رقم آخر.' : 'The mobile number is already in use. Please choose a different one.';
-             }
-     
-             if ($existingUser->email === $request->email) {
-                 $errorMessages['email'] = ($currentLanguage === 'ar') ? 'البريد الإلكتروني مستخدم بالفعل. يرجى اختيار بريد آخر.' : 'The email address is already in use. Please choose a different one.';
-             }
-     
-             return response()->json(['success' => false, 'messages' => $errorMessages]);
+         // Check if validation fails
+         if ($validator->fails()) {
+             return response()->json(['success' => false, 'messages' => $validator->errors()], 400);
          }
      
-
-            // Check if a new photo was uploaded
-    if ($request->hasFile('photo')) {
-        $image = $request->file('photo');
-        $imageName = time() . '.' . $image->getClientOriginalExtension();
-        $image->move(public_path('FrontEnd\assets\images\user_images'), $imageName);
-    } else {
-        // Use a default photo if no new photo is uploaded
-        $imageName = 'default_user.png';
-    }
+         // Check if a new photo was uploaded
+         if ($request->hasFile('photo')) {
+             $image = $request->file('photo');
+             $imageName = time() . '.' . $image->getClientOriginalExtension();
+             $image->move(public_path('FrontEnd\assets\images\user_images'), $imageName);
+         } else {
+             // Use a default photo if no new photo is uploaded
+             $imageName = 'default_user.png';
+         }
+     
          // Create a new user record
          User::create([
              'first_name' => $request->first_name,
@@ -250,9 +248,10 @@ class AuthController extends Controller
              'photo' => $imageName,
          ]);
      
+         $currentLanguage = $request->input('lang');
          $successMessage = ($currentLanguage === 'ar') ? 'تم التسجيل بنجاح.' : 'Registration successful!';
      
          return response()->json(['success' => true, 'message' => $successMessage]);
      }
-     
+          
     }
