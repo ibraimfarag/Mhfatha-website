@@ -201,6 +201,9 @@ class AuthController extends Controller
 
      public function register_api(Request $request)
      {
+
+
+        $currentLanguage = $request->input('lang');
          // Validate the incoming request data
          $validator = Validator::make($request->all(), [
              'first_name' => 'required|string',
@@ -217,10 +220,28 @@ class AuthController extends Controller
              'photo' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the photo upload
          ]);
      
-         // Check if validation fails
-         if ($validator->fails()) {
-             return response()->json(['success' => false, 'messages' => $validator->errors()], 400);
-         }
+
+
+    // Check if validation fails
+    if ($validator->fails()) {
+        $errorMessages = $validator->errors()->all();
+        
+        // Translate error messages to Arabic if the current language is Arabic
+        if ($currentLanguage === 'ar') {
+            $translatedErrorMessages = [];
+
+            foreach ($errorMessages as $errorMessage) {
+                // Translate each error message here (you may replace this with your actual translations)
+                $translatedErrorMessages[] = $this->translateErrorMessage($errorMessage);
+            }
+
+            return response()->json(['success' => false, 'messages' => $translatedErrorMessages], 400);
+        }
+
+        return response()->json(['success' => false, 'messages' => $errorMessages], 400);
+    }
+
+
      
          // Check if a new photo was uploaded
          if ($request->hasFile('photo')) {
@@ -247,11 +268,34 @@ class AuthController extends Controller
              'password' => Hash::make($request->password),
              'photo' => $imageName,
          ]);
-     
-         $currentLanguage = $request->input('lang');
+         $lang = $request->input('lang');
+
+        
          $successMessage = ($currentLanguage === 'ar') ? 'تم التسجيل بنجاح.' : 'Registration successful!';
      
          return response()->json(['success' => true, 'message' => $successMessage]);
      }
-          
+     private function translateErrorMessage($errorMessage)
+     {
+        $translations = [
+            'The first name field is required.' => 'يجب إدخال الاسم الأول.',
+            'The last name field is required.' => 'يجب إدخال اسم العائلة.',
+            'The gender field is required.' => 'يجب تحديد الجنس.',
+            'The birthday field is required.' => 'يجب إدخال تاريخ الميلاد.',
+            'The region field is required.' => 'يجب إدخال المنطقة.',
+            'The mobile has already been taken.' => 'تم استخدام رقم الجوال بالفعل.',
+            'The email has already been taken.' => 'تم استخدام البريد الإلكتروني بالفعل.',
+            'The password must be at least 8 characters.' => 'يجب أن تكون كلمة المرور على الأقل 8 أحرف.',
+            'The password confirmation does not match.' => 'تأكيد كلمة المرور غير متطابق.',
+            'The mobile field is required.' => 'يجب إدخال رقم الجوال.',
+            'The email field is required.' => 'يجب إدخال البريد الإلكتروني.',
+            'The password field is required.' => 'يجب إدخال كلمة المرور.',
+            // Add more translations as needed
+        ];
+    
+     
+         return $translations[$errorMessage] ?? $errorMessage;
+     }
+     
+               
     }
