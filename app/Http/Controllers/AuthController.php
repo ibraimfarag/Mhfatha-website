@@ -163,120 +163,123 @@ class AuthController extends Controller
      */
     public function login_api(Request $request)
     {
+        $currentLanguage = $request->input('lang');
+        
         $credentials = $request->only('email_or_mobile', 'password');
-
+    
         $field = filter_var($request->input('email_or_mobile'), FILTER_VALIDATE_EMAIL) ? 'email' : 'mobile';
-
+    
         $credentials[$field] = $request->input('email_or_mobile');
         unset($credentials['email_or_mobile']);
-
+    
         if (Auth::attempt($credentials)) {
-            $token = Str::random(60);
-
-            /** @var \App\Models\User $user **/
-
             $user = Auth::user();
-            $success['token'] =  $user->createToken('ApiToken')->accessToken;
-
-
-            return response()->json([
-          
-                'token' => $success['token'],
+            $token = Str::random(60);
+    
+            $response = [
+                'token' => $token,
                 'success' => true,
-                'message' => 'Login successful',
-                'user' => Auth::user(),
-
-
-            ], 200);
+                'user' => $user,
+            ];
+    
+            if ($currentLanguage == 'ar') {
+                $response['message'] = 'تم تسجيل الدخول بنجاح';
+            } else {
+                $response['message'] = 'Login successful';
+            }
+    
+            return response()->json($response, 200);
         }
-
-        return response()->json(['error' => 'Invalid credentials'], 401);
+    
+        $errorMessage = ($currentLanguage == 'ar') ? 'البريد الإلكتروني/الجوال أو كلمة المرور غير صحيحه' : 'Invalid email/mobile or password';
+    
+        return response()->json(['error' => $errorMessage], 401);
     }
-
-        /**
+    
+    /**
      * register_api
      *
      * @return \Illuminate\Http\Response
      */
 
-     public function register_api(Request $request)
-     {
+    public function register_api(Request $request)
+    {
 
 
         $currentLanguage = $request->input('lang');
-         // Validate the incoming request data
-         $validator = Validator::make($request->all(), [
-             'first_name' => 'required|string',
-             'middle_name' => 'nullable|string',
-             'last_name' => 'required|string',
-             'gender' => 'required|in:male,female', // Adjust the possible values as needed
-             'birthday' => 'required|date',
-             'city' => 'nullable|string',
-             'region' => 'required|string',
-             'mobile' => 'required|numeric|unique:users', // Make sure the mobile is unique
-             'email' => 'required|email|unique:users', // Make sure the email is unique
-             'is_vendor' => 'required|boolean',
-             'password' => 'required|min:8|confirmed', // Adjust the minimum password length as needed
-             'photo' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the photo upload
-         ]);
-     
+        // Validate the incoming request data
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string',
+            'middle_name' => 'nullable|string',
+            'last_name' => 'required|string',
+            'gender' => 'required|in:male,female', // Adjust the possible values as needed
+            'birthday' => 'required|date',
+            'city' => 'nullable|string',
+            'region' => 'required|string',
+            'mobile' => 'required|numeric|unique:users', // Make sure the mobile is unique
+            'email' => 'required|email|unique:users', // Make sure the email is unique
+            'is_vendor' => 'required|boolean',
+            'password' => 'required|min:8|confirmed', // Adjust the minimum password length as needed
+            'photo' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the photo upload
+        ]);
 
 
-    // Check if validation fails
-    if ($validator->fails()) {
-        $errorMessages = $validator->errors()->all();
-        
-        // Translate error messages to Arabic if the current language is Arabic
-        if ($currentLanguage === 'ar') {
-            $translatedErrorMessages = [];
 
-            foreach ($errorMessages as $errorMessage) {
-                // Translate each error message here (you may replace this with your actual translations)
-                $translatedErrorMessages[] = $this->translateErrorMessage($errorMessage);
+        // Check if validation fails
+        if ($validator->fails()) {
+            $errorMessages = $validator->errors()->all();
+
+            // Translate error messages to Arabic if the current language is Arabic
+            if ($currentLanguage === 'ar') {
+                $translatedErrorMessages = [];
+
+                foreach ($errorMessages as $errorMessage) {
+                    // Translate each error message here (you may replace this with your actual translations)
+                    $translatedErrorMessages[] = $this->translateErrorMessage($errorMessage);
+                }
+
+                return response()->json(['success' => false, 'messages' => $translatedErrorMessages], 400);
             }
 
-            return response()->json(['success' => false, 'messages' => $translatedErrorMessages], 400);
+            return response()->json(['success' => false, 'messages' => $errorMessages], 400);
         }
 
-        return response()->json(['success' => false, 'messages' => $errorMessages], 400);
+
+
+        // Check if a new photo was uploaded
+        if ($request->hasFile('photo')) {
+            $image = $request->file('photo');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('FrontEnd/assets/images/user_images'), $imageName);
+        } else {
+            // Use a default photo if no new photo is uploaded
+            $imageName = 'default_user.png';
+        }
+
+        // Create a new user record
+        User::create([
+            'first_name' => $request->first_name,
+            'middle_name' => $request->middle_name,
+            'last_name' => $request->last_name,
+            'gender' => $request->gender,
+            'birthday' => $request->birthday,
+            'city' => $request->city,
+            'region' => $request->region,
+            'mobile' => $request->mobile,
+            'email' => $request->email,
+            'is_vendor' => $request->is_vendor,
+            'password' => Hash::make($request->password),
+            'photo' => $imageName,
+        ]);
+        $lang = $request->input('lang');
+
+
+        $successMessage = ($currentLanguage === 'ar') ? 'تم التسجيل بنجاح.' : 'Registration successful!';
+
+        return response()->json(['success' => true, 'message' => $successMessage]);
     }
-
-
-     
-         // Check if a new photo was uploaded
-         if ($request->hasFile('photo')) {
-             $image = $request->file('photo');
-             $imageName = time() . '.' . $image->getClientOriginalExtension();
-             $image->move(public_path('FrontEnd/assets/images/user_images'), $imageName);
-         } else {
-             // Use a default photo if no new photo is uploaded
-             $imageName = 'default_user.png';
-         }
-     
-         // Create a new user record
-         User::create([
-             'first_name' => $request->first_name,
-             'middle_name' => $request->middle_name,
-             'last_name' => $request->last_name,
-             'gender' => $request->gender,
-             'birthday' => $request->birthday,
-             'city' => $request->city,
-             'region' => $request->region,
-             'mobile' => $request->mobile,
-             'email' => $request->email,
-             'is_vendor' => $request->is_vendor,
-             'password' => Hash::make($request->password),
-             'photo' => $imageName,
-         ]);
-         $lang = $request->input('lang');
-
-        
-         $successMessage = ($currentLanguage === 'ar') ? 'تم التسجيل بنجاح.' : 'Registration successful!';
-     
-         return response()->json(['success' => true, 'message' => $successMessage]);
-     }
-     private function translateErrorMessage($errorMessage)
-     {
+    private function translateErrorMessage($errorMessage)
+    {
         $translations = [
             'The first name field is required.' => 'يجب إدخال الاسم الأول.',
             'The last name field is required.' => 'يجب إدخال اسم العائلة.',
@@ -292,10 +295,8 @@ class AuthController extends Controller
             'The password field is required.' => 'يجب إدخال كلمة المرور.',
             // Add more translations as needed
         ];
-    
-     
-         return $translations[$errorMessage] ?? $errorMessage;
-     }
-     
-               
+
+
+        return $translations[$errorMessage] ?? $errorMessage;
     }
+}
