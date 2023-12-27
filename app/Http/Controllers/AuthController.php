@@ -172,12 +172,18 @@ class AuthController extends Controller
         $credentials[$field] = $request->input('email_or_mobile');
         unset($credentials['email_or_mobile']);
     
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
+         if (Auth::attempt($credentials)) {
             $token = Str::random(60);
-    
-            $response = [
-                'token' => $token,
+
+            /** @var \App\Models\User $user **/
+
+            $user = Auth::user();
+            $success['token'] =  $user->createToken('ApiToken')->accessToken;
+
+
+            return response()->json([
+
+                'token' => $success['token'],
                 'success' => true,
                 'user' => $user,
             ];
