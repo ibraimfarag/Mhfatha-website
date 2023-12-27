@@ -172,7 +172,8 @@ class AuthController extends Controller
         $credentials[$field] = $request->input('email_or_mobile');
         unset($credentials['email_or_mobile']);
     
-         if (Auth::attempt($credentials)) {
+
+        if (Auth::attempt($credentials)) {
             $token = Str::random(60);
 
             /** @var \App\Models\User $user **/
@@ -184,9 +185,15 @@ class AuthController extends Controller
             return response()->json([
 
                 'token' => $success['token'],
+
+          
                 'success' => true,
-                'user' => $user,
-            ];
+                'message' => 'Login successful',
+                'user' => Auth::user(),
+
+
+            ], 200);
+            
     
             if ($currentLanguage == 'ar') {
                 $response['message'] = 'تم تسجيل الدخول بنجاح';
