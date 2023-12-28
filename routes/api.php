@@ -34,6 +34,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/nearby', [StoreController::class, 'nearbyApi']);
     Route::post('/store', [StoreController::class, 'storeInfoApi']);
+    Route::get('/stores/search-by-name', [StoreController::class, 'searchByNameApi']);
     Route::post('/store-qr', [StoreController::class, 'decryptQrCode']);
     Route::post('/discounts-post', [UserDiscountController::class, 'postUserDiscount']);
     Route::post('/user-discounts', [UserDiscountController::class, 'getAllUserDiscounts']);
