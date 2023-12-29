@@ -529,13 +529,13 @@ class StoreController extends Controller
         }
     
         // Perform the search query
-        $stores = Store::where('name', 'like', '%' . $searchTerm . '%')
-            ->get();
+        $stores = Store::where('name', 'like', '%' . $searchTerm . '%')->get();
     
         // Check if stores were found
         if ($stores->isEmpty()) {
-            // Return a custom error message in Arabic
-            return new JsonResponse(['error' => __('لا يوجد متجر بهذا الاسم')]);
+            // Return response in Arabic if not found
+            $errorMessage = __('لا يوجد متجر بهذا الاسم');
+            return new JsonResponse(['error' => $errorMessage], 404);
         }
     
         // Convert the results to a more suitable format for API response
@@ -549,4 +549,6 @@ class StoreController extends Controller
         return new JsonResponse(['stores' => $filteredStores]);
     }
     
+    
+        
 }
