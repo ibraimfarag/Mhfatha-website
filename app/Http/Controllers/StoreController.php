@@ -506,7 +506,6 @@ class StoreController extends Controller
 
         return redirect()->route('Stores.view', ['lang' => $lang])->with('success', 'Store deleted successfully.');
     }
-
     public function searchByNameApi(Request $request)
     {
         // Decode JSON input if it exists
@@ -515,6 +514,7 @@ class StoreController extends Controller
         $lang = $requestData['lang'] ?? null;
         $searchTerm = $requestData['search_term'] ?? null;
     
+        // Set the application locale based on the 'lang' parameter
         if ($lang && in_array($lang, ['en', 'ar'])) {
             App::setLocale($lang);
         }
@@ -525,7 +525,9 @@ class StoreController extends Controller
         ]);
     
         if ($validator->fails()) {
-            return new JsonResponse(['error' => $validator->errors()], 400);
+            // Return validation error message in the requested language
+            $errorMessage = $lang === 'en' ? 'Please enter store name.' : __('ادخل اسم المتجر ');
+            return new JsonResponse(['error' => $errorMessage], 400);
         }
     
         // Perform the search query
@@ -533,8 +535,8 @@ class StoreController extends Controller
     
         // Check if stores were found
         if ($stores->isEmpty()) {
-            // Return response in Arabic if not found
-            $errorMessage = __('لا يوجد متجر بهذا الاسم');
+            // Return response in the requested language
+            $errorMessage = $lang === 'en' ? 'No store found with this name.' : __('لا يوجد متجر بهذا الاسم');
             return new JsonResponse(['error' => $errorMessage], 404);
         }
     
