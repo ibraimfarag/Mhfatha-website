@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\File;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Http\JsonResponse;
 
 class StoreController extends Controller
 {
@@ -507,37 +508,45 @@ class StoreController extends Controller
     }
 
     public function searchByNameApi(Request $request)
-{
-    $lang = $request->input('lang');
-    $searchTerm = $request->input('search_term');
-
-    if ($lang && in_array($lang, ['en', 'ar'])) {
-        App::setLocale($lang);
+    {
+        // Decode JSON input if it exists
+        $requestData = $request->json()->all();
+    
+        $lang = $requestData['lang'] ?? null;
+        $searchTerm = $requestData['search_term'] ?? null;
+    
+        if ($lang && in_array($lang, ['en', 'ar'])) {
+            App::setLocale($lang);
+        }
+    
+        // Validate the incoming data
+        $validator = Validator::make($requestData, [
+            'search_term' => 'required|max:255',
+        ]);
+    
+        if ($validator->fails()) {
+            return new JsonResponse(['error' => $validator->errors()], 400);
+        }
+    
+        // Perform the search query
+        $stores = Store::where('name', 'like', '%' . $searchTerm . '%')
+            ->get();
+    
+        // Check if stores were found
+        if ($stores->isEmpty()) {
+            // Return a custom error message in Arabic
+            return new JsonResponse(['error' => __('لا يوجد متجر بهذا الاسم')]);
+        }
+    
+        // Convert the results to a more suitable format for API response
+        $filteredStores = $stores->map(function ($store) {
+            return [
+                'id' => $store->id,
+                'name' => $store->name,
+            ];
+        });
+    
+        return new JsonResponse(['stores' => $filteredStores]);
     }
-
-    // Validate the incoming data
-    $validator = Validator::make($request->all(), [
-        'search_term' => 'required|max:255',
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json(['error' => $validator->errors()], 400);
-    }
-
-    // Perform the search query
-    $stores = Store::where('name', 'like', '%' . $searchTerm . '%')
-        ->get();
-
-    // Convert the results to a more suitable format for API response
-    $filteredStores = $stores->map(function ($store) {
-        return [
-            'id' => $store->id,
-            'name' => $store->name,
-          
-        ];
-    });
-
-    return response()->json(['stores' => $filteredStores]);
-}
-
+    
 }
