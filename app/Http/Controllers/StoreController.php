@@ -471,22 +471,65 @@ class StoreController extends Controller
     public function storeInfoApi(Request $request)
     {
         $storeId = $request->json('id');
-
+        $userLatitude = $request->json('user_latitude');
+        $userLongitude = $request->json('user_longitude');
+        $lang = $request->json('lang');
+    
+        // Check if user_latitude or user_longitude is null
+        if ($userLatitude === null || $userLongitude === null) {
+            return response()->json(['error' => ($lang === 'ar' ? 'يرجى توفير موقع المستخدم' : 'Please provide user location')], 400);
+        }
+    
         $store = Store::with(['Discounts' => function ($query) {
             $query->where('Discounts_status', 'working')->where('is_deleted', 0);
         }])->find($storeId);
-
+    
         if (!$store) {
-            return response()->json(['error' => 'Store not found'], 404);
+            return response()->json(['error' => ($lang === 'ar' ? 'المتجر غير موجود' : 'Store not found')], 404);
         }
-
+    
+        // Calculate distance from user's location to the store
+        $earthRadius = 5; // Earth radius in kilometers
+    
+        $lat1 = deg2rad($userLatitude);
+        $lon1 = deg2rad($userLongitude);
+        $lat2 = deg2rad($store->latitude);
+        $lon2 = deg2rad($store->longitude);
+    
+        $dlat = $lat2 - $lat1;
+        $dlon = $lon2 - $lon1;
+    
+        $a = sin($dlat / 2) ** 2 + cos($lat1) * cos($lat2) * sin($dlon / 2) ** 2;
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+    
+        $distance = $earthRadius * $c;
+    
+        // Add the distance information to the response
+        $store->distance = $this->formatDistance($distance, $lang);
+    
         if ($store->Discounts->isEmpty()) {
-            return response()->json(['store' => $store, 'message' => 'No discounts available for this store']);
+            return response()->json(['store' => $store, 'message' => ($lang === 'ar' ? 'لا تتوفر خصومات لهذا المتجر' : 'No discounts available for this store')]);
         }
-
+    
         return response()->json(['store' => $store]);
     }
-    public function verify(Request $request, Store $store)
+    
+    private function formatDistance($distance, $lang)
+    {
+        if ($distance < 1.0) {
+            return number_format($distance * 1000, 1, '.', '') . ' ' . ($lang === 'ar' ? 'م' : 'm');
+        } else {
+            return number_format($distance, 1, '.', '') . ' ' . ($lang === 'ar' ? 'كم' : 'km');
+        }
+
+        if ($distance < 1.0) {
+            $distance = number_format($distance * 1000, 1, '.', '') . ' ' . ($lang === 'ar' ? 'م' : 'm');
+
+        } else {
+            $distance = number_format($distance, 1, '.', '') . ' ' . ($lang === 'ar' ? 'كم' : 'km');
+        }
+    }
+            public function verify(Request $request, Store $store)
     {
         $lang = $request->input('lang');
         // Perform store verification logic here
