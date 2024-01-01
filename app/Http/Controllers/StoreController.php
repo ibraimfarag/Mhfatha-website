@@ -480,32 +480,28 @@ class StoreController extends Controller
             return response()->json(['error' => ($lang === 'ar' ? 'يرجى توفير موقع المستخدم' : 'Please provide user location')], 400);
         }
     
+        $radius = 5; // Set the radius in kilometers
+    
         $store = Store::with(['Discounts' => function ($query) {
             $query->where('Discounts_status', 'working')->where('is_deleted', 0);
-        }])->find($storeId);
+        }])
+            ->select('*')
+            ->selectRaw(
+                '( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) ) *
+            cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) *
+            sin( radians( latitude ) ) ) ) AS distance',
+                [$userLatitude, $userLongitude, $userLatitude]
+            )
+            ->having('distance', '<', $radius)
+            ->orderBy('distance')
+            ->find($storeId);
     
         if (!$store) {
             return response()->json(['error' => ($lang === 'ar' ? 'المتجر غير موجود' : 'Store not found')], 404);
         }
     
-        // Calculate distance from user's location to the store
-        $earthRadius = 5; // Earth radius in kilometers
-    
-        $lat1 = deg2rad($userLatitude);
-        $lon1 = deg2rad($userLongitude);
-        $lat2 = deg2rad($store->latitude);
-        $lon2 = deg2rad($store->longitude);
-    
-        $dlat = $lat2 - $lat1;
-        $dlon = $lon2 - $lon1;
-    
-        $a = sin($dlat / 2) ** 2 + cos($lat1) * cos($lat2) * sin($dlon / 2) ** 2;
-        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-    
-        $distance = $earthRadius * $c;
-    
-        // Add the distance information to the response
-        $store->distance = $this->formatDistance($distance, $lang);
+        // Convert distance to a more readable format
+        $store->distance = $this->formatDistance($store->distance, $lang);
     
         if ($store->Discounts->isEmpty()) {
             return response()->json(['store' => $store, 'message' => ($lang === 'ar' ? 'لا تتوفر خصومات لهذا المتجر' : 'No discounts available for this store')]);
@@ -517,18 +513,14 @@ class StoreController extends Controller
     private function formatDistance($distance, $lang)
     {
         if ($distance < 1.0) {
-            return number_format($distance * 1000, 1, '.', '') . ' ' . ($lang === 'ar' ? 'م' : 'm');
+            return number_format($distance * 1000, 0, '.', '') . ' ' . ($lang === 'ar' ? 'م' : 'm');
+        } elseif ($distance >= 1000) {
+            return number_format($distance / 1000, 2, '.', '') . ' ' . ($lang === 'ar' ? 'كم' : 'km');
         } else {
-            return number_format($distance, 1, '.', '') . ' ' . ($lang === 'ar' ? 'كم' : 'km');
-        }
-
-        if ($distance < 1.0) {
-            $distance = number_format($distance * 1000, 1, '.', '') . ' ' . ($lang === 'ar' ? 'م' : 'm');
-
-        } else {
-            $distance = number_format($distance, 1, '.', '') . ' ' . ($lang === 'ar' ? 'كم' : 'km');
+            return number_format($distance, 2, '.', '') . ' ' . ($lang === 'ar' ? 'كم' : 'km');
         }
     }
+    
             public function verify(Request $request, Store $store)
     {
         $lang = $request->input('lang');
