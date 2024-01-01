@@ -480,19 +480,16 @@ class StoreController extends Controller
             return response()->json(['error' => ($lang === 'ar' ? 'يرجى توفير موقع المستخدم' : 'Please provide user location')], 400);
         }
     
-        $radius = 5; // Set the radius in kilometers
-    
         $store = Store::with(['Discounts' => function ($query) {
             $query->where('Discounts_status', 'working')->where('is_deleted', 0);
         }])
             ->select('*')
             ->selectRaw(
-                '( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) ) *
-            cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) *
-            sin( radians( latitude ) ) ) ) AS distance',
+                '(6371 * acos(cos(radians(?)) * cos(radians(latitude)) *
+            cos(radians(longitude) - radians(?)) + sin(radians(?)) *
+            sin(radians(latitude)))) AS distance',
                 [$userLatitude, $userLongitude, $userLatitude]
             )
-            ->having('distance', '<', $radius)
             ->orderBy('distance')
             ->find($storeId);
     
