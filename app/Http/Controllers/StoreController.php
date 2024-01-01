@@ -485,9 +485,9 @@ class StoreController extends Controller
         }])
             ->select('*')
             ->selectRaw(
-                '(6371 * acos(cos(radians(?)) * cos(radians(latitude)) *
-            cos(radians(longitude) - radians(?)) + sin(radians(?)) *
-            sin(radians(latitude)))) AS distance',
+                '( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) ) *
+                cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) *
+                sin( radians( latitude ) ) ) ) AS distance',
                 [$userLatitude, $userLongitude, $userLatitude]
             )
             ->orderBy('distance')
@@ -512,7 +512,7 @@ class StoreController extends Controller
         if ($distance < 1.0) {
             return number_format($distance * 1000, 0, '.', '') . ' ' . ($lang === 'ar' ? 'م' : 'm');
         } elseif ($distance >= 1000) {
-            return number_format($distance / 1000, 2, '.', '') . ' ' . ($lang === 'ar' ? 'كم' : 'km');
+            return number_format($distance, 2, '.', '') . ' ' . ($lang === 'ar' ? 'كم' : 'km');
         } else {
             return number_format($distance, 2, '.', '') . ' ' . ($lang === 'ar' ? 'كم' : 'km');
         }
