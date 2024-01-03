@@ -264,11 +264,12 @@ class UserDiscountController extends Controller
                 $savings = 0;
 
                 // If the discount is approved, add its amount to the total discount and calculate savings
-                if ($userDiscount->status == 1) {
+                
+                // if ($userDiscount->status == 1) {
                     $totalDiscount += $userDiscount->after_discount;
                     $savings = $userDiscount->total_payment - $userDiscount->after_discount;
                     $totalSavings += $savings;
-                }
+                // }
 
                 return [
                     'id' => $userDiscount->id,
