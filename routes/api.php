@@ -30,6 +30,8 @@ Route::post('login-post', [AuthController::class, 'login_api']);
 
 Route::post('register-post', [AuthController::class, 'register_api']);
 
+Route::get('check-network', [AuthController::class, 'checkInternetConnection']);
+
 Route::middleware('auth:api')->group(function () {
 
     Route::post('/nearby', [StoreController::class, 'nearbyApi']);

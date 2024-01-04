@@ -312,4 +312,12 @@ class AuthController extends Controller
 
         return $translations[$errorMessage] ?? $errorMessage;
     }
+
+
+    public function checkInternetConnection()
+    {
+
+            return response()->json(['status' => 'connected']);
+       
+    }
 }
