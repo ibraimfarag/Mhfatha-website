@@ -442,6 +442,8 @@ class StoreController extends Controller
             }
         }
         $filteredStores = $nearbyStores->map(function ($store) {
+            $category = $store->category;
+
             return [
                 'id' => $store->id,
                 'name' => $store->name,
@@ -456,7 +458,10 @@ class StoreController extends Controller
                 'phone'=> $store->phone,
                 'status'=> $store->status,
                 'discounts' => $store->discounts->where('discounts_status', 'working')->where('is_deleted', 0),
-                'category' => $store->category,
+                'category_name_ar' => optional($category)->category_name_ar,
+                'category_name_en' => optional($category)->category_name_en,
+    
+           
 
             ];
         });
