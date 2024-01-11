@@ -507,14 +507,17 @@ class StoreController extends Controller
         // Convert distance to a more readable format
         $store->distance = $this->formatDistance($store->distance, $lang);
     
+        // Fetch category name based on the language
+        $category = StoreCategory::find($store->category_id);
+        $store->category_name = optional($category)->{"category_name_" . $lang};
+    
         if ($store->Discounts->isEmpty()) {
             return response()->json(['store' => $store, 'message' => ($lang === 'ar' ? 'لا تتوفر خصومات لهذا المتجر' : 'No discounts available for this store')]);
         }
     
         return response()->json(['store' => $store]);
     }
-    
-    private function formatDistance($distance, $lang)
+        private function formatDistance($distance, $lang)
     {
         if ($distance < 1.0) {
             return number_format($distance * 1000, 0, '.', '') . ' ' . ($lang === 'ar' ? 'م' : 'm');
@@ -589,7 +592,6 @@ class StoreController extends Controller
     
         return new JsonResponse(['stores' => $filteredStores]);
     }
-    // StoreController.php
 
     public function filterStoresApi(Request $request)
     {
@@ -646,30 +648,57 @@ class StoreController extends Controller
             $store->distance = $this->formatDistance($store->distance, $lang);
         }
     
-        // Query to get categoryList based on the selected region
-        $categoryListQuery = Store::where('region', $region)->distinct('category_id')->pluck('category_id');
-    
-        // If 'All Regions' is chosen or no region is selected, get all categories
-        if (!$region || $region === $allRegionsLabel) {
-            $categoryListQuery = Store::distinct('category_id')->pluck('category_id');
-        }
-    
-        // Convert category IDs to names
+        // Get category names based on the selected region
+        $categoryListQuery = $query->distinct('category_id')->pluck('category_id');
         $categoryList = StoreCategory::whereIn('id', $categoryListQuery)->pluck('category_name_' . $lang);
     
+        // Map the stores to the desired format
+        $filteredStores = $filteredStores->map(function ($store) use ($lang) {
+            $category = StoreCategory::find($store->category_id);
+        
+            return [
+                'id' => $store->id,
+                'user_id' => $store->user_id,
+                'name' => $store->name,
+                'location' => $store->location,
+                'phone' => $store->phone,
+                'url_map' => $store->url_map,
+                'photo' => $store->photo,
+                'qr' => $store->qr,
+                'total_payments' => $store->total_payments,
+                'total_withdrawals' => $store->total_withdrawals,
+                'count_times' => $store->count_times,
+                'work_hours' => $store->work_hours,
+                'work_days' => $store->work_days,
+                'city' => $store->city,
+                'region' => $store->region,
+                'status' => $store->status,
+                'verifcation' => $store->verifcation,
+                'is_bann' => $store->is_bann,
+                'bann_msg' => $store->bann_msg,
+                'is_deleted' => $store->is_deleted,
+                'created_at' => $store->created_at,
+                'updated_at' => $store->updated_at,
+                'latitude' => $store->latitude,
+                'longitude' => $store->longitude,
+                'category_name' => optional($category)->{"category_name_" . $lang}, // Get category name based on language
+                'distance' => $store->distance,
+            ];
+        });
+            
         // Include the 'region' field, 'regionList', 'category' field, 'categoryList', and 'filteredStores' in the response
         $response = [
             'filteredStores' => $filteredStores,
             'region' => $region,
             'regionList' => $regionList,
-            'category' => $categoryName, // Change to category name
+            'category' => $categoryName,
             'categoryList' => $categoryList,
         ];
     
         // Return the response as JSON
         return response()->json($response);
     }
-        
+            
 
     
     
