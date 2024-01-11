@@ -46,6 +46,10 @@ class Store extends Model
         return $this->hasMany(UserDiscount::class);
     }
 
+    public function category()
+    {
+        return $this->belongsTo(StoreCategory::class, 'category_id');
+    }
 
 
 }

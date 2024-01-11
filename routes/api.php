@@ -40,5 +40,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/store-qr', [StoreController::class, 'decryptQrCode']);
     Route::post('/discounts-post', [UserDiscountController::class, 'postUserDiscount']);
     Route::post('/user-discounts', [UserDiscountController::class, 'getAllUserDiscounts']);
+    Route::post('/filter-stores', [StoreController::class, 'filterStoresApi']);
+
 
 });

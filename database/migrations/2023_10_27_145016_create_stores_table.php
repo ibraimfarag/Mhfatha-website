@@ -37,7 +37,8 @@ $table->decimal('longitude', 11, 8)->nullable();
             $table->boolean('is_bann')->default(0); // 1 for active, 0 for inactive
             $table->text('bann_msg')->nullable();
             $table->timestamps();
-    
+            $table->unsignedBigInteger('category_id')->nullable();
+            $table->foreign('category_id')->references('id')->on('store_categories');
             $table->foreign('user_id')->references('id')->on('users');
         });
     }

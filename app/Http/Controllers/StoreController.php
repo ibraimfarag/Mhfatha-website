@@ -13,6 +13,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Http\JsonResponse;
+use App\Models\StoreCategory;
 
 class StoreController extends Controller
 {
@@ -455,6 +456,7 @@ class StoreController extends Controller
                 'phone'=> $store->phone,
                 'status'=> $store->status,
                 'discounts' => $store->discounts->where('discounts_status', 'working')->where('is_deleted', 0),
+                'category' => $store->category,
 
             ];
         });
@@ -582,6 +584,88 @@ class StoreController extends Controller
     
         return new JsonResponse(['stores' => $filteredStores]);
     }
+    // StoreController.php
+
+    public function filterStoresApi(Request $request)
+    {
+        $lang = $request->input('lang');
+    
+        if ($lang && in_array($lang, ['en', 'ar'])) {
+            App::setLocale($lang);
+        }
+    
+        // Get the user's location from the request
+        $userLatitude = $request->input('user_latitude');
+        $userLongitude = $request->input('user_longitude');
+    
+        // Additional parameters for filtering
+        $region = $request->input('region');
+        $categoryName = $request->input('category');
+    
+        // Define the label for "All Regions" based on the language
+        $allRegionsLabel = ($lang === 'ar') ? 'جميع المدن' : 'All Regions';
+    
+        // Query to get a list of unique regions and categories
+        $regionList = [$allRegionsLabel] + Store::distinct('region')->pluck('region')->toArray();
+    
+        // Query to filter stores based on parameters
+        $query = Store::select('*');
+    
+        if ($region && $region !== $allRegionsLabel) {
+            $query->where('region', $region);
+        }
+    
+        if ($categoryName) {
+            // Convert category name to ID
+            $categoryId = StoreCategory::where('category_name_' . $lang, $categoryName)->value('id');
+            if ($categoryId) {
+                $query->where('category_id', $categoryId);
+            }
+        }
+    
+        // Add distance calculation if user latitude and longitude are provided
+        if ($userLatitude !== null && $userLongitude !== null) {
+            $query->selectRaw(
+                '( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) ) *
+                cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) *
+                sin( radians( latitude ) ) ) ) AS distance',
+                [$userLatitude, $userLongitude, $userLatitude]
+            )->orderBy('distance');
+        }
+    
+        // Execute the query
+        $filteredStores = $query->get();
+    
+        // Convert distance to a more readable format
+        foreach ($filteredStores as $store) {
+            $store->distance = $this->formatDistance($store->distance, $lang);
+        }
+    
+        // Query to get categoryList based on the selected region
+        $categoryListQuery = Store::where('region', $region)->distinct('category_id')->pluck('category_id');
+    
+        // If 'All Regions' is chosen or no region is selected, get all categories
+        if (!$region || $region === $allRegionsLabel) {
+            $categoryListQuery = Store::distinct('category_id')->pluck('category_id');
+        }
+    
+        // Convert category IDs to names
+        $categoryList = StoreCategory::whereIn('id', $categoryListQuery)->pluck('category_name_' . $lang);
+    
+        // Include the 'region' field, 'regionList', 'category' field, 'categoryList', and 'filteredStores' in the response
+        $response = [
+            'filteredStores' => $filteredStores,
+            'region' => $region,
+            'regionList' => $regionList,
+            'category' => $categoryName, // Change to category name
+            'categoryList' => $categoryList,
+        ];
+    
+        // Return the response as JSON
+        return response()->json($response);
+    }
+        
+
     
     
         
