@@ -27,7 +27,7 @@ class CreateStoresTable extends Migration
             $table->unsignedInteger('count_times')->default(0);
             $table->string('work_hours');
             $table->string('work_days');
-            $table->string('city')->nullable(); // Add city field
+            $table->unsignedBigInteger('city')->nullable(); // Add city field
             $table->unsignedBigInteger('region')->nullable(); // Add region field
             $table->decimal('latitude', 10, 8)->nullable();
 $table->decimal('longitude', 11, 8)->nullable();

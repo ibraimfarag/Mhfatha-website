@@ -45,4 +45,14 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(UserDiscount::class);
     }
+    
+    public function region()
+    {
+        return $this->belongsTo(Region::class);
+    }
+
+    public function city()
+    {
+        return $this->belongsTo(City::class);
+    }
 }

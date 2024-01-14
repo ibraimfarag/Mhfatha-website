@@ -21,7 +21,7 @@ class CreateUsersTable extends Migration
             $table->string('gender');
             $table->date('birthday');
             $table->string('city')->nullable();
-            $table->string('region');
+            $table->unsignedBigInteger('region')->nullable();
             $table->string('mobile');
             $table->string('photo')->nullable();
             $table->string('email')->unique();
@@ -31,6 +31,8 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+            $table->foreign('region')->references('id')->on('regions');
+            $table->foreign('city')->references('id')->on('cities');
         });
     }
 
