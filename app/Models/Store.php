@@ -51,5 +51,14 @@ class Store extends Model
         return $this->belongsTo(StoreCategory::class, 'category_id');
     }
 
+    public function region()
+    {
+        return $this->belongsTo(Region::class);
+    }
+
+    public function city()
+    {
+        return $this->belongsTo(City::class);
+    }
 
 }

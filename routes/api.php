@@ -7,6 +7,7 @@ use App\Http\Controllers\UserDiscountController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomEncrypter;
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +35,8 @@ Route::get('check-network', [AuthController::class, 'checkInternetConnection']);
 
 Route::middleware('auth:api')->group(function () {
 
+    // Route::get('/auth/update', [UserController::class, 'profileApi']);
+    Route::post('/auth/update', [UserController::class, 'updateProfileApi']);
     Route::post('/nearby', [StoreController::class, 'nearbyApi']);
     Route::post('/store', [StoreController::class, 'storeInfoApi']);
     Route::post('/stores/search-by-name', [StoreController::class, 'searchByNameApi']);

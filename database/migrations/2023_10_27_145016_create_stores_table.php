@@ -28,7 +28,7 @@ class CreateStoresTable extends Migration
             $table->string('work_hours');
             $table->string('work_days');
             $table->string('city')->nullable(); // Add city field
-            $table->string('region')->nullable(); // Add region field
+            $table->unsignedBigInteger('region')->nullable(); // Add region field
             $table->decimal('latitude', 10, 8)->nullable();
 $table->decimal('longitude', 11, 8)->nullable();
             $table->boolean('status')->default(1); // 1 for active, 0 for inactive
@@ -40,6 +40,9 @@ $table->decimal('longitude', 11, 8)->nullable();
             $table->unsignedBigInteger('category_id')->nullable();
             $table->foreign('category_id')->references('id')->on('store_categories');
             $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('region')->references('id')->on('regions');
+
+
         });
     }
 

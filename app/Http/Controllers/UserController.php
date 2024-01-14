@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\File;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
+use App\Models\Region; // Import the Region model
+use App\Models\City;
 
 class UserController extends Controller
 {
@@ -374,6 +377,78 @@ public function update_profile(Request $request)
     // Redirect back to the profile page or wherever you want
     return redirect()->route('profile', ['lang' => $lang])->with('success', $successMessage);
 }
+
+   /**
+     * Get or Update user profile through API.
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateProfileApi(Request $request)
+    {
+  
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'birthday' => 'required|date',
+            'gender' => 'required|in:male,female',
+            'city' => 'required|string|max:255',
+            'region' => 'required|string|max:255', // Assuming a region field in the request
+            'mobile' => 'required|string|max:20',
+            'email' => 'required|string|email|max:255',
+            'profile_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust file type and size as needed
+        ]);
+
+        if ($validator->fails()) {
+            $userId = Auth::user()->id;
+            $user = User::find($userId);
+            $regions = Region::select('id', 'region_ar', 'region_en')->get();
+
+            return response()->json(['error' => $validator->errors(),'user'=> $user, 'regions' => $regions], 422);
+        }
+
+        // Check if the user exists
+        $userId = Auth::user()->id;
+        $user = User::find($userId);
+
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        // Update the user's profile information
+        $user->fill($request->all());
+
+        // Check if a new profile image was uploaded
+        if ($request->hasFile('profile_image')) {
+            // Delete the old profile image (if it exists)
+            if ($user->profile_image) {
+                $oldImagePath = public_path('FrontEnd/assets/images/user_images/' . $user->profile_image);
+                if (File::exists($oldImagePath)) {
+                    File::delete($oldImagePath);
+                }
+            }
+
+            // Store the new profile image
+            $image = $request->file('profile_image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('FrontEnd/assets/images/user_images'), $imageName);
+            $user->profile_image = $imageName;
+        }
+
+        // Save the updated user data
+        $user->save();
+        $regionId = $request->input('region_id');
+        $cities = City::where('region_id', $regionId)->select('id', 'city_name')->get();
+
+        return response()->json([
+            'message' => 'User profile updated successfully',
+            'user' => $user,
+            'cities' => $cities,
+        ]);
+    }
+
+
 
 
 
