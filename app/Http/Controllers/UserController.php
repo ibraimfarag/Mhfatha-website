@@ -450,7 +450,19 @@ public function update_profile(Request $request)
 
 
 
+/**
+ * API endpoint to get regions and their associated cities.
+ *
+ * @param  Request  $request
+ * @return \Illuminate\Http\JsonResponse
+ */
+public function getRegionsAndCitiesApi(Request $request)
+{
+    // Fetch all regions with their associated cities
+    $regions = Region::with('cities:id,city_ar,city_en,region_id')->select('id', 'region_ar', 'region_en')->get();
 
+    return response()->json(['regions' => $regions]);
+}
 
 public function updateAdminProfile(Request $request , user $user )
 
