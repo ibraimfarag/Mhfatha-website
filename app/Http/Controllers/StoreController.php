@@ -444,7 +444,8 @@ class StoreController extends Controller
         }
         $filteredStores = $nearbyStores->map(function ($store) {
             $category = $store->category;
-            $region = Region::find($store->region);
+            // $region = Region::find($store->region);
+            $region = $store->region;
           
             return [
                 'id' => $store->id,
