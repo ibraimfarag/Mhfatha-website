@@ -464,7 +464,8 @@ class StoreController extends Controller
                 'category_name_ar' => optional($category)->category_name_ar,
                 'category_name_en' => optional($category)->category_name_en,
                 'region_name_ar' => optional($region)->region_ar,
-                'region_name_en' => optional($region)->region_en
+                'region_name_en' => optional($region)->region_en,
+                'region_name' => ($region)
     
            
 
