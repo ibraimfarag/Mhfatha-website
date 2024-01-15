@@ -36,7 +36,7 @@ Route::get('check-network', [AuthController::class, 'checkInternetConnection']);
 Route::middleware('auth:api')->group(function () {
 
 
-    Route::post('/user', [UserController::class, 'getUserInfoApi']);
+    Route::get('/user', [UserController::class, 'getUserInfoApi']);
     Route::post('/regions', [UserController::class, 'getRegionsAndCitiesApi']);
     Route::post('/auth/update', [UserController::class, 'updateProfileApi']);
     Route::post('/nearby', [StoreController::class, 'nearbyApi']);
