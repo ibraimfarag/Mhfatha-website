@@ -540,4 +540,17 @@ public function updateAdminProfile(Request $request , user $user )
 }
 
 
+
+public function getUserInfoApi(Request $request)
+{
+
+    // Fetch the user information based on the provided user ID
+    $user = Auth::user();;
+
+    // You can customize the data you want to include in the response
+    
+    return response()->json(['user' => $user]);
+}
+
+
 }
