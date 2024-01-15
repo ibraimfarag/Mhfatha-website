@@ -444,7 +444,8 @@ class StoreController extends Controller
         }
         $filteredStores = $nearbyStores->map(function ($store) {
             $category = $store->category;
-
+            $region = Region::find($store->region);
+          
             return [
                 'id' => $store->id,
                 'name' => $store->name,
@@ -461,6 +462,8 @@ class StoreController extends Controller
                 'discounts' => $store->discounts->where('discounts_status', 'working')->where('is_deleted', 0),
                 'category_name_ar' => optional($category)->category_name_ar,
                 'category_name_en' => optional($category)->category_name_en,
+                'region_name_ar' => optional($region)->region_ar,
+                'region_name_en' => optional($region)->region_en
     
            
 
