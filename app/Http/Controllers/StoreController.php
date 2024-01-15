@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\Store;
+use App\Models\Region;
 use App\Models\User;
 use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
@@ -511,11 +512,14 @@ class StoreController extends Controller
         $category = StoreCategory::find($store->category_id);
         $store->category_name = optional($category)->{"category_name_" . $lang};
     
+        $region = Region::find($store->region);
+        $store->region_name = optional($region)->{"region_" . $lang};
+    
         if ($store->Discounts->isEmpty()) {
-            return response()->json(['store' => $store, 'message' => ($lang === 'ar' ? 'لا تتوفر خصومات لهذا المتجر' : 'No discounts available for this store')]);
+            return response()->json(['region'=>$region,'store' => $store, 'message' => ($lang === 'ar' ? 'لا تتوفر خصومات لهذا المتجر' : 'No discounts available for this store')]);
         }
     
-        return response()->json(['store' => $store]);
+        return response()->json(['store' => $store,'region'=>$region]);
     }
         private function formatDistance($distance, $lang)
     {
