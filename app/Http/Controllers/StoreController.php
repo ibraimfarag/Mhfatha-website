@@ -516,10 +516,10 @@ class StoreController extends Controller
         $store->region_name = optional($region)->{"region_" . $lang};
     
         if ($store->Discounts->isEmpty()) {
-            return response()->json(['region'=>$region,'store' => $store, 'message' => ($lang === 'ar' ? 'لا تتوفر خصومات لهذا المتجر' : 'No discounts available for this store')]);
+            return response()->json(['store' => $store, 'message' => ($lang === 'ar' ? 'لا تتوفر خصومات لهذا المتجر' : 'No discounts available for this store')]);
         }
     
-        return response()->json(['store' => $store,'region'=>$region]);
+        return response()->json(['store' => $store,]);
     }
         private function formatDistance($distance, $lang)
     {
