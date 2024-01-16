@@ -435,7 +435,25 @@ public function update_profile(Request $request)
             $image->move(public_path('FrontEnd/assets/images/user_images'), $imageName);
             $user->profile_image = $imageName;
         }
-
+        if ($request->input('mobile') !== $user->mobile) {
+            // Generate a random verification code (you can adjust the length as needed)
+            $verificationCode = mt_rand(100000, 999999);
+    
+            // Store the verification code in the user record
+            $user->verification_code = $verificationCode;
+    
+            // Save the updated user data
+            $user->save();
+    
+            // You can send the verification code to the user via SMS or any other method here
+    
+            // For demonstration purposes, let's assume you're just returning the code in the response
+            return response()->json([
+                'message' => 'Mobile number updated. Verification code sent.',
+                'verification_code' => $verificationCode,
+            ]);
+        }
+    
         // Save the updated user data
         $user->save();
         $regionId = $request->input('region_id');
@@ -552,5 +570,129 @@ public function getUserInfoApi(Request $request)
     return response()->json(['user' => $user]);
 }
 
+
+
+
+public function updateProfileWithOtp(Request $request)
+{
+
+    $lang = $request->input('lang', 'en'); // Default to English if not provided
+
+    // Validate the incoming request data
+    $this->validate($request, [
+        'first_name' => 'required|string|max:255',
+        'middle_name' => 'nullable|string|max:255',
+        'last_name' => 'required|string|max:255',
+        'birthday' => 'required|date',
+        'gender' => 'required|in:male,female',
+        'city' => 'nullable|max:255',
+        'region' => 'required|max:255',
+        'mobile' => 'required|string|max:20',
+        'email' => 'required|string|email|max:255',
+        'profile_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust file type and size as needed
+        'otp' => 'required_if:mobile,'.',!=' . Auth::user()->mobile , // OTP is required only if mobile number is different from the current user's mobile
+    ]);
+
+    // Check if the provided mobile number is different from the current one
+  
+
+    // Continue with the existing update logic for other fields
+
+    // Update the user's profile information
+    $userId = Auth::user()->id;
+    $user = User::find($userId);
+    $user->first_name = $request->input('first_name');
+    $user->middle_name = $request->input('middle_name');
+    $user->last_name = $request->input('last_name');
+    $user->birthday = $request->input('birthday');
+    $user->gender = $request->input('gender');
+    $user->city = $request->input('city');
+    $user->region = $request->input('region');
+    $user->email = $request->input('email');
+
+    // Check if a new profile image was uploaded
+    if ($request->hasFile('profile_image')) {
+        // Delete the old profile image (if it exists)
+        if ($user->profile_image) {
+            $oldImagePath = public_path('FrontEnd/assets/images/user_images/' . $user->profile_image);
+            if (File::exists($oldImagePath)) {
+                File::delete($oldImagePath);
+            }
+        }
+
+        // Store the new profile image
+        $image = $request->file('profile_image');
+        $imageName = time() . '.' . $image->getClientOriginalExtension();
+        $image->move(public_path('FrontEnd/assets/images/user_images'), $imageName);
+        $user->profile_image = $imageName;
+    }
+
+
+
+
+
+
+    if ($request->input('mobile') !== Auth::user()->mobile) {
+
+        $existingUserWithMobile = User::where('mobile', $request->input('mobile'))->first();
+
+        if ($existingUserWithMobile) {
+            // Mobile number is already in use, return an error response
+            $errorMessage = $lang === 'ar' ? 'تم استخدام رقم الجوال المقدم بالفعل من قبل مستخدم آخر. يرجى اختيار رقم جوال مختلف.' : 'The provided mobile number is already in use by another user. Please choose a different mobile number.';
+            return response()->json(['error' => $errorMessage], 422);
+        }
+    
+        // Generate and send OTP
+
+        // $otp = rand(100000, 999999); // Generate a 6-digit OTP (you can use a more secure method)
+
+        $otp = "1234"; // Generate a 6-digit OTP (you can use a more secure method)
+
+
+        // For simplicity, you can store the OTP in the session
+        Session::put('otp', $otp);
+
+        // Send the OTP to the user (you need to implement SMS or email sending here)
+
+
+        $enteredOtp = $request->input('otp');
+
+        $storedOtp = Session::get('otp');
+        if (empty($enteredOtp) || is_null($enteredOtp)) {
+            // Invalid or missing OTP, return an error response
+            $errorMessage = $lang === 'ar' ? 'تم إرسال رمز إلى ' . $request->input('mobile') . '. الرجاء إدخال الرمز.' : 'We have sent OTP code to ' . $request->input('mobile') . '. Please enter the code.';
+            return response()->json(['error' => $errorMessage, "OTP" => true], 422);
+
+        }
+        // Verify the entered OTP with the stored one
+        if ($enteredOtp != $storedOtp) {
+            // Invalid OTP, return an error response
+            $errorMessage = $lang === 'ar' ? 'رمز OTP غير صالح. يرجى المحاولة مرة أخرى.' : 'Invalid OTP. Please try again.';
+            return response()->json(['error' => $errorMessage], 422);
+        }
+        if ($enteredOtp = $storedOtp) {
+            $user->mobile = $request->input('mobile');
+
+            // return response()->json(['error' => 'Invalid OTP. Please try again.'], 422);
+        }
+     
+    }
+
+    // Continue with the existing update logic for other fields
+
+    // Verify OTP
+    
+    // Save the updated user data
+    $user->save();
+
+    // Clear the stored OTP from the session
+    Session::forget('otp');
+
+    // Return a success response
+    $successMessage = $lang === 'ar' ? 'تم تحديث الملف الشخصي بنجاح.' : 'Profile updated successfully.';
+    return response()->json(['message' => $successMessage]);
+}
+
+     
 
 }
