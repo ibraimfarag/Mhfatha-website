@@ -581,11 +581,8 @@ public function updateProfileWithOtp(Request $request)
     // Validate the incoming request data
     $this->validate($request, [
         'first_name' => 'required|string|max:255',
-        'middle_name' => 'nullable|string|max:255',
         'last_name' => 'required|string|max:255',
         'birthday' => 'required|date',
-        'gender' => 'required|in:male,female',
-        'city' => 'nullable|max:255',
         'region' => 'required|max:255',
         'mobile' => 'required|string|max:20',
         'email' => 'required|string|email|max:255',
@@ -602,11 +599,8 @@ public function updateProfileWithOtp(Request $request)
     $userId = Auth::user()->id;
     $user = User::find($userId);
     $user->first_name = $request->input('first_name');
-    $user->middle_name = $request->input('middle_name');
     $user->last_name = $request->input('last_name');
     $user->birthday = $request->input('birthday');
-    $user->gender = $request->input('gender');
-    $user->city = $request->input('city');
     $user->region = $request->input('region');
     $user->email = $request->input('email');
 
