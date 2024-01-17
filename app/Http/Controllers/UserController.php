@@ -655,7 +655,7 @@ public function updateProfileWithOtp(Request $request)
         if (empty($enteredOtp) || is_null($enteredOtp)) {
             // Invalid or missing OTP, return an error response
             $errorMessage = $lang === 'ar' ? 'تم إرسال رمز إلى ' . $request->input('mobile') . '. الرجاء إدخال الرمز.' : 'We have sent OTP code to ' . $request->input('mobile') . '. Please enter the code.';
-            return response()->json(['error' => $errorMessage, "OTP" => true], 422);
+            return response()->json(['error' => $errorMessage, "OTP" => true], 210);
 
         }
         // Verify the entered OTP with the stored one
