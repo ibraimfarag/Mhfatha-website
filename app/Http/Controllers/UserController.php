@@ -640,7 +640,7 @@ public function updateProfileWithOtp(Request $request)
 
         // $otp = rand(100000, 999999); // Generate a 6-digit OTP (you can use a more secure method)
 
-        $otp = "1234"; // Generate a 6-digit OTP (you can use a more secure method)
+        $otp = "12345"; // Generate a 6-digit OTP (you can use a more secure method)
 
 
         // For simplicity, you can store the OTP in the session
