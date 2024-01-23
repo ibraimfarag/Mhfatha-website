@@ -654,7 +654,7 @@ public function updateProfileWithOtp(Request $request)
         $storedOtp = Session::get('otp');
         if (empty($enteredOtp) || is_null($enteredOtp)) {
             // Invalid or missing OTP, return an error response
-            $errorMessage = $lang === 'ar' ? 'تم إرسال رمز إلى ' . $request->input('mobile') . '. الرجاء إدخال الرمز.' : 'We have sent OTP code to ' . $request->input('mobile') . '. Please enter the code.';
+            $errorMessage = $lang === 'ar' ? ' تم إرسال رمز إلى رقم واتس اب' . $request->input('mobile') . '. الرجاء إدخال الرمز.' : 'We have sent OTP code to whatsapp number ' . $request->input('mobile') . '. Please enter the code.';
             return response()->json(['error' => $errorMessage, "OTP" => true,"Success"=>true], 200);
 
         }
