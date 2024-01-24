@@ -689,7 +689,8 @@ class StoreController extends Controller
         $filteredStores = $filteredStores->map(function ($store) use ($lang) {
             $category = StoreCategory::find($store->category_id);
             $regionName = Region::where('id', $store->region)->value('region_'.  $lang);
-        
+            $category = $store->category;
+            $region = Region::find($store->region);
             return [
                 'id' => $store->id,
                 'user_id' => $store->user_id,
@@ -719,7 +720,10 @@ class StoreController extends Controller
                 'distance' => $store->distance,
                 'region_name' => $regionName,
                 'discounts' => $store->discounts->where('discounts_status', 'working')->where('is_deleted', 0),
-
+                'category_name_ar' => optional($category)->category_name_ar,
+                'category_name_en' => optional($category)->category_name_en,
+                'region_name_ar' => optional($region)->region_ar,
+                'region_name_en' => optional($region)->region_en,
 
             ];
         });
