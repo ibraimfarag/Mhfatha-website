@@ -671,25 +671,18 @@ class StoreController extends Controller
         }
     
         // Get category names based on the selected region
-   
-// Get category names based on the selected region
-$categoryListQuery = $query->distinct('category_id')->pluck('category_id');
+        $categoryListQuery = $query->distinct('category_id')->pluck('category_id')->where('region', $region);
 
-// Get the category IDs for stores in the selected region
-$categoriesInRegion = Store::where('region', $region)->distinct('category_id')->pluck('category_id');
-
-// Filter categories based on the selected region
-$categories = StoreCategory::whereIn('id', $categoriesInRegion)->pluck('category_name_' . $lang, 'id')->toArray();
-
-// Add "All Categories" to the categories array
-$categories = [0 => $allCategoriesLabel] + $categories;
-
-$categoryList = [];
-
-foreach ($categories as $id => $name) {
-    $categoryList[] = ['category_id' => $id, 'category_name' => $name];
-}
-
+        $categories = StoreCategory::whereIn('id', $categoryListQuery)->pluck('category_name_' . $lang, 'id')->toArray();
+        
+        // Add "All Categories" to the categories array
+        $categories = [0 => $allCategoriesLabel] + $categories;
+        
+        $categoryList = [];
+        
+        foreach ($categories as $id => $name) {
+            $categoryList[] = ['category_id' => $id, 'category_name' => $name];
+        }
         
         // Map the stores to the desired format
         $filteredStores = $filteredStores->map(function ($store) use ($lang) {
