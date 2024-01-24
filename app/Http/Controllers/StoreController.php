@@ -718,6 +718,8 @@ class StoreController extends Controller
                 'category_name' => optional($category)->{"category_name_" . $lang}, // Get category name based on language
                 'distance' => $store->distance,
                 'region_name' => $regionName,
+                'discounts' => $store->discounts->where('discounts_status', 'working')->where('is_deleted', 0),
+
 
             ];
         });
