@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\Store;
-use App\Models\Region;
 use App\Models\User;
 use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
@@ -15,7 +14,8 @@ use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Http\JsonResponse;
 use App\Models\StoreCategory;
-
+use App\Models\Region; // Import the Region model
+use App\Models\City;
 class StoreController extends Controller
 {
     public function index(Request $request)
@@ -621,11 +621,24 @@ class StoreController extends Controller
     
         // Define the label for "All Regions" based on the language
         $allRegionsLabel = ($lang === 'ar') ? 'جميع المدن' : 'All Regions';
-    
+        $allCategoriesLabel = ($lang === 'ar') ? 'جميع الفئات' : 'All Categories';
+        
+
         // Query to get a list of unique regions and categories
-        $regionList = [$allRegionsLabel] + Store::distinct('region')->pluck('region')->toArray();
-    
-        // Query to filter stores based on parameters
+        $regionListQuery = Store::distinct('region')->pluck('region')->toArray();
+
+        $regions = Region::whereIn('id', $regionListQuery)->pluck('region_' . $lang, 'id')->toArray();
+        
+        // Add "All Regions" to the regions array
+        $regions = [0 => $allRegionsLabel] + $regions;
+        
+        $regionList = [];
+        
+        foreach ($regions as $id => $name) {
+            $regionList[] = ['region_id' => $id, 'region_name' => $name];
+        }
+        
+                        // Query to filter stores based on parameters
         $query = Store::select('*');
     
         if ($region && $region !== $allRegionsLabel) {
@@ -660,11 +673,22 @@ class StoreController extends Controller
     
         // Get category names based on the selected region
         $categoryListQuery = $query->distinct('category_id')->pluck('category_id');
-        $categoryList = StoreCategory::whereIn('id', $categoryListQuery)->pluck('category_name_' . $lang);
-    
+
+        $categories = StoreCategory::whereIn('id', $categoryListQuery)->pluck('category_name_' . $lang, 'id')->toArray();
+        
+        // Add "All Categories" to the categories array
+        $categories = [0 => $allCategoriesLabel] + $categories;
+        
+        $categoryList = [];
+        
+        foreach ($categories as $id => $name) {
+            $categoryList[] = ['category_id' => $id, 'category_name' => $name];
+        }
+        
         // Map the stores to the desired format
         $filteredStores = $filteredStores->map(function ($store) use ($lang) {
             $category = StoreCategory::find($store->category_id);
+            $regionName = Region::where('id', $store->region)->value('region_'.  $lang);
         
             return [
                 'id' => $store->id,
@@ -693,6 +717,8 @@ class StoreController extends Controller
                 'longitude' => $store->longitude,
                 'category_name' => optional($category)->{"category_name_" . $lang}, // Get category name based on language
                 'distance' => $store->distance,
+                'region_name' => $regionName,
+
             ];
         });
             
