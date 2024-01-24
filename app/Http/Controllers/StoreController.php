@@ -645,12 +645,11 @@ class StoreController extends Controller
             $query->where('region', $region);
         }
     
-        if ($categoryName) {
+        if ($categoryName && $categoryName !== $allCategoriesLabel) {
             // Convert category name to ID
-            $categoryId = StoreCategory::where('category_name_' . $lang, $categoryName)->value('id');
-            if ($categoryId) {
-                $query->where('category_id', $categoryId);
-            }
+     
+                $query->where('category_id', $categoryName);
+         
         }
     
         // Add distance calculation if user latitude and longitude are provided
@@ -717,6 +716,7 @@ class StoreController extends Controller
                 'latitude' => $store->latitude,
                 'longitude' => $store->longitude,
                 'category_name' => optional($category)->{"category_name_" . $lang}, // Get category name based on language
+                'category_id' => $store->category_id, // Get category name based on language
                 'distance' => $store->distance,
                 'region_name' => $regionName,
                 'discounts' => $store->discounts->where('discounts_status', 'working')->where('is_deleted', 0),
