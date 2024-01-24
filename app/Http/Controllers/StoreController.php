@@ -671,9 +671,12 @@ class StoreController extends Controller
         }
     
         // Get category names based on the selected region
-        $categoryListQuery = $query->distinct('category_id')->pluck('category_id')->where('region', $region);
+        $categoryListQuery = $store->distinct('category_id')->where('region', $region)->pluck('category_id');
 
-        $categories = StoreCategory::whereIn('id', $categoryListQuery)->pluck('category_name_' . $lang, 'id')->toArray();
+        $categories = StoreCategory::whereIn('id', $categoryListQuery)
+            ->pluck('category_name_' . $lang, 'id')
+            ->toArray();
+        
         
         // Add "All Categories" to the categories array
         $categories = [0 => $allCategoriesLabel] + $categories;
