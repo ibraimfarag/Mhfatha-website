@@ -698,7 +698,8 @@ if ($request->hasFile('photo')) {
 public function changePassword(Request $request)
 {
     $lang = $request->input('lang', 'en'); // Default to English if not provided
-
+    $userId = Auth::user()->id;
+    $user = User::find($userId);
     // Validate the incoming request data
     $this->validate($request, [
         'old_password' => 'required|string',
@@ -721,8 +722,7 @@ public function changePassword(Request $request)
     }
 
     // OTP verification successful, check the old password
-    $userId = Auth::user()->id;
-    $user = User::find($userId);
+
     if (!Hash::check($oldPassword, $user->password)) {
         // Old password doesn't match, return an error response
         $errorMessage = $lang === 'ar' ? 'كلمة المرور القديمة غير صحيحة.' : 'Old password is incorrect.';
