@@ -606,25 +606,26 @@ public function updateProfileWithOtp(Request $request)
     $user->photo = $request->input('photo');
 
     // Check if a new profile image was uploaded
-    if ($request->hasFile('photo')) {
-        // Delete the old profile image (if it exists)
-        if ($user->photo) {
-            $oldImagePath = public_path('FrontEnd/assets/images/user_images/' . $user->photo);
-            if (File::exists($oldImagePath)) {
-                File::delete($oldImagePath);
-            }
+  // Check if a new profile image was uploaded
+if ($request->hasFile('photo')) {
+    // Delete the old profile image (if it exists)
+    if ($user->photo) {
+        $oldImagePath = public_path('FrontEnd/assets/images/user_images/' . $user->photo);
+        if (File::exists($oldImagePath)) {
+            File::delete($oldImagePath);
         }
-    
-        // Store the new profile image
-        $image = $request->file('photo');
-        $imageName = time() . '.' . $image->getClientOriginalExtension();
-        $image->move(public_path('FrontEnd/assets/images/user_images'), $imageName);
-        $user->photo = $imageName;
-    } elseif (!$request->has('photo')) {
-        // If 'photo' field is present in the request but empty, keep the old photo
-        // If 'photo' field is not present in the request, also keep the old photo
-        $user->photo = $user->photo;
     }
+
+    // Store the new profile image
+    $image = $request->file('photo');
+    $imageName = time() . '.' . $image->getClientOriginalExtension();
+    $image->move(public_path('FrontEnd/assets/images/user_images'), $imageName);
+    $user->photo = $imageName;
+} elseif ($request->input('photo') === null) {
+    // If input photo is null, retain the old photo
+    $user->photo = Auth::user()->photo;
+}
+
     
 
 
