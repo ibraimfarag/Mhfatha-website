@@ -697,22 +697,37 @@ if ($request->hasFile('photo')) {
      
 public function changePassword(Request $request)
 {
-    $lang = $request->input('lang', 'en'); // Default to English if not provided
-    $userId = Auth::user()->id;
-    $user = User::find($userId);
-    // Validate the incoming request data
-    $this->validate($request, [
-        'old_password' => 'required|string',
-        'new_password' => 'required|string|min:8|different:old_password',
-        'new_password_confirmation' => 'required|string|min:8',
-    ], [
-        'new_password.different' => 'The new password must be different from the old password.',
-        'new_password.confirmed' => 'The new password confirmation does not match.',
-    ]);
+    // Decode JSON request body
+    $requestData = json_decode($request->getContent(), true);
 
-    $oldPassword = $request->input('old_password');
-    $newPassword = $request->input('new_password');
-    $newPasswordConfirmation = $request->input('new_password_confirmation');
+    // Check if JSON decoding failed
+    if ($requestData === null) {
+        return response()->json(['error' => 'Invalid JSON payload.'], 400);
+    }
+
+    // Extract data from JSON
+    $lang = isset($requestData['lang']) ? $requestData['lang'] : 'en';
+    $oldPassword = isset($requestData['old_password']) ? $requestData['old_password'] : null;
+    $newPassword = isset($requestData['new_password']) ? $requestData['new_password'] : null;
+    $newPasswordConfirmation = isset($requestData['new_password_confirmation']) ? $requestData['new_password_confirmation'] : null;
+
+    // Validation messages translation
+    $messages = [
+        'new_password.different' => $lang === 'ar' ? 'يجب أن تكون كلمة المرور الجديدة مختلفة عن كلمة المرور القديمة.' : 'The new password must be different from the old password.',
+        'new_password.confirmed' => $lang === 'ar' ? 'تأكيد كلمة المرور الجديدة غير متطابق.' : 'The new password confirmation does not match.',
+    ];
+
+    // Validate the incoming request data
+    $validator = Validator::make($requestData, [
+        'old_password' => 'required|string',
+        'new_password' => 'required|string|min:8|different:old_password|confirmed',
+        'new_password_confirmation' => 'required|string|min:8',
+    ], $messages);
+
+    // Check for validation errors
+    if ($validator->fails()) {
+        return response()->json(['error' => $validator->errors()->first()], 422);
+    }
 
     // Check if the new password matches the confirmation
     if ($newPassword !== $newPasswordConfirmation) {
@@ -722,7 +737,8 @@ public function changePassword(Request $request)
     }
 
     // OTP verification successful, check the old password
-
+    $userId = Auth::user()->id;
+    $user = User::find($userId);
     if (!Hash::check($oldPassword, $user->password)) {
         // Old password doesn't match, return an error response
         $errorMessage = $lang === 'ar' ? 'كلمة المرور القديمة غير صحيحة.' : 'Old password is incorrect.';
@@ -737,7 +753,6 @@ public function changePassword(Request $request)
     $successMessage = $lang === 'ar' ? 'تم تحديث كلمة المرور بنجاح.' : 'Password updated successfully.';
     return response()->json(['message' => $successMessage], 200);
 }
-
 
 
 
