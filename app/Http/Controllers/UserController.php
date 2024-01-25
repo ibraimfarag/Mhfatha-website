@@ -695,5 +695,44 @@ if ($request->hasFile('photo')) {
 }
 
      
+public function changePassword(Request $request)
+{
+    $lang = $request->input('lang', 'en'); // Default to English if not provided
+
+    // Validate the incoming request data
+    $this->validate($request, [
+        'old_password' => 'required|string',
+        'new_password' => 'required|string|min:8|confirmed',
+    ]);
+
+    $oldPassword = $request->input('old_password');
+    $newPassword = $request->input('new_password');
+
+ 
+
+
+    // OTP verification successful, check the old password
+    $userId = Auth::user()->id;
+    $user = User::find($userId);
+    if (!Hash::check($oldPassword, $user->password)) {
+        // Old password doesn't match, return an error response
+        $errorMessage = $lang === 'ar' ? 'كلمة المرور القديمة غير صحيحة.' : 'Old password is incorrect.';
+        return response()->json(['error' => $errorMessage], 422);
+    }
+
+    // Old password matches, update the user's password
+    $user->password = Hash::make($newPassword);
+    $user->save();
+
+
+    // Return a success response
+    $successMessage = $lang === 'ar' ? 'تم تحديث كلمة المرور بنجاح.' : 'Password updated successfully.';
+    return response()->json(['message' => $successMessage], 200);
+}
+
+
+
+
+
 
 }
