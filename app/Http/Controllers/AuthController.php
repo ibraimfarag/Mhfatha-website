@@ -234,6 +234,7 @@ class AuthController extends Controller
             'is_vendor' => 'required|boolean',
             'password' => 'required|min:8|confirmed', // Adjust the minimum password length as needed
             'photo' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the photo upload
+
         ]);
 
 
@@ -257,9 +258,10 @@ class AuthController extends Controller
             return response()->json(['success' => false, 'messages' => $errorMessages], 400);
         }
 
+$mobilenumber =  '(+966)' . $request->input('mobile');
+$mobilenumberAR =  $request->input('mobile').'(966+)' ;
 
-
-        // Check if a new photo was uploaded
+// Check if a new photo was uploaded
         if ($request->hasFile('photo')) {
             $image = $request->file('photo');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
@@ -268,6 +270,31 @@ class AuthController extends Controller
             // Use a default photo if no new photo is uploaded
             $imageName = 'default_user.png';
         }
+
+
+        $enteredOtp = $request->input('otp');
+    if (empty($enteredOtp) || is_null($enteredOtp)) {
+        // OTP is required, return an error response
+        $errorMessage = $currentLanguage === 'ar' ? "تم ارسال رمز التفعيل عبر الواتس اب الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to whatsapp number $mobilenumber. Please enter the code.";
+        return response()->json(['success' => false,'otp'=>true, 'message' => $errorMessage], 205);
+    }
+
+    // Generate and send OTP
+    // $otp = rand(10000, 99999); // Generate a 6-digit OTP (you can use a more secure method)
+    $otp = "12345"; // Generate a 6-digit OTP (you can use a more secure method)
+
+    // For simplicity, you can store the OTP in the session
+    Session::put('otp', $otp);
+
+    // Send the OTP to the user's mobile number (you need to implement SMS sending here)
+
+    // Check if the entered OTP matches the generated OTP
+    if ($enteredOtp !== Session::get('otp')) {
+        // Invalid OTP, return an error response
+        $errorMessage = $currentLanguage === 'ar' ? 'رمز OTP غير صالح. يرجى المحاولة مرة أخرى.' : 'Invalid OTP. Please try again.';
+        return response()->json(['success' => false, 'message' => $errorMessage], 400);
+    }
+
 
         // Create a new user record
         User::create([
