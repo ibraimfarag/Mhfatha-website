@@ -702,7 +702,7 @@ public function changePassword(Request $request)
     // Validate the incoming request data
     $this->validate($request, [
         'old_password' => 'required|string',
-        'new_password' => 'required|string|min:8|different:old_password|confirmed',
+        'new_password' => 'required|string|min:8|different:old_password',
         'new_password_confirmation' => 'required|string|min:8',
     ], [
         'new_password.different' => 'The new password must be different from the old password.',
