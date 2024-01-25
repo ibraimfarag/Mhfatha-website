@@ -276,7 +276,7 @@ $mobilenumberAR =  $request->input('mobile').'(966+)' ;
     if (empty($enteredOtp) || is_null($enteredOtp)) {
         // OTP is required, return an error response
         $errorMessage = $currentLanguage === 'ar' ? "تم ارسال رمز التفعيل عبر الواتس اب الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to whatsapp number $mobilenumber. Please enter the code.";
-        return response()->json(['success' => false,'otp'=>true, 'message' => $errorMessage], 205);
+        return response()->json(['success' => true,'otp'=>true, 'message' => $errorMessage], 200);
     }
 
     // Generate and send OTP
