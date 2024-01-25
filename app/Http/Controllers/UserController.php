@@ -586,7 +586,7 @@ public function updateProfileWithOtp(Request $request)
         'region' => 'required|max:255',
         'mobile' => 'required|string|max:20',
         'email' => 'required|string|email|max:255',
-        'profile_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust file type and size as needed
+        'photo' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust file type and size as needed
         'otp' => 'required_if:mobile,'.',!=' . Auth::user()->mobile , // OTP is required only if mobile number is different from the current user's mobile
     ]);
 
@@ -603,22 +603,23 @@ public function updateProfileWithOtp(Request $request)
     $user->birthday = $request->input('birthday');
     $user->region = $request->input('region');
     $user->email = $request->input('email');
+    $user->photo = $request->input('photo');
 
     // Check if a new profile image was uploaded
-    if ($request->hasFile('profile_image')) {
+    if ($request->hasFile('photo')) {
         // Delete the old profile image (if it exists)
-        if ($user->profile_image) {
-            $oldImagePath = public_path('FrontEnd/assets/images/user_images/' . $user->profile_image);
+        if ($user->photo) {
+            $oldImagePath = public_path('FrontEnd/assets/images/user_images/' . $user->photo);
             if (File::exists($oldImagePath)) {
                 File::delete($oldImagePath);
             }
         }
 
         // Store the new profile image
-        $image = $request->file('profile_image');
+        $image = $request->file('photo');
         $imageName = time() . '.' . $image->getClientOriginalExtension();
         $image->move(public_path('FrontEnd/assets/images/user_images'), $imageName);
-        $user->profile_image = $imageName;
+        $user->photo = $imageName;
     }
 
 
