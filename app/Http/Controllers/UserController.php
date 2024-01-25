@@ -474,7 +474,7 @@ public function update_profile(Request $request)
  * @param  Request  $request
  * @return \Illuminate\Http\JsonResponse
  */
-public function getRegionsAndCitiesApi(Request $request)
+public function getRegionsAndCitiesApi()
 {
     // Fetch all regions with their associated cities
     $regions = Region::with('cities:id,city_ar,city_en,region_id')->select('id', 'region_ar', 'region_en')->get();
