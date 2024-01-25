@@ -614,13 +614,18 @@ public function updateProfileWithOtp(Request $request)
                 File::delete($oldImagePath);
             }
         }
-
+    
         // Store the new profile image
         $image = $request->file('photo');
         $imageName = time() . '.' . $image->getClientOriginalExtension();
         $image->move(public_path('FrontEnd/assets/images/user_images'), $imageName);
         $user->photo = $imageName;
+    } elseif (!$request->has('photo')) {
+        // If 'photo' field is present in the request but empty, keep the old photo
+        // If 'photo' field is not present in the request, also keep the old photo
+        $user->photo = $user->photo;
     }
+    
 
 
 
