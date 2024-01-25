@@ -702,14 +702,23 @@ public function changePassword(Request $request)
     // Validate the incoming request data
     $this->validate($request, [
         'old_password' => 'required|string',
-        'new_password' => 'required|string|min:8|confirmed',
+        'new_password' => 'required|string|min:8|different:old_password|confirmed',
+        'new_password_confirmation' => 'required|string|min:8',
+    ], [
+        'new_password.different' => 'The new password must be different from the old password.',
+        'new_password.confirmed' => 'The new password confirmation does not match.',
     ]);
 
     $oldPassword = $request->input('old_password');
     $newPassword = $request->input('new_password');
+    $newPasswordConfirmation = $request->input('new_password_confirmation');
 
- 
-
+    // Check if the new password matches the confirmation
+    if ($newPassword !== $newPasswordConfirmation) {
+        // Password confirmation doesn't match, return an error response
+        $errorMessage = $lang === 'ar' ? 'تأكيد كلمة المرور لا يتطابق.' : 'Password confirmation does not match.';
+        return response()->json(['error' => $errorMessage], 422);
+    }
 
     // OTP verification successful, check the old password
     $userId = Auth::user()->id;
@@ -723,7 +732,6 @@ public function changePassword(Request $request)
     // Old password matches, update the user's password
     $user->password = Hash::make($newPassword);
     $user->save();
-
 
     // Return a success response
     $successMessage = $lang === 'ar' ? 'تم تحديث كلمة المرور بنجاح.' : 'Password updated successfully.';
