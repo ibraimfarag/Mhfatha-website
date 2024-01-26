@@ -33,6 +33,7 @@ Route::post('register-post', [AuthController::class, 'register_api']);
 
 Route::get('check-network', [AuthController::class, 'checkInternetConnection']);
 Route::post('/registerregions', [UserController::class, 'getRegionsAndCitiesApi']);
+Route::post('/auth/resetPassword', [UserController::class, 'resetPassword']);
 Route::post('/regions', [UserController::class, 'getRegionsAndCitiesApi']);
 
 Route::middleware('auth:api')->group(function () {

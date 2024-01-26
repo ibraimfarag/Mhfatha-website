@@ -754,7 +754,92 @@ public function changePassword(Request $request)
     return response()->json(['message' => $successMessage], 200);
 }
 
+public function resetPassword(Request $request)
+{
 
+    $requestData = json_decode($request->getContent(), true);
+
+    // Check if JSON decoding failed
+    if ($requestData === null) {
+        return response()->json(['error' => 'Invalid JSON payload.'], 400);
+    }
+
+    // Extract data from JSON
+    $lang = isset($requestData['lang']) ? $requestData['lang'] : 'en';
+    $emailOrMobile = isset($requestData['email_or_mobile']) ? $requestData['email_or_mobile'] : null;
+    $otp = isset($requestData['otp']) ? $requestData['otp'] : null;
+    $newPassword = isset($requestData['new_password']) ? $requestData['new_password'] : null;
+    $newPasswordConfirmation = isset($requestData['new_password_confirmation']) ? $requestData['new_password_confirmation'] : null;
+
+    // Validation messages translation
+    $messages = [
+        'new_password.different' => $lang === 'ar' ? 'يجب أن تكون كلمة المرور الجديدة مختلفة عن كلمة المرور القديمة.' : 'The new password must be different from the old password.',
+        'new_password.confirmed' => $lang === 'ar' ? 'تأكيد كلمة المرور الجديدة غير متطابق.' : 'The new password confirmation does not match.',
+    ];
+
+
+    // Step 1: Check if the user exists
+    $validator = Validator::make($requestData, [
+        'email_or_mobile' => 'required|string',
+        'otp' => 'string',
+        'new_password' => 'string|min:8|confirmed',
+        'new_password_confirmation' => 'string|min:8',
+    ],$messages);
+
+    if ($validator->fails()) {
+        return response()->json(['error' => $validator->errors()->first()], 422);
+    }
+    
+
+    $user = User::where('email', $emailOrMobile)
+                ->orWhere('mobile', $emailOrMobile)
+                ->first();
+
+    if (!$user) {
+        // User not found, return an error response
+        $errorMessage = $lang === 'ar' ? 'لم يتم العثور على مستخدم مرتبط بالبريد الإلكتروني أو الجوال المقدم.' : 'No user associated with the provided email or mobile.';
+        return response()->json(['error' => $errorMessage], 404);
+    }
+    $mobilenumber =  '(+966)' . $user->mobile;
+    $mobilenumberAR =  $user->mobile.'(966+)' ;
+    
+    // Step 2: Verify the OTP
+    $storedOtp = "12345";
+
+    if (empty($otp) || is_null($otp)) {
+        // Invalid or missing OTP, return an error response
+        $errorMessage = $lang === 'ar' ? "تم ارسال رمز التفعيل عبر الواتس اب الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to whatsapp number $mobilenumber. Please enter the code.";
+        return response()->json(['success' => true, 'step'=>2,'message' => $errorMessage], 200);
+    }
+
+    if ($otp != $storedOtp) {
+        // Invalid OTP, return an error response
+        $errorMessage = $lang === 'ar' ? ' كود  otp  غير صحيح' : 'incorrect OTP code, please check and try again ';
+        return response()->json(['error' => $errorMessage, "OTP" => true, "Success" => true], 200);
+    }
+
+    // Step 3: Check if new password is empty
+    if (empty($newPassword)) {
+        // New password is empty, return an error response
+        $errorMessage = $lang === 'ar' ? '.ادخل كلمة سر جديدة' : 'enter new password.';
+        return response()->json(['message' => $errorMessage,'step'=>3], 200);
+    }
+    if ($newPassword !== $newPasswordConfirmation) {
+        // Password confirmation doesn't match, return an error response
+        $errorMessage = $lang === 'ar' ? 'تأكيد كلمة السر لا يتطابق.' : 'Password confirmation does not match.';
+        return response()->json(['error' => $errorMessage], 422);
+    }
+    // Step 4: Set the new password
+    $user->password = Hash::make($newPassword);
+    $user->save();
+
+    // Clear the stored OTP from the session
+    Session::forget('reset_password_otp');
+
+    // Return a success response
+    $successMessage = $lang === 'ar' ? 'تم تحديث كلمة السر  بنجاح.' : 'Password updated successfully.';
+    return response()->json(['message' => $successMessage], 200);
+}
 
 
 
