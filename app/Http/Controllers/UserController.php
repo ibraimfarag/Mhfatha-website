@@ -775,6 +775,8 @@ public function resetPassword(Request $request)
     $messages = [
         'new_password.different' => $lang === 'ar' ? 'يجب أن تكون كلمة المرور الجديدة مختلفة عن كلمة المرور القديمة.' : 'The new password must be different from the old password.',
         'new_password.confirmed' => $lang === 'ar' ? 'تأكيد كلمة المرور الجديدة غير متطابق.' : 'The new password confirmation does not match.',
+        'new_password.min' => $lang === 'ar' ? 'يجب أن تتكون كلمة المرور الجديدة من الأقل 8 أحرف.' : 'The new password must be at least 8 characters.',
+
     ];
 
 
