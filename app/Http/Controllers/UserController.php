@@ -781,7 +781,8 @@ public function resetPassword(Request $request)
     // Step 1: Check if the user exists
     $validator = Validator::make($requestData, [
         'email_or_mobile' => 'required|string',
-
+        'new_password' => 'nullable|min:8|confirmed',
+        'new_password_confirmation' => 'nullable|min:8',
     ],$messages);
 
     if ($validator->fails()) {
