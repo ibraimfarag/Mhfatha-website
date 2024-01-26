@@ -836,7 +836,7 @@ public function resetPassword(Request $request)
 
     // Return a success response
     $successMessage = $lang === 'ar' ? 'تم تحديث كلمة السر  بنجاح.' : 'Password updated successfully.';
-    return response()->json(['message' => $successMessage], 200);
+    return response()->json(['message' => $successMessage,"Success" => true,"reseted" => true], 200);
 }
 
 
