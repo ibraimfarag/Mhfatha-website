@@ -483,50 +483,54 @@ class StoreController extends Controller
 
     }
     public function storeInfoApi(Request $request)
-    {
-        $storeId = $request->json('id');
-        $userLatitude = $request->json('user_latitude');
-        $userLongitude = $request->json('user_longitude');
-        $lang = $request->json('lang');
-    
-        // Check if user_latitude or user_longitude is null
-        if ($userLatitude === null || $userLongitude === null) {
-            return response()->json(['error' => ($lang === 'ar' ? 'يرجى توفير موقع المستخدم' : 'Please provide user location')], 400);
-        }
-    
-        $store = Store::with(['Discounts' => function ($query) {
-            $query->where('Discounts_status', 'working')->where('is_deleted', 0);
-        }])
-            ->select('*')
-            ->selectRaw(
-                '( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) ) *
-                cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) *
-                sin( radians( latitude ) ) ) ) AS distance',
-                [$userLatitude, $userLongitude, $userLatitude]
-            )
-            ->orderBy('distance')
-            ->find($storeId);
-    
-        if (!$store) {
-            return response()->json(['error' => ($lang === 'ar' ? 'المتجر غير موجود' : 'Store not found')], 404);
-        }
-    
-        // Convert distance to a more readable format
-        $store->distance = $this->formatDistance($store->distance, $lang);
-    
-        // Fetch category name based on the language
-        $category = StoreCategory::find($store->category_id);
-        $store->category_name = optional($category)->{"category_name_" . $lang};
-    
-        $region = Region::find($store->region);
-        $store->region_name = optional($region)->{"region_" . $lang};
-    
-        if ($store->Discounts->isEmpty()) {
-            return response()->json(['store' => $store, 'message' => ($lang === 'ar' ? 'لا تتوفر خصومات لهذا المتجر' : 'No discounts available for this store')]);
-        }
-    
-        return response()->json(['store' => $store,]);
+{
+    $storeId = $request->json('id');
+    $userLatitude = $request->json('user_latitude');
+    $userLongitude = $request->json('user_longitude');
+    $lang = $request->json('lang');
+
+    // Check if user_latitude or user_longitude is null
+    if ($userLatitude === null || $userLongitude === null) {
+        return response()->json(['error' => ($lang === 'ar' ? 'يرجى توفير موقع المستخدم' : 'Please provide user location')], 400);
     }
+
+    $store = Store::with(['Discounts' => function ($query) {
+        $query->where('Discounts_status', 'working')->where('is_deleted', 0);
+    }])
+        ->select('*')
+        ->selectRaw(
+            '( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) ) *
+            cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) *
+            sin( radians( latitude ) ) ) ) AS distance',
+            [$userLatitude, $userLongitude, $userLatitude]
+        )
+        ->orderBy('distance')
+        ->find($storeId);
+
+    if (!$store) {
+        return response()->json(['error' => ($lang === 'ar' ? 'المتجر غير موجود' : 'Store not found')], 404);
+    }
+
+    // Convert distance to a more readable format
+    $store->distance = $this->formatDistance($store->distance, $lang);
+
+    // Fetch category name based on the language
+    $category = StoreCategory::find($store->category_id);
+    $store->category_name_ar = optional($category)->category_name_ar;
+    $store->category_name_en = optional($category)->category_name_en;
+
+    // Fetch region name based on the language
+    $region = Region::find($store->region);
+    $store->region_name_ar = optional($region)->region_ar;
+    $store->region_name_en = optional($region)->region_en;
+
+    if ($store->Discounts->isEmpty()) {
+        return response()->json(['store' => $store, 'message' => ($lang === 'ar' ? 'لا تتوفر خصومات لهذا المتجر' : 'No discounts available for this store')]);
+    }
+
+    return response()->json(['store' => $store]);
+}
+
         private function formatDistance($distance, $lang)
     {
         if ($distance < 1.0) {
