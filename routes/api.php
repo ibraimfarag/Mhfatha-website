@@ -50,5 +50,10 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/user-discounts', [UserDiscountController::class, 'getAllUserDiscounts']);
     Route::post('/filter-stores', [StoreController::class, 'filterStoresApi']);
 
+    // /* --------------------------------- vendor --------------------------------- */
+    Route::post('/vendor/stores', [StoreController::class, 'userStores']);
+    Route::post('/vendor/store/create', [StoreController::class, 'createStore']);
+
+
 
 });

@@ -748,8 +748,113 @@ class StoreController extends Controller
         return response()->json($response);
     }
             
+    public function userStores(Request $request)
+    {
+        // Retrieve stores associated with the authenticated user
+        $userStores = Store::where('user_id', auth()->id())->get();
 
+        // Return the user's stores
+        return response()->json($userStores);
+    }
+    
+        /**
+         * Create a new store.
+         *
+         * @param  \Illuminate\Http\Request  $request
+         * @return \Illuminate\Http\JsonResponse
+         */
+        public function createStore(Request $request)
+        {
+            $lang = $request->input('lang'); // Get the 'lang' parameter from the request
+
+            $currentLanguage = $request->input('lang');
     
     
-        
+    
+            // Check the language and set the appropriate error message
+            if ($currentLanguage === 'ar') {
+                $errorMessages = [
+                    'name.required' => 'يجب ادخال اسم المتجر ',
+                    'phone.unique' => 'رقم الجوال مستخدم بالفعل. يرجى اختيار رقم آخر.',
+                    'phone.required' => ' رقم الجوال مطلوب.',
+                    'location.required' => 'يجب ادخال العنوان تفصيلي.',
+                    'status.required' => 'يجب اختيار حالة المتجر .',
+                    'url_map.required' => 'يجب تحديد المتجر على الخريطة .',
+                    'work_days.required' => 'يجب تحديد ايام و مواعيد العمل  .',
+                ];
+            }
+            if ($currentLanguage === 'en') {
+                $errorMessages = [
+                    'name.required' => 'The store name field is required.',
+                    'phone.unique' => 'The mobile number is already in use. Please choose a different one.',
+                    'phone.required' => 'The mobile field is required.',
+                    'location.required' => 'The address field is required.',
+                    'status.required' => 'store status field is required.',
+                    'url_map.required' => 'store map field is required.',
+                    'work_days.required' => 'works time and days is required.',
+    
+                ];
+            }
+    
+    
+            $customMessages = $errorMessages;
+    
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|max:191',
+                'location' => 'required|max:191',
+                'phone' => 'required|max:10|min:10|unique:users,mobile|unique:stores,phone',
+                'region' => 'required|string|max:255',
+                'photo' => 'nullable',
+                'work_days' => 'array',
+                'status' => 'required|boolean',
+            ], $customMessages);
+    
+            if ($validator->fails()) {
+                return redirect()->back()->withErrors($validator)->withInput();
+            }
+    
+            $user = auth()->user();
+    
+            // Create a new store record
+            $store = new Store;
+            $store->name = $request->input('name');
+            $store->location = $request->input('location');
+            $store->phone = $request->input('phone');
+            $store->photo = $request->input('photo');
+            $store->status = $request->input('status');
+            $store->region = $request->input('region');
+            $store->latitude = $request->input('latitude');
+            $store->longitude = $request->input('longitude');
+            $store->user_id = $user->id;
+    
+            // Handle store image upload
+            if ($request->hasFile('photo')) {
+                $this->handleStoreImageUpload($store, $request->file('photo'));
+            } else {
+                // If no image is uploaded, set a default image
+                $store->photo = 'market.png'; // Change 'market.png' to your default image filename
+            }
+    
+            // Save the selected work days and their working hours
+            $workDays = $request->input('work_days');
+            $workDayHours = [];
+            foreach ($workDays as $day) {
+                $workDayHours[$day] = [
+                    'from' => $request->input($day . '_from'),
+                    'to' => $request->input($day . '_to'),
+                ];
+            }
+            $store->work_days = json_encode($workDayHours);
+    
+            $store->save();
+            $this->generateQrCode($store->id);
+    
+            // Return a JSON response indicating successful store creation
+            return response()->json([
+                'message' => 'Store created successfully',
+                'store' => $store,
+            ]);
+        }
+  
+    
 }
