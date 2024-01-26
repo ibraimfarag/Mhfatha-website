@@ -821,6 +821,26 @@ public function resetPassword(Request $request)
 
     // Step 3: Check if new password is empty
     if (empty($newPassword)) {
+      // Validation messages translation
+    $messages = [
+        'new_password.required' => $lang === 'ar' ? 'يجب إدخال كلمة المرور الجديدة.' : 'The new password field is required.',
+
+        'new_password.different' => $lang === 'ar' ? 'يجب أن تكون كلمة المرور الجديدة مختلفة عن كلمة المرور القديمة.' : 'The new password must be different from the old password.',
+        'new_password.confirmed' => $lang === 'ar' ? 'تأكيد كلمة المرور الجديدة غير متطابق.' : 'The new password confirmation does not match.',
+        'new_password.min' => $lang === 'ar' ? 'يجب أن تتكون كلمة المرور الجديدة من الأقل 8 أحرف.' : 'The new password must be at least 8 characters.',
+
+    ];
+
+
+    // Step 1: Check if the user exists
+    $validator = Validator::make($requestData, [
+        'new_password' => 'required|min:8|confirmed',
+        'new_password_confirmation' => 'required|min:8',
+    ],$messages);
+
+    if ($validator->fails()) {
+        return response()->json(['error' => $validator->errors()->first()], 422);
+    }
         // New password is empty, return an error response
         $errorMessage = $lang === 'ar' ? '.ادخل كلمة سر جديدة' : 'enter new password.';
         return response()->json(['message' => $errorMessage,'step'=>3], 200);
