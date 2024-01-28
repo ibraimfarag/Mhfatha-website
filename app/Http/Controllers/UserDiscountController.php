@@ -204,7 +204,8 @@ class UserDiscountController extends Controller
             $userDiscount->save();
     
             // Increment count_times in the store table
-            $store = Store::find($requestData['store_id']);
+            $storeId = $requestData['store_id'] ;
+            $store = Store::find($storeId);
             if ($store) {
                 $store->count_times += 1;
                 $store->total_payments += $afterDiscount;
