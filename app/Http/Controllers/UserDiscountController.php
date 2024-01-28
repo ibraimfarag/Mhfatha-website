@@ -214,7 +214,7 @@ class UserDiscountController extends Controller
             // Customize success message based on language
             $successMessage = $lang === 'ar' ? 'تمت إضافة خصم المستخدم بنجاح' : 'User discount added successfully';
     
-            return response()->json(['message' => $successMessage, 'after_discount' => $afterDiscount,'hello'=>  $store]);
+            return response()->json(['message' => $successMessage, 'after_discount' => $afterDiscount]);
         } catch (\Exception $e) {
             // Handle validation or other errors
             return response()->json(['error' => 'Invalid JSON data or internal server error'], 400);
