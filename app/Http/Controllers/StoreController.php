@@ -13,7 +13,9 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Http\JsonResponse;
-
+use App\Models\StoreCategory;
+use App\Models\Region; // Import the Region model
+use App\Models\City;
 class StoreController extends Controller
 {
     public function index(Request $request)
@@ -441,6 +443,10 @@ class StoreController extends Controller
             }
         }
         $filteredStores = $nearbyStores->map(function ($store) {
+            $category = $store->category;
+            $region = Region::find($store->region);
+            // $region = $store->region;
+          
             return [
                 'id' => $store->id,
                 'name' => $store->name,
@@ -455,6 +461,14 @@ class StoreController extends Controller
                 'phone'=> $store->phone,
                 'status'=> $store->status,
                 'discounts' => $store->discounts->where('discounts_status', 'working')->where('is_deleted', 0),
+                'category_name_ar' => optional($category)->category_name_ar,
+                'category_name_en' => optional($category)->category_name_en,
+                'region_name_ar' => optional($region)->region_ar,
+                'region_name_en' => optional($region)->region_en,
+                'region_name' => ($region),
+                'category_name' => ($category)
+    
+           
 
             ];
         });
@@ -469,45 +483,55 @@ class StoreController extends Controller
 
     }
     public function storeInfoApi(Request $request)
-    {
-        $storeId = $request->json('id');
-        $userLatitude = $request->json('user_latitude');
-        $userLongitude = $request->json('user_longitude');
-        $lang = $request->json('lang');
-    
-        // Check if user_latitude or user_longitude is null
-        if ($userLatitude === null || $userLongitude === null) {
-            return response()->json(['error' => ($lang === 'ar' ? 'يرجى توفير موقع المستخدم' : 'Please provide user location')], 400);
-        }
-    
-        $store = Store::with(['Discounts' => function ($query) {
-            $query->where('Discounts_status', 'working')->where('is_deleted', 0);
-        }])
-            ->select('*')
-            ->selectRaw(
-                '( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) ) *
-                cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) *
-                sin( radians( latitude ) ) ) ) AS distance',
-                [$userLatitude, $userLongitude, $userLatitude]
-            )
-            ->orderBy('distance')
-            ->find($storeId);
-    
-        if (!$store) {
-            return response()->json(['error' => ($lang === 'ar' ? 'المتجر غير موجود' : 'Store not found')], 404);
-        }
-    
-        // Convert distance to a more readable format
-        $store->distance = $this->formatDistance($store->distance, $lang);
-    
-        if ($store->Discounts->isEmpty()) {
-            return response()->json(['store' => $store, 'message' => ($lang === 'ar' ? 'لا تتوفر خصومات لهذا المتجر' : 'No discounts available for this store')]);
-        }
-    
-        return response()->json(['store' => $store]);
+{
+    $storeId = $request->json('id');
+    $userLatitude = $request->json('user_latitude');
+    $userLongitude = $request->json('user_longitude');
+    $lang = $request->json('lang');
+
+    // Check if user_latitude or user_longitude is null
+    if ($userLatitude === null || $userLongitude === null) {
+        return response()->json(['error' => ($lang === 'ar' ? 'يرجى توفير موقع المستخدم' : 'Please provide user location')], 400);
     }
-    
-    private function formatDistance($distance, $lang)
+
+    $store = Store::with(['Discounts' => function ($query) {
+        $query->where('Discounts_status', 'working')->where('is_deleted', 0);
+    }])
+        ->select('*')
+        ->selectRaw(
+            '( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) ) *
+            cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) *
+            sin( radians( latitude ) ) ) ) AS distance',
+            [$userLatitude, $userLongitude, $userLatitude]
+        )
+        ->orderBy('distance')
+        ->find($storeId);
+
+    if (!$store) {
+        return response()->json(['error' => ($lang === 'ar' ? 'المتجر غير موجود' : 'Store not found')], 404);
+    }
+
+    // Convert distance to a more readable format
+    $store->distance = $this->formatDistance($store->distance, $lang);
+
+    // Fetch category name based on the language
+    $category = StoreCategory::find($store->category_id);
+    $store->category_name_ar = optional($category)->category_name_ar;
+    $store->category_name_en = optional($category)->category_name_en;
+
+    // Fetch region name based on the language
+    $region = Region::find($store->region);
+    $store->region_name_ar = optional($region)->region_ar;
+    $store->region_name_en = optional($region)->region_en;
+
+    if ($store->Discounts->isEmpty()) {
+        return response()->json(['store' => $store, 'message' => ($lang === 'ar' ? 'لا تتوفر خصومات لهذا المتجر' : 'No discounts available for this store')]);
+    }
+
+    return response()->json(['store' => $store]);
+}
+
+        private function formatDistance($distance, $lang)
     {
         if ($distance < 1.0) {
             return number_format($distance * 1000, 0, '.', '') . ' ' . ($lang === 'ar' ? 'م' : 'm');
@@ -582,11 +606,15 @@ class StoreController extends Controller
     
         return new JsonResponse(['stores' => $filteredStores]);
     }
+<<<<<<< HEAD
     // StoreController.php
+=======
+>>>>>>> 8debf0151e14cbaa59644cb0334637f86dea03c8
 
     public function filterStoresApi(Request $request)
     {
         $lang = $request->input('lang');
+<<<<<<< HEAD
     
         if ($lang && in_array($lang, ['en', 'ar'])) {
             App::setLocale($lang);
@@ -633,7 +661,253 @@ class StoreController extends Controller
         // Return the filtered stores as JSON response
         return response()->json(['filteredStores' => $filteredStores]);
     }
+=======
+>>>>>>> 8debf0151e14cbaa59644cb0334637f86dea03c8
     
+        if ($lang && in_array($lang, ['en', 'ar'])) {
+            App::setLocale($lang);
+        }
     
+        // Get the user's location from the request
+        $userLatitude = $request->input('user_latitude');
+        $userLongitude = $request->input('user_longitude');
+    
+        // Additional parameters for filtering
+        $region = $request->input('region');
+        $categoryName = $request->input('category');
+    
+        // Define the label for "All Regions" based on the language
+        $allRegionsLabel = ($lang === 'ar') ? 'جميع المدن' : 'All Regions';
+        $allCategoriesLabel = ($lang === 'ar') ? 'جميع الفئات' : 'All Categories';
         
+
+        // Query to get a list of unique regions and categories
+        $regionListQuery = Store::distinct('region')->pluck('region')->toArray();
+
+        $regions = Region::whereIn('id', $regionListQuery)->pluck('region_' . $lang, 'id')->toArray();
+        
+        // Add "All Regions" to the regions array
+        $regions = [0 => $allRegionsLabel] + $regions;
+        
+        $regionList = [];
+        
+        foreach ($regions as $id => $name) {
+            $regionList[] = ['region_id' => $id, 'region_name' => $name];
+        }
+        
+                        // Query to filter stores based on parameters
+        $query = Store::select('*');
+    
+        if ($region && $region !== $allRegionsLabel) {
+            $query->where('region', $region);
+        }
+    
+        if ($categoryName && $categoryName !== $allCategoriesLabel) {
+            // Convert category name to ID
+     
+                $query->where('category_id', $categoryName);
+         
+        }
+    
+        // Add distance calculation if user latitude and longitude are provided
+        if ($userLatitude !== null && $userLongitude !== null) {
+            $query->selectRaw(
+                '( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) ) *
+                cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) *
+                sin( radians( latitude ) ) ) ) AS distance',
+                [$userLatitude, $userLongitude, $userLatitude]
+            )->orderBy('distance');
+        }
+    
+        // Execute the query
+        $filteredStores = $query->get();
+    
+        // Convert distance to a more readable format
+        foreach ($filteredStores as $store) {
+            $store->distance = $this->formatDistance($store->distance, $lang);
+        }
+    
+        // Get category names based on the selected region
+        $categoryListQuery = $store->distinct('category_id')->where('region', $region)->pluck('category_id');
+
+        $categories = StoreCategory::whereIn('id', $categoryListQuery)
+            ->pluck('category_name_' . $lang, 'id')
+            ->toArray();
+        
+        
+        // Add "All Categories" to the categories array
+        $categories = [0 => $allCategoriesLabel] + $categories;
+        
+        $categoryList = [];
+        
+        foreach ($categories as $id => $name) {
+            $categoryList[] = ['category_id' => $id, 'category_name' => $name];
+        }
+        
+        // Map the stores to the desired format
+        $filteredStores = $filteredStores->map(function ($store) use ($lang) {
+            $category = StoreCategory::find($store->category_id);
+            $regionName = Region::where('id', $store->region)->value('region_'.  $lang);
+            $category = $store->category;
+            $region = Region::find($store->region);
+            return [
+                'id' => $store->id,
+                'user_id' => $store->user_id,
+                'name' => $store->name,
+                'location' => $store->location,
+                'phone' => $store->phone,
+                'url_map' => $store->url_map,
+                'photo' => $store->photo,
+                'qr' => $store->qr,
+                'total_payments' => $store->total_payments,
+                'total_withdrawals' => $store->total_withdrawals,
+                'count_times' => $store->count_times,
+                'work_hours' => $store->work_hours,
+                'work_days' => $store->work_days,
+                'city' => $store->city,
+                'region' => $store->region,
+                'status' => $store->status,
+                'verifcation' => $store->verifcation,
+                'is_bann' => $store->is_bann,
+                'bann_msg' => $store->bann_msg,
+                'is_deleted' => $store->is_deleted,
+                'created_at' => $store->created_at,
+                'updated_at' => $store->updated_at,
+                'latitude' => $store->latitude,
+                'longitude' => $store->longitude,
+                'category_name' => optional($category)->{"category_name_" . $lang}, // Get category name based on language
+                'category_id' => $store->category_id, // Get category name based on language
+                'distance' => $store->distance,
+                'region_name' => $regionName,
+                'discounts' => $store->discounts->where('discounts_status', 'working')->where('is_deleted', 0),
+                'category_name_ar' => optional($category)->category_name_ar,
+                'category_name_en' => optional($category)->category_name_en,
+                'region_name_ar' => optional($region)->region_ar,
+                'region_name_en' => optional($region)->region_en,
+
+            ];
+        });
+            
+        // Include the 'region' field, 'regionList', 'category' field, 'categoryList', and 'filteredStores' in the response
+        $response = [
+            'filteredStores' => $filteredStores,
+            'region' => $region,
+            'regionList' => $regionList,
+            'category' => $categoryName,
+            'categoryList' => $categoryList,
+        ];
+    
+        // Return the response as JSON
+        return response()->json($response);
+    }
+            
+    public function userStores(Request $request)
+    {
+        // Retrieve stores associated with the authenticated user
+        $userStores = Store::where('user_id', auth()->id())->get();
+
+        // Return the user's stores
+        return response()->json($userStores);
+    }
+    
+        /**
+         * Create a new store.
+         *
+         * @param  \Illuminate\Http\Request  $request
+         * @return \Illuminate\Http\JsonResponse
+         */
+        public function createStore(Request $request)
+        {
+            $lang = $request->input('lang'); // Get the 'lang' parameter from the request
+
+            $currentLanguage = $request->input('lang');
+    
+    
+    
+            // Check the language and set the appropriate error message
+            if ($currentLanguage === 'ar') {
+                $errorMessages = [
+                    'name.required' => 'يجب ادخال اسم المتجر ',
+                    'phone.unique' => 'رقم الجوال مستخدم بالفعل. يرجى اختيار رقم آخر.',
+                    'phone.required' => ' رقم الجوال مطلوب.',
+                    'location.required' => 'يجب ادخال العنوان تفصيلي.',
+                    'status.required' => 'يجب اختيار حالة المتجر .',
+                    'url_map.required' => 'يجب تحديد المتجر على الخريطة .',
+                    'work_days.required' => 'يجب تحديد ايام و مواعيد العمل  .',
+                ];
+            }
+            if ($currentLanguage === 'en') {
+                $errorMessages = [
+                    'name.required' => 'The store name field is required.',
+                    'phone.unique' => 'The mobile number is already in use. Please choose a different one.',
+                    'phone.required' => 'The mobile field is required.',
+                    'location.required' => 'The address field is required.',
+                    'status.required' => 'store status field is required.',
+                    'url_map.required' => 'store map field is required.',
+                    'work_days.required' => 'works time and days is required.',
+    
+                ];
+            }
+    
+    
+            $customMessages = $errorMessages;
+    
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|max:191',
+                'location' => 'required|max:191',
+                'phone' => 'required|max:10|min:10|unique:users,mobile|unique:stores,phone',
+                'region' => 'required|string|max:255',
+                'photo' => 'nullable',
+                'work_days' => 'array',
+                'status' => 'required|boolean',
+            ], $customMessages);
+    
+            if ($validator->fails()) {
+                return redirect()->back()->withErrors($validator)->withInput();
+            }
+    
+            $user = auth()->user();
+    
+            // Create a new store record
+            $store = new Store;
+            $store->name = $request->input('name');
+            $store->location = $request->input('location');
+            $store->phone = $request->input('phone');
+            $store->photo = $request->input('photo');
+            $store->status = $request->input('status');
+            $store->region = $request->input('region');
+            $store->latitude = $request->input('latitude');
+            $store->longitude = $request->input('longitude');
+            $store->user_id = $user->id;
+    
+            // Handle store image upload
+            if ($request->hasFile('photo')) {
+                $this->handleStoreImageUpload($store, $request->file('photo'));
+            } else {
+                // If no image is uploaded, set a default image
+                $store->photo = 'market.png'; // Change 'market.png' to your default image filename
+            }
+    
+            // Save the selected work days and their working hours
+            $workDays = $request->input('work_days');
+            $workDayHours = [];
+            foreach ($workDays as $day) {
+                $workDayHours[$day] = [
+                    'from' => $request->input($day . '_from'),
+                    'to' => $request->input($day . '_to'),
+                ];
+            }
+            $store->work_days = json_encode($workDayHours);
+    
+            $store->save();
+            $this->generateQrCode($store->id);
+    
+            // Return a JSON response indicating successful store creation
+            return response()->json([
+                'message' => 'Store created successfully',
+                'store' => $store,
+            ]);
+        }
+  
+    
 }

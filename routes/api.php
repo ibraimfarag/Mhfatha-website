@@ -7,6 +7,7 @@ use App\Http\Controllers\UserDiscountController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomEncrypter;
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,9 +32,16 @@ Route::post('login-post', [AuthController::class, 'login_api']);
 Route::post('register-post', [AuthController::class, 'register_api']);
 
 Route::get('check-network', [AuthController::class, 'checkInternetConnection']);
+Route::post('/registerregions', [UserController::class, 'getRegionsAndCitiesApi']);
+Route::post('/auth/resetPassword', [UserController::class, 'resetPassword']);
+Route::post('/regions', [UserController::class, 'getRegionsAndCitiesApi']);
 
 Route::middleware('auth:api')->group(function () {
 
+
+    Route::get('/user', [UserController::class, 'getUserInfoApi']);
+    Route::post('/auth/changepassword', [UserController::class, 'changePassword']);
+    Route::post('/auth/update', [UserController::class, 'updateProfileWithOtp']);
     Route::post('/nearby', [StoreController::class, 'nearbyApi']);
     Route::post('/store', [StoreController::class, 'storeInfoApi']);
     Route::post('/stores/search-by-name', [StoreController::class, 'searchByNameApi']);
@@ -42,5 +50,13 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/user-discounts', [UserDiscountController::class, 'getAllUserDiscounts']);
     Route::post('/filter-stores', [StoreController::class, 'filterStoresApi']);
 
+<<<<<<< HEAD
+=======
+    // /* --------------------------------- vendor --------------------------------- */
+    Route::post('/vendor/stores', [StoreController::class, 'userStores']);
+    Route::post('/vendor/store/create', [StoreController::class, 'createStore']);
+
+
+>>>>>>> 8debf0151e14cbaa59644cb0334637f86dea03c8
 
 });

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;  //add the namespace
+use \Illuminate\Database\Eloquent\Model;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -44,5 +45,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function userDiscounts()
     {
         return $this->hasMany(UserDiscount::class);
+    }
+    
+    public function region()
+    {
+        return $this->belongsTo(Region::class);
+    }
+
+    public function city()
+    {
+        return $this->belongsTo(City::class);
     }
 }
