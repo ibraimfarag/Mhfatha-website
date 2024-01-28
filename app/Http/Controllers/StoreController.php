@@ -612,54 +612,6 @@ class StoreController extends Controller
     {
         $lang = $request->input('lang');
 
-    
-        if ($lang && in_array($lang, ['en', 'ar'])) {
-            App::setLocale($lang);
-        }
-    
-        // Get the user's location from the request
-        $userLatitude = $request->input('user_latitude');
-        $userLongitude = $request->input('user_longitude');
-    
-        // Additional parameters for filtering
-        $region = $request->input('region');
-        $category = $request->input('category');
-    
-        // Query to filter stores based on parameters
-        $query = Store::select('*');
-    
-        if ($region) {
-            $query->where('region', $region);
-        }
-    
-        if ($category) {
-            $query->where('category', $category);
-        }
-    
-        // Add distance calculation if user latitude and longitude are provided
-        if ($userLatitude !== null && $userLongitude !== null) {
-            $query->selectRaw(
-                '( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) ) *
-                cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) *
-                sin( radians( latitude ) ) ) ) AS distance',
-                [$userLatitude, $userLongitude, $userLatitude]
-            )->orderBy('distance');
-        }
-    
-        // Execute the query
-        $filteredStores = $query->get();
-    
-        // Convert distance to a more readable format
-        foreach ($filteredStores as $store) {
-            $store->distance = $this->formatDistance($store->distance, $lang);
-            
-        }
-    
-        // Return the filtered stores as JSON response
-        return response()->json(['filteredStores' => $filteredStores]);
-    }
-
-    
         if ($lang && in_array($lang, ['en', 'ar'])) {
             App::setLocale($lang);
         }
