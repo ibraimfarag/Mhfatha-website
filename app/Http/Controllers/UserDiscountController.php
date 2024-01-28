@@ -200,10 +200,6 @@ class UserDiscountController extends Controller
             $userDiscount->after_discount = $afterDiscount;
             $userDiscount->date = now();
             // You can set other fields like date, status, reason, etc. here
-    
-            $userDiscount->save();
-    
-            // Increment count_times in the store table
             $storeId = $requestData['store_id'] ;
             $store = Store::find($storeId)->first();
             if ($store) {
@@ -211,6 +207,10 @@ class UserDiscountController extends Controller
                 $store->total_payments += $afterDiscount;
                 $store->save();
             }
+            $userDiscount->save();
+    
+            // Increment count_times in the store table
+       
     
             // Customize success message based on language
             $successMessage = $lang === 'ar' ? 'تمت إضافة خصم المستخدم بنجاح' : 'User discount added successfully';
