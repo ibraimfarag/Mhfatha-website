@@ -606,15 +606,12 @@ class StoreController extends Controller
     
         return new JsonResponse(['stores' => $filteredStores]);
     }
-<<<<<<< HEAD
-    // StoreController.php
-=======
->>>>>>> 8debf0151e14cbaa59644cb0334637f86dea03c8
+
 
     public function filterStoresApi(Request $request)
     {
         $lang = $request->input('lang');
-<<<<<<< HEAD
+
     
         if ($lang && in_array($lang, ['en', 'ar'])) {
             App::setLocale($lang);
@@ -661,8 +658,7 @@ class StoreController extends Controller
         // Return the filtered stores as JSON response
         return response()->json(['filteredStores' => $filteredStores]);
     }
-=======
->>>>>>> 8debf0151e14cbaa59644cb0334637f86dea03c8
+
     
         if ($lang && in_array($lang, ['en', 'ar'])) {
             App::setLocale($lang);
