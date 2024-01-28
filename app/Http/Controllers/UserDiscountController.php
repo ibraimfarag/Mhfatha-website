@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
-use App\Models\UserDiscount;
-use App\Models\Discount;
-use App\Models\User;
-use App\Models\store;
-
 use Illuminate\Support\Facades\App;
-
 use Illuminate\Http\Request;
+use App\Models\Discount;
+use App\Models\UserDiscount;
+use App\Models\Store; // Correct casing for the Store class
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+
+
 
 class UserDiscountController extends Controller
 {
