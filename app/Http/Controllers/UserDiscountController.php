@@ -171,26 +171,26 @@ class UserDiscountController extends Controller
                 'total_payment' => 'required|numeric',
                 'lang' => 'nullable|string', // Add language validation
             ]);
-
+    
             // Get JSON data from the request body
             $requestData = $request->json()->all();
-
+    
             // Default language to English if not provided
             $lang = $requestData['lang'] ?? 'en';
-
+    
             // Calculate the after_discount based on the discount percentage
             $discount = Discount::find($requestData['discount_id']);
-
+    
             if (!$discount) {
                 $message = $lang === 'ar' ? 'لم يتم العثور على الخصم' : 'Discount not found';
                 return response()->json(['message' => $message], 404);
             }
-
+    
             $percent = $discount->percent;
             $totalPayment = $requestData['total_payment'];
-
+    
             $afterDiscount = $totalPayment - $totalPayment * ($percent / 100);
-
+    
             // Create a new user discount entry
             $userDiscount = new UserDiscount();
             $userDiscount->user_id = $requestData['user_id'];
@@ -200,19 +200,26 @@ class UserDiscountController extends Controller
             $userDiscount->after_discount = $afterDiscount;
             $userDiscount->date = now();
             // You can set other fields like date, status, reason, etc. here
-
+    
             $userDiscount->save();
-
+    
+            // Increment count_times in the store table
+            $store = Store::find($requestData['store_id']);
+            if ($store) {
+                $store->count_times += 1;
+                $store->save();
+            }
+    
             // Customize success message based on language
             $successMessage = $lang === 'ar' ? 'تمت إضافة خصم المستخدم بنجاح' : 'User discount added successfully';
-
+    
             return response()->json(['message' => $successMessage, 'after_discount' => $afterDiscount]);
         } catch (\Exception $e) {
             // Handle validation or other errors
             return response()->json(['error' => 'Invalid JSON data or internal server error'], 400);
         }
     }
-
+    
 
 
 
