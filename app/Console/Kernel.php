@@ -4,6 +4,8 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Console\Commands\DailyCheckCommand;
+use App\Http\Controllers\UserDiscountController;
 
 class Kernel extends ConsoleKernel
 {
@@ -25,7 +27,10 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+        // $schedule->command('daily:check')->hourly();
+        $schedule->call([UserDiscountController::class, 'checkDiscountsExpiration'])->hourly();
     }
+    
 
     /**
      * Register the commands for the application.

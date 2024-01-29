@@ -234,7 +234,18 @@ class UserDiscountController extends Controller
     }
 
 
+    public function checkDiscountsExpiration()
+    {
+        try {
+            $expiredDiscounts = Discount::whereDate('end_date', '<', now())
+                ->where('discounts_status', '!=', 'end')
+                ->update(['discounts_status' => 'end']);
 
+            return response()->json(['message' => 'Discounts status updated successfully.', 'expired_discounts' => $expiredDiscounts], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to update discounts status.', 'message' => $e->getMessage()], 500);
+        }
+    }
     // /* ------------------------------- Api methos ------------------------------- */
     /**
      * Get all user discounts through API.
