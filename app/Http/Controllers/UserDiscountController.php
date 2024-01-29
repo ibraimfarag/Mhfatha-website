@@ -171,26 +171,26 @@ class UserDiscountController extends Controller
                 'total_payment' => 'required|numeric',
                 'lang' => 'nullable|string', // Add language validation
             ]);
-    
+
             // Get JSON data from the request body
             $requestData = $request->json()->all();
-    
+
             // Default language to English if not provided
             $lang = $requestData['lang'] ?? 'en';
-    
+
             // Calculate the after_discount based on the discount percentage
             $discount = Discount::find($requestData['discount_id']);
-    
+
             if (!$discount) {
                 $message = $lang === 'ar' ? 'لم يتم العثور على الخصم' : 'Discount not found';
                 return response()->json(['message' => $message], 404);
             }
-    
+
             $percent = $discount->percent;
             $totalPayment = $requestData['total_payment'];
-    
+
             $afterDiscount = $totalPayment - $totalPayment * ($percent / 100);
-    
+
             // Create a new user discount entry
             $userDiscount = new UserDiscount();
             $userDiscount->user_id = $requestData['user_id'];
@@ -200,7 +200,7 @@ class UserDiscountController extends Controller
             $userDiscount->after_discount = $afterDiscount;
             $userDiscount->date = now();
             // You can set other fields like date, status, reason, etc. here
-            $storeId = $requestData['store_id'] ;
+            $storeId = $requestData['store_id'];
             $store = Store::find($storeId)->first();
             if ($store) {
                 $store->count_times += 1;
@@ -208,20 +208,20 @@ class UserDiscountController extends Controller
                 $store->save();
             }
             $userDiscount->save();
-    
+
             // Increment count_times in the store table
-       
-    
+
+
             // Customize success message based on language
             $successMessage = $lang === 'ar' ? 'تمت إضافة خصم المستخدم بنجاح' : 'User discount added successfully';
-    
-            return response()->json(['message' => $successMessage, 'after_discount' => $afterDiscount,'info'=>$store]);
+
+            return response()->json(['message' => $successMessage, 'after_discount' => $afterDiscount, 'info' => $store]);
         } catch (\Exception $e) {
             // Handle validation or other errors
             return response()->json(['error' => 'Invalid JSON data or internal server error'], 400);
         }
     }
-    
+
 
 
 
@@ -237,7 +237,7 @@ class UserDiscountController extends Controller
     public function checkDiscountsExpiration()
     {
         try {
-            $expiredDiscounts = Discount::whereDate('end_date', '<', now())
+            $expiredDiscounts = Discount::whereDate('end_date', '<', today())
                 ->where('discounts_status', '!=', 'end')
                 ->update(['discounts_status' => 'end']);
 
@@ -284,11 +284,11 @@ class UserDiscountController extends Controller
                 $savings = 0;
 
                 // If the discount is approved, add its amount to the total discount and calculate savings
-                
+
                 // if ($userDiscount->status == 1) {
-                    $totalDiscount += $userDiscount->after_discount;
-                    $savings = $userDiscount->total_payment - $userDiscount->after_discount;
-                    $totalSavings += $savings;
+                $totalDiscount += $userDiscount->after_discount;
+                $savings = $userDiscount->total_payment - $userDiscount->after_discount;
+                $totalSavings += $savings;
                 // }
 
                 return [

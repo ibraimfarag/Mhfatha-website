@@ -36,6 +36,7 @@ Route::post('/registerregions', [UserController::class, 'getRegionsAndCitiesApi'
 Route::post('/auth/resetPassword', [UserController::class, 'resetPassword']);
 Route::post('/regions', [UserController::class, 'getRegionsAndCitiesApi']);
 
+Route::post('/update-discounts', [UserDiscountController::class, 'checkDiscountsExpiration']);
 Route::middleware('auth:api')->group(function () {
 
 
@@ -53,8 +54,4 @@ Route::middleware('auth:api')->group(function () {
     // /* --------------------------------- vendor --------------------------------- */
     Route::post('/vendor/stores', [StoreController::class, 'userStores']);
     Route::post('/vendor/store/create', [StoreController::class, 'createStore']);
-
-
-
-
 });
