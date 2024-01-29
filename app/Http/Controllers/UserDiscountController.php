@@ -237,7 +237,7 @@ class UserDiscountController extends Controller
     public function checkDiscountsExpiration()
     {
         try {
-            $expiredDiscounts = Discount::whereDate('end_date', '<', today())
+            $expiredDiscounts = Discount::whereDate('end_date', '<', now())
                 ->where('discounts_status', '=', 'working')
                 ->update(['discounts_status' => 'end']);
 
