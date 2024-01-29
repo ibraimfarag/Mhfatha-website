@@ -36,7 +36,7 @@ Route::post('/registerregions', [UserController::class, 'getRegionsAndCitiesApi'
 Route::post('/auth/resetPassword', [UserController::class, 'resetPassword']);
 Route::post('/regions', [UserController::class, 'getRegionsAndCitiesApi']);
 
-Route::post('/update-discounts', [UserDiscountController::class, 'checkDiscountsExpiration']);
+Route::get('/update-discounts', [UserDiscountController::class, 'checkDiscountsExpiration']);
 Route::middleware('auth:api')->group(function () {
 
 
