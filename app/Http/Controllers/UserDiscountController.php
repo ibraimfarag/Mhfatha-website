@@ -238,7 +238,7 @@ class UserDiscountController extends Controller
     {
         try {
             $expiredDiscounts = Discount::whereDate('end_date', '<', today())
-                ->where('discounts_status', '!=', 'end')
+                ->where('discounts_status', '=', 'working')
                 ->update(['discounts_status' => 'end']);
 
             return response()->json(['message' => 'Discounts status updated successfully.', 'expired_discounts' => $expiredDiscounts], 200);
