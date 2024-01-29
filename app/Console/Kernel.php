@@ -15,7 +15,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        Commands\DailyCheckCommand::class, // Add the DailyCheckCommand class here
     ];
 
     /**
@@ -27,10 +27,10 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        // $schedule->command('daily:check')->hourly();
-        $schedule->call([UserDiscountController::class, 'checkDiscountsExpiration'])->hourly();
+        $schedule->command('daily:check')->everyMinute();
+        // $schedule->call([UserDiscountController::class, 'checkDiscountsExpiration'])->hourly();
     }
-    
+
 
     /**
      * Register the commands for the application.
@@ -39,7 +39,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }
