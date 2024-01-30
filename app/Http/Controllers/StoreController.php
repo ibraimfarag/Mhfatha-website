@@ -752,12 +752,48 @@ class StoreController extends Controller
 
     public function userStores(Request $request)
     {
+        $userId = auth()->id();
         // Retrieve stores associated with the authenticated user
-        $userStores = Store::where('user_id', auth()->id())->get();
-
-        // Return the user's stores
-        return response()->json($userStores);
+        $userStores = Store::where('user_id', $userId)->get();
+    
+        // Count verified stores where verification = 1 and is_bann = 0 and is_deleted = 0
+        $verifiedStoresCount = Store::where('user_id', auth()->id())
+                                    ->where('verifcation', 1)
+                                    ->where('is_bann', 0)
+                                    ->where('is_deleted', 0)
+                                    ->count();
+    
+        // Count pending stores where verification = 0 and is_bann = 0 and is_deleted = 0
+        $pendingStoresCount = Store::where('user_id', auth()->id())
+                                    ->where('verifcation', 0)
+                                    ->where('is_bann', 0)
+                                    ->where('is_deleted', 0)
+                                    ->count();
+    
+        // Sum of count_times for verified stores
+        $sumCountTimes = Store::where('user_id', auth()->id())
+                                ->where('verifcation', 1)
+                                ->where('is_bann', 0)
+                                ->where('is_deleted', 0)
+                                ->sum('count_times');
+    
+        // Sum of total_payments for verified stores
+        $sumTotalPayments = Store::where('user_id', auth()->id())
+                                    ->where('verifcation', 1)
+                                    ->where('is_bann', 0)
+                                    ->where('is_deleted', 0)
+                                    ->sum('total_payments');
+    
+        // Return the user's stores along with additional counts and sums
+        return response()->json([
+            'userStores' => $userStores,
+            'verifiedStoresCount' => $verifiedStoresCount,
+            'pendingStoresCount' => $pendingStoresCount,
+            'sumCountTimes' => $sumCountTimes,
+            'sumTotalPayments' => $sumTotalPayments,
+        ]);
     }
+    
 
     /**
      * Create a new store.
