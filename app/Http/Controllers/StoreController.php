@@ -783,10 +783,21 @@ class StoreController extends Controller
                                     ->where('is_bann', 0)
                                     ->where('is_deleted', 0)
                                     ->sum('total_payments');
+        // Add category_name_en, category_name_ar, region_name_ar, and region_name_en to each store object
+        $userStoresWithDetails = $userStores->map(function ($store) {
+            $category = StoreCategory::find($store->category_id);
+            $region = Region::find($store->region);
     
+            $store->category_name_en = optional($category)->category_name_en;
+            $store->category_name_ar = optional($category)->category_name_ar;
+            $store->region_name_ar = optional($region)->region_ar;
+            $store->region_name_en = optional($region)->region_en;
+    
+            return $store;
+        });
         // Return the user's stores along with additional counts and sums
         return response()->json([
-            'userStores' => $userStores,
+            'userStores' => $userStoresWithDetails,
             'verifiedStoresCount' => $verifiedStoresCount,
             'pendingStoresCount' => $pendingStoresCount,
             'sumCountTimes' => $sumCountTimes,
