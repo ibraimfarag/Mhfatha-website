@@ -113,15 +113,15 @@ class StoreController extends Controller
                 $message = $lang === 'ar' ? 'هذا المتجر مغلق مؤقتًا من قبل التاجر.' : 'This store is temporarily closed by the merchant.';
                 return response()->json(['message' => $message], 200);
             }
+            $discounts = $store->Discounts->where('discounts_status', 'working')->where('is_deleted', 0);
 
             // Check discount attributes
-            if ($store->Discounts && $store->Discounts->isNotEmpty()) {
-                return response()->json(['discounts' => $store->Discounts->all(), 'store' => $store]);
+            if ($discounts->isNotEmpty()) {
+                return response()->json(['discounts' => $discounts->all(), 'store' => $store]);
             } else {
                 $message = $lang === 'ar' ? 'لا توجد خصومات متاحة.' : 'No discount available.';
                 return response()->json(['message' => $message, 'store' => $store], 200);
-            }
-        } catch (\Exception $e) {
+            }        } catch (\Exception $e) {
             // Handle decryption errors
             $errorMessage = $lang === 'ar' ? 'فشل في التعرف على المتجر.' : 'Failed to recognize the store.';
             return response()->json(['error' => $errorMessage], 500);
