@@ -904,9 +904,7 @@ class StoreController extends Controller
 
         $store->save();
         $this->generateQrCode($store->id);
-        if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors()->toArray());
-        }
+    
         // Return a JSON response indicating successful store creation
         return response()->json([
             'message' => 'Store created successfully',
