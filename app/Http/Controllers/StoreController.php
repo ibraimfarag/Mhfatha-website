@@ -887,13 +887,13 @@ class StoreController extends Controller
         // Save the selected work days and their working hours
         $workDays = $request->input('work_days');
         $workDayHours = [];
-        foreach ($workDays as $day) {
-            $workDayHours[$day] = [
-                'from' => $request->input($day . '_from'),
-                'to' => $request->input($day . '_to'),
-            ];
-        }
-        $store->work_days = json_encode($workDayHours);
+        // foreach ($workDays as $day) {
+        //     $workDayHours[$day] = [
+        //         'from' => $request->input($day . '_from'),
+        //         'to' => $request->input($day . '_to'),
+        //     ];
+        // }
+        $store->work_days = $workDayHours;
 
         $store->save();
         $this->generateQrCode($store->id);
