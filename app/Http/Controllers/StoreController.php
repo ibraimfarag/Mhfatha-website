@@ -17,6 +17,7 @@ use App\Models\StoreCategory;
 use App\Models\Region; // Import the Region model
 use App\Models\WebsiteManager;
 use App\Models\City;
+use Illuminate\Validation\ValidationException;
 
 class StoreController extends Controller
 {
@@ -854,12 +855,18 @@ class StoreController extends Controller
             'phone' => 'required|max:10|min:10|unique:users,mobile|unique:stores,phone',
             'region' => 'required|string|max:255',
             'photo' => 'nullable',
-            // 'work_days' => 'array',
             'status' => 'required|boolean',
         ], $customMessages);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            $errors = $validator->errors();
+            $errorResponse = [];
+    
+            foreach ($errors->keys() as $key) {
+                $errorResponse[$key] = $errors->first($key);
+            }
+    
+            return response()->json(['status' => 'error', 'errors' => $errorResponse], 422);
         }
 
         $user = auth()->user();
@@ -897,7 +904,9 @@ class StoreController extends Controller
 
         $store->save();
         $this->generateQrCode($store->id);
-
+        if ($validator->fails()) {
+            throw ValidationException::withMessages($validator->errors()->toArray());
+        }
         // Return a JSON response indicating successful store creation
         return response()->json([
             'message' => 'Store created successfully',
