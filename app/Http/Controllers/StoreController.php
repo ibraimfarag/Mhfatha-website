@@ -854,7 +854,7 @@ class StoreController extends Controller
             'phone' => 'required|max:10|min:10|unique:users,mobile|unique:stores,phone',
             'region' => 'required|string|max:255',
             'photo' => 'nullable',
-            'work_days' => 'array',
+            // 'work_days' => 'array',
             'status' => 'required|boolean',
         ], $customMessages);
 
