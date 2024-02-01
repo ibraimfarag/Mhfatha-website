@@ -893,7 +893,7 @@ class StoreController extends Controller
         //         'to' => $request->input($day . '_to'),
         //     ];
         // }
-        $store->work_days = $workDayHours;
+        $store->work_days = $workDays;
 
         $store->save();
         $this->generateQrCode($store->id);
