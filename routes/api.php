@@ -35,6 +35,7 @@ Route::get('check-network', [AuthController::class, 'checkInternetConnection']);
 Route::post('/registerregions', [UserController::class, 'getRegionsAndCitiesApi']);
 Route::post('/auth/resetPassword', [UserController::class, 'resetPassword']);
 Route::post('/regions', [UserController::class, 'getRegionsAndCitiesApi']);
+Route::post('/categories', [UserController::class, 'getcategoryApi']);
 
 Route::get('/update-discounts', [UserDiscountController::class, 'checkDiscountsExpiration']);
 Route::middleware('auth:api')->group(function () {

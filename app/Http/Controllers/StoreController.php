@@ -815,40 +815,40 @@ class StoreController extends Controller
      */
     public function createStore(Request $request)
     {
-        $lang = $request->input('lang'); // Get the 'lang' parameter from the request
-
-        $currentLanguage = $request->input('lang');
-
-
-
+        $lang = $request->input('lang');
+    
         // Check the language and set the appropriate error message
-        if ($currentLanguage === 'ar') {
+        if ($lang === 'ar') {
             $errorMessages = [
-                'name.required' => 'يجب ادخال اسم المتجر ',
+                'name.required' => 'يجب إدخال اسم المتجر',
                 'phone.unique' => 'رقم الجوال مستخدم بالفعل. يرجى اختيار رقم آخر.',
-                'phone.required' => ' رقم الجوال مطلوب.',
-                'location.required' => 'يجب ادخال العنوان تفصيلي.',
-                'status.required' => 'يجب اختيار حالة المتجر .',
-                'url_map.required' => 'يجب تحديد المتجر على الخريطة .',
-                'work_days.required' => 'يجب تحديد ايام و مواعيد العمل  .',
+                'phone.required' => 'رقم الجوال مطلوب.',
+                'location.required' => 'يجب إدخال العنوان بتفاصيله.',
+                'status.required' => 'يجب اختيار حالة المتجر.',
+                'url_map.required' => 'يجب تحديد المتجر على الخريطة.',
+                'work_days.required' => 'يجب تحديد أيام وأوقات العمل.',
+                'category_id.required' => 'يجب اختيار الفئة.',
+                'tax_number.required' => 'يجب إدخال رقم الضريبة.',
+                'tax_number.max' => 'يجب أن يكون رقم الضريبة أقل من :max حرف.',
             ];
-        }
-        if ($currentLanguage === 'en') {
+            $successMessage = '.تم ارسال طلب متجر جديد بنجاح, سوف يتم الموافقة عليه بعد المراجعة ';
+        } else {
+            // Default to English
             $errorMessages = [
                 'name.required' => 'The store name field is required.',
                 'phone.unique' => 'The mobile number is already in use. Please choose a different one.',
                 'phone.required' => 'The mobile field is required.',
                 'location.required' => 'The address field is required.',
-                'status.required' => 'store status field is required.',
-                'url_map.required' => 'store map field is required.',
-                'work_days.required' => 'works time and days is required.',
-
+                'status.required' => 'Store status field is required.',
+                'url_map.required' => 'Store map field is required.',
+                'work_days.required' => 'Works time and days are required.',
+                'category_id.required' => 'The category field is required.',
+                'tax_number.required' => 'The tax number field is required.',
+                'tax_number.max' => 'The tax number must be less than :max characters.',
             ];
+            $successMessage = 'new store request has been sent successfully. It will be approved after review.';
         }
-
-
-        $customMessages = $errorMessages;
-
+    
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:191',
             'location' => 'required|max:191',
@@ -856,8 +856,10 @@ class StoreController extends Controller
             'region' => 'required|string|max:255',
             'photo' => 'nullable',
             'status' => 'required|boolean',
-        ], $customMessages);
-
+            'category_id' => 'required|integer',
+            'tax_number' => 'required|string|max:255',
+        ], $errorMessages);
+    
         if ($validator->fails()) {
             $errors = $validator->errors();
             $errorResponse = [];
@@ -868,9 +870,9 @@ class StoreController extends Controller
     
             return response()->json(['status' => 'error', 'errors' => $errorResponse], 422);
         }
-
+    
         $user = auth()->user();
-
+    
         // Create a new store record
         $store = new Store;
         $store->name = $request->input('name');
@@ -881,8 +883,10 @@ class StoreController extends Controller
         $store->region = $request->input('region');
         $store->latitude = $request->input('latitude');
         $store->longitude = $request->input('longitude');
+        $store->category_id  = $request->input('category_id');
+        $store->tax_number  = $request->input('tax_number');
         $store->user_id = $user->id;
-
+    
         // Handle store image upload
         if ($request->hasFile('photo')) {
             $this->handleStoreImageUpload($store, $request->file('photo'));
@@ -890,25 +894,20 @@ class StoreController extends Controller
             // If no image is uploaded, set a default image
             $store->photo = 'market.png'; // Change 'market.png' to your default image filename
         }
-
+    
         // Save the selected work days and their working hours
         $workDays = $request->input('work_days');
-        $workDayHours = [];
-        // foreach ($workDays as $day) {
-        //     $workDayHours[$day] = [
-        //         'from' => $request->input($day . '_from'),
-        //         'to' => $request->input($day . '_to'),
-        //     ];
-        // }
+    
         $store->work_days = $workDays;
-
+    
         $store->save();
         $this->generateQrCode($store->id);
     
         // Return a JSON response indicating successful store creation
         return response()->json([
-            'message' => 'Store created successfully',
+            'status' => 'success',
+            'message' => $successMessage,
             'store' => $store,
         ]);
     }
-}
+        }

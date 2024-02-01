@@ -26,11 +26,12 @@ class CreateStoresTable extends Migration
             $table->decimal('total_withdrawals', 10, 2)->default(0);
             $table->unsignedInteger('count_times')->default(0);
             $table->string('work_hours');
-            $table->string('work_days');
+            $table->string('tax_number')->nullable();
+            $table->text('work_days')->nullable();
             $table->unsignedBigInteger('city')->nullable(); // Add city field
             $table->unsignedBigInteger('region')->nullable(); // Add region field
             $table->decimal('latitude', 10, 8)->nullable();
-$table->decimal('longitude', 11, 8)->nullable();
+            $table->decimal('longitude', 11, 8)->nullable();
             $table->boolean('status')->default(1); // 1 for active, 0 for inactive
             $table->boolean('is_deleted')->default(0); // 1 for active, 0 for inactive
             $table->boolean('verifcation')->default(0); // 1 for active, 0 for inactive
@@ -41,8 +42,6 @@ $table->decimal('longitude', 11, 8)->nullable();
             $table->foreign('category_id')->references('id')->on('store_categories');
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('region')->references('id')->on('regions');
-
-
         });
     }
 

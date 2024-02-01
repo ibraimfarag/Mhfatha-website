@@ -19,6 +19,7 @@ class Store extends Model
         'total_withdrawals',
         'count_times',
         'work_hours',
+        'tax_number',
         'work_days',
         'city',
         'region',
