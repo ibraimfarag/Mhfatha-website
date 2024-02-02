@@ -435,7 +435,7 @@ class StoreController extends Controller
             [$userLatitude, $userLongitude, $userLatitude]
         )
         ->having('distance', '<', $radius)
-        ->where('verification', 1)
+        ->where('verifcation', 1)
         ->where('is_bann', 0)
         ->where('is_deleted', 0)
         ->orderBy('distance')
@@ -662,7 +662,7 @@ class StoreController extends Controller
 
             $query->where('category_id', $categoryName);
         }
-        $query->where('verification', 1)
+        $query->where('verifcation', 1)
         ->where('is_bann', 0)
         ->where('is_deleted', 0);
         // Add distance calculation if user latitude and longitude are provided
