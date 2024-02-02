@@ -262,7 +262,7 @@ class StoreController extends Controller
             $this->handleStoreImageUpload($store, $request->file('store_image'));
         } else {
             // If no image is uploaded, set a default image
-            $store->photo = 'market.png'; // Change 'market.png' to your default image filename
+            $store->photo = 'null-market.png'; // Change 'null-market.png' to your default image filename
         }
 
         // Save the selected work days and their working hours
@@ -428,15 +428,19 @@ class StoreController extends Controller
         // Calculate nearby stores (example using Eloquent)
         $radius = $distance; // Set the radius in kilometers
         $nearbyStores = Store::select('*')
-            ->selectRaw(
-                '( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) ) *
-            cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) *
-            sin( radians( latitude ) ) ) ) AS distance',
-                [$userLatitude, $userLongitude, $userLatitude]
-            )
-            ->having('distance', '<', $radius)
-            ->orderBy('distance')
-            ->get();
+        ->selectRaw(
+            '( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) ) *
+        cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) *
+        sin( radians( latitude ) ) ) ) AS distance',
+            [$userLatitude, $userLongitude, $userLatitude]
+        )
+        ->having('distance', '<', $radius)
+        ->where('verification', 1)
+        ->where('is_bann', 0)
+        ->where('is_deleted', 0)
+        ->orderBy('distance')
+        ->get();
+
 
         // Convert distance to a more readable format
         foreach ($nearbyStores as $store) {
@@ -658,7 +662,9 @@ class StoreController extends Controller
 
             $query->where('category_id', $categoryName);
         }
-
+        $query->where('verification', 1)
+        ->where('is_bann', 0)
+        ->where('is_deleted', 0);
         // Add distance calculation if user latitude and longitude are provided
         if ($userLatitude !== null && $userLongitude !== null) {
             $query->selectRaw(
@@ -892,7 +898,7 @@ class StoreController extends Controller
             $this->handleStoreImageUpload($store, $request->file('photo'));
         } else {
             // If no image is uploaded, set a default image
-            $store->photo = 'market.png'; // Change 'market.png' to your default image filename
+            $store->photo = 'null-market.png'; // Change 'null-market.png' to your default image filename
         }
     
         // Save the selected work days and their working hours
