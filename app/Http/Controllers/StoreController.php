@@ -684,7 +684,7 @@ class StoreController extends Controller
         }
 
         // Get category names based on the selected region
-        $categoryListQuery = $store->where('verifcation', 1)->distinct('category_id')->where('region', $region)->pluck('category_id');
+        $categoryListQuery = Store::where('verifcation', 1)->distinct('category_id')->where('region', $region)->pluck('category_id');
 
         $categories = StoreCategory::whereIn('id', $categoryListQuery)
             ->pluck('category_name_' . $lang, 'id')
