@@ -637,7 +637,7 @@ class StoreController extends Controller
 
 
         // Query to get a list of unique regions and categories
-        $regionListQuery = Store::distinct('region')->pluck('region')->toArray();
+        $regionListQuery = Store::where('verifcation', 1)->distinct('region')->pluck('region')->toArray();
 
         $regions = Region::whereIn('id', $regionListQuery)->pluck('region_' . $lang, 'id')->toArray();
 
