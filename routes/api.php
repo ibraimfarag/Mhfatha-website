@@ -55,4 +55,5 @@ Route::middleware('auth:api')->group(function () {
     // /* --------------------------------- vendor --------------------------------- */
     Route::post('/vendor/stores', [StoreController::class, 'userStores']);
     Route::post('/vendor/store/create', [StoreController::class, 'createStore']);
+    Route::post('/vendor/store/delete', [StoreController::class, 'deleteStore']);
 });

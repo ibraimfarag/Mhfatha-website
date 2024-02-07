@@ -922,4 +922,33 @@ if ($region === null || $region == 0) {
             'store' => $store,
         ]);
     }
+
+
+
+    public function deleteStore(Request $request)
+    {
+        // Validate the incoming JSON data
+        $validator = Validator::make($request->all(), [
+            'storeId' => 'required|integer|exists:stores,id',
+            'lang' => 'required|in:en,ar',
+        ]);
+    
+        // If the validation fails, return the error response
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()->first()], 400);
         }
+    
+        // Retrieve the store ID and language from the request
+        $storeId = $request->input('storeId');
+        $lang = $request->input('lang');
+    
+        // Find the store by ID and update the 'is_deleted' field
+        $store = Store::find($storeId);
+        $store->is_deleted = 1;
+        $store->save();
+    
+        // Return language-specific success response messages
+        $successMessage = ($lang === 'ar') ? 'تم حذف المتجر بنجاح' : 'Store deleted successfully';
+        return response()->json(['message' => $successMessage]);
+    }
+            }
