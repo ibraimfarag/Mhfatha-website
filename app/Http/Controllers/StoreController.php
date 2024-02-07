@@ -122,7 +122,8 @@ class StoreController extends Controller
             } else {
                 $message = $lang === 'ar' ? 'لا توجد خصومات متاحة.' : 'No discount available.';
                 return response()->json(['message' => $message, 'store' => $store], 200);
-            }        } catch (\Exception $e) {
+            }
+        } catch (\Exception $e) {
             // Handle decryption errors
             $errorMessage = $lang === 'ar' ? 'فشل في التعرف على المتجر.' : 'Failed to recognize the store.';
             return response()->json(['error' => $errorMessage], 500);
@@ -428,18 +429,18 @@ class StoreController extends Controller
         // Calculate nearby stores (example using Eloquent)
         $radius = $distance; // Set the radius in kilometers
         $nearbyStores = Store::select('*')
-        ->selectRaw(
-            '( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) ) *
+            ->selectRaw(
+                '( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) ) *
         cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) *
         sin( radians( latitude ) ) ) ) AS distance',
-            [$userLatitude, $userLongitude, $userLatitude]
-        )
-        ->having('distance', '<', $radius)
-        ->where('verifcation', 1)
-        ->where('is_bann', 0)
-        ->where('is_deleted', 0)
-        ->orderBy('distance')
-        ->get();
+                [$userLatitude, $userLongitude, $userLatitude]
+            )
+            ->having('distance', '<', $radius)
+            ->where('verifcation', 1)
+            ->where('is_bann', 0)
+            ->where('is_deleted', 0)
+            ->orderBy('distance')
+            ->get();
 
 
         // Convert distance to a more readable format
@@ -663,8 +664,8 @@ class StoreController extends Controller
             $query->where('category_id', $categoryName);
         }
         $query->where('verifcation', 1)
-        ->where('is_bann', 0)
-        ->where('is_deleted', 0);
+            ->where('is_bann', 0)
+            ->where('is_deleted', 0);
         // Add distance calculation if user latitude and longitude are provided
         if ($userLatitude !== null && $userLongitude !== null) {
             $query->selectRaw(
@@ -685,13 +686,13 @@ class StoreController extends Controller
 
         // Get category names based on the selected region
 
-if ($region === null || $region == 0) {
-    // If region is null or 0, get category list query without filtering by region
-    $categoryListQuery = Store::where('verifcation', 1)->distinct('category_id')->pluck('category_id');
-} else {
-    // If region is provided, filter category list query by region
-    $categoryListQuery = Store::where('verifcation', 1)->distinct('category_id')->where('region', $region)->pluck('category_id');
-}
+        if ($region === null || $region == 0) {
+            // If region is null or 0, get category list query without filtering by region
+            $categoryListQuery = Store::where('verifcation', 1)->distinct('category_id')->pluck('category_id');
+        } else {
+            // If region is provided, filter category list query by region
+            $categoryListQuery = Store::where('verifcation', 1)->distinct('category_id')->where('region', $region)->pluck('category_id');
+        }
         $categories = StoreCategory::whereIn('id', $categoryListQuery)
             ->pluck('category_name_' . $lang, 'id')
             ->toArray();
@@ -768,44 +769,44 @@ if ($region === null || $region == 0) {
         $userId = auth()->id();
         // Retrieve stores associated with the authenticated user
         $userStores = Store::where('user_id', $userId)->get();
-    
+
         // Count verified stores where verification = 1 and is_bann = 0 and is_deleted = 0
         $verifiedStoresCount = Store::where('user_id', auth()->id())
-                                    ->where('verifcation', 1)
-                                    ->where('is_bann', 0)
-                                    ->where('is_deleted', 0)
-                                    ->count();
-    
+            ->where('verifcation', 1)
+            ->where('is_bann', 0)
+            ->where('is_deleted', 0)
+            ->count();
+
         // Count pending stores where verification = 0 and is_bann = 0 and is_deleted = 0
         $pendingStoresCount = Store::where('user_id', auth()->id())
-                                    ->where('verifcation', 0)
-                                    ->where('is_bann', 0)
-                                    ->where('is_deleted', 0)
-                                    ->count();
-    
+            ->where('verifcation', 0)
+            ->where('is_bann', 0)
+            ->where('is_deleted', 0)
+            ->count();
+
         // Sum of count_times for verified stores
         $sumCountTimes = Store::where('user_id', auth()->id())
-                                ->where('verifcation', 1)
-                                ->where('is_bann', 0)
-                                ->where('is_deleted', 0)
-                                ->sum('count_times');
-    
+            ->where('verifcation', 1)
+            ->where('is_bann', 0)
+            ->where('is_deleted', 0)
+            ->sum('count_times');
+
         // Sum of total_payments for verified stores
         $sumTotalPayments = Store::where('user_id', auth()->id())
-                                    ->where('verifcation', 1)
-                                    ->where('is_bann', 0)
-                                    ->where('is_deleted', 0)
-                                    ->sum('total_payments');
+            ->where('verifcation', 1)
+            ->where('is_bann', 0)
+            ->where('is_deleted', 0)
+            ->sum('total_payments');
         // Add category_name_en, category_name_ar, region_name_ar, and region_name_en to each store object
         $userStoresWithDetails = $userStores->map(function ($store) {
             $category = StoreCategory::find($store->category_id);
             $region = Region::find($store->region);
-    
+
             $store->category_name_en = optional($category)->category_name_en;
             $store->category_name_ar = optional($category)->category_name_ar;
             $store->region_name_ar = optional($region)->region_ar;
             $store->region_name_en = optional($region)->region_en;
-    
+
             return $store;
         });
         // Return the user's stores along with additional counts and sums
@@ -817,7 +818,7 @@ if ($region === null || $region == 0) {
             'sumTotalPayments' => $sumTotalPayments,
         ]);
     }
-    
+
 
     /**
      * Create a new store.
@@ -828,7 +829,7 @@ if ($region === null || $region == 0) {
     public function createStore(Request $request)
     {
         $lang = $request->input('lang');
-    
+
         // Check the language and set the appropriate error message
         if ($lang === 'ar') {
             $errorMessages = [
@@ -860,7 +861,7 @@ if ($region === null || $region == 0) {
             ];
             $successMessage = 'new store request has been sent successfully. It will be approved after review.';
         }
-    
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:191',
             'location' => 'required|max:191',
@@ -871,20 +872,20 @@ if ($region === null || $region == 0) {
             'category_id' => 'required|integer',
             'tax_number' => 'required|string|max:255',
         ], $errorMessages);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors();
             $errorResponse = [];
-    
+
             foreach ($errors->keys() as $key) {
                 $errorResponse[$key] = $errors->first($key);
             }
-    
+
             return response()->json(['status' => 'error', 'errors' => $errorResponse], 422);
         }
-    
+
         $user = auth()->user();
-    
+
         // Create a new store record
         $store = new Store;
         $store->name = $request->input('name');
@@ -898,7 +899,7 @@ if ($region === null || $region == 0) {
         $store->category_id  = $request->input('category_id');
         $store->tax_number  = $request->input('tax_number');
         $store->user_id = $user->id;
-    
+
         // Handle store image upload
         if ($request->hasFile('photo')) {
             $this->handleStoreImageUpload($store, $request->file('photo'));
@@ -906,15 +907,15 @@ if ($region === null || $region == 0) {
             // If no image is uploaded, set a default image
             $store->photo = 'null-market.png'; // Change 'null-market.png' to your default image filename
         }
-    
+
         // Save the selected work days and their working hours
         $workDays = $request->input('work_days');
-    
+
         $store->work_days = $workDays;
-    
+
         $store->save();
         $this->generateQrCode($store->id);
-    
+
         // Return a JSON response indicating successful store creation
         return response()->json([
             'status' => 'success',
@@ -930,25 +931,36 @@ if ($region === null || $region == 0) {
         // Validate the incoming JSON data
         $validator = Validator::make($request->all(), [
             'storeId' => 'required|integer|exists:stores,id',
-            'lang' => 'required|in:en,ar',
+            'lang' => 'required|in:en,ar', // Language validation
         ]);
-    
+
         // If the validation fails, return the error response
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()->first()], 400);
         }
-    
+
         // Retrieve the store ID and language from the request
         $storeId = $request->input('storeId');
         $lang = $request->input('lang');
-    
-        // Find the store by ID and update the 'is_deleted' field
+
+        // Find the store by ID
         $store = Store::find($storeId);
+        $userId = Auth::id();
+        // Check if the authenticated user owns the store
+        if ($store->user_id !== $userId) {
+            return response()->json([
+                'error' => ($lang === 'ar' ? 'غير مصرح لك بحذف هذا المتجر' : 'You are not authorized to delete this store')
+            ], 403);
+        }
+
+        // Set the 'is_deleted' field to 1
         $store->is_deleted = 1;
         $store->save();
-    
-        // Return language-specific success response messages
-        $successMessage = ($lang === 'ar') ? 'تم حذف المتجر بنجاح' : 'Store deleted successfully';
-        return response()->json(['message' => $successMessage]);
+
+        // Determine the appropriate response message based on the language
+        $message = ($lang === 'ar') ? 'تم حذف المتجر بنجاح' : 'Store deleted successfully';
+
+        // Return a success response with the appropriate message
+        return response()->json(['message' => $message]);
     }
-            }
+}
