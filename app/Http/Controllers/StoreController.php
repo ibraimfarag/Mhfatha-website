@@ -1116,7 +1116,7 @@ class StoreController extends Controller
         'type' => 'delete_discount',
         'data' => [
             'discount_id' => $discountId,
-            'delete' => $discount->is_deleted == 1, 
+            'delete' => $discount->is_deleted, 
         ],
         'approved' => false, // Set to false initially as it needs approval
     ];
