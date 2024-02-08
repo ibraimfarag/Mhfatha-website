@@ -167,8 +167,8 @@ class StoreController extends Controller
         // Save the merged image to the output path
         $background->save($outputPath);
     }
-    public function downloadMergedImage(Request  $request)
-    {    $storeId = $request->input('storeId');
+    public function downloadMergedImage($storeId,Request  $request)
+    {
         // Get the store information (adjust the logic to fit your needs)
         $store = Store::find($storeId);
 
