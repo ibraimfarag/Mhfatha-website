@@ -18,9 +18,8 @@ use App\Models\Region; // Import the Region model
 use App\Models\WebsiteManager;
 use App\Models\City;
 use Illuminate\Validation\ValidationException;
-use App\Models\Discount; 
-use App\Models\Request as Requests ;
-
+use App\Models\Discount;
+use App\Models\Request as StoreRequest;
 use Carbon\Carbon;
 
 class StoreController extends Controller
@@ -1082,54 +1081,154 @@ class StoreController extends Controller
     }
 
     public function DeleteDiscount(Request $request)
-{
-    // Validate the incoming request data
-    $validator = Validator::make($request->all(), [
-        'discount_id' => 'required|exists:discounts,id',
-        'lang' => 'required|in:en,ar',
-    ]);
+    {
+        // Validate the incoming request data
+        $validator = Validator::make($request->all(), [
+            'discount_id' => 'required|exists:discounts,id',
+            'lang' => 'required|in:en,ar',
+        ]);
 
-    // Check if validation fails
-    if ($validator->fails()) {
-        $errors = $validator->errors();
-        return response()->json(['status' => 'error', 'errors' => $errors], 422);
-    }
+        // Check if validation fails
+        if ($validator->fails()) {
+            $errors = $validator->errors();
+            return response()->json(['status' => 'error', 'errors' => $errors], 422);
+        }
 
-    $discountId = $request->input('discount_id');
-    $lang = $request->input('lang');
+        $discountId = $request->input('discount_id');
+        $lang = $request->input('lang');
 
-    // Retrieve the discount by ID
-    $discount = Discount::find($discountId);
+        // Retrieve the discount by ID
+        $discount = Discount::find($discountId);
+        // Check if the discount exists
+        if (!$discount) {
+            return response()->json([
+                'status' => 'error',
+                'message' => ($lang === 'ar') ? 'الخصم غير موجود.' : 'Discount does not exist.',
+            ], 404);
+        }
 
-    // Check if the discount exists
-    if (!$discount) {
+        // Create a request to be approved
+        // Create request data for deleting the discount
+        // Create request data for deleting the discount
+        $requestData = [
+            'user_id' => auth()->id(), // ID of the user making the request
+            'store_id' => $discount->store_id, // ID of the store associated with the discount
+            'type' => 'delete_discount', // Type of the request
+            'data' => json_encode([
+                'discount_id' => $discountId, // ID of the discount being deleted
+                'is_deleted' => 1, // Indicate that the discount is to be deleted
+            ]),
+            'approved' => false, // Initially set to false as it needs approval
+        ];
+
+        // Add the request to the requests table
+        $newRequest = StoreRequest::create($requestData);
+
+        // Return a success response
         return response()->json([
-            'status' => 'error',
-            'message' => ($lang === 'ar') ? 'الخصم غير موجود.' : 'Discount does not exist.',
-        ], 404);
+            'status' => 'success',
+            'message' => ($lang === 'ar') ? 'تم إرسال طلب الغاء الخصم بنجاح.' : 'cancel request sent successfully.',
+            'request_id' => $newRequest->id,
+        ]);
     }
 
-    // Create a request to be approved
-    $requestData = [
-        'user_id' => auth()->id(),
-        'store_id' => $discount->store_id,
-        'type' => 'delete_discount',
-        'data' => [
-            'discount_id' => $discountId,
-            'delete' => $discount->is_deleted, 
-        ],
-        'approved' => false, // Set to false initially as it needs approval
-    ];
-
-    // Add the request to the requests table
-    $newRequest = Requests::create($requestData);
-
-    // Return a success response
-    return response()->json([
-        'status' => 'success',
-        'message' => ($lang === 'ar') ? 'تم إرسال طلب الغاء الخصم بنجاح.' : 'cancel request sent successfully.',
-        'request_id' => $newRequest->id,
-    ]);
-}
+    public function updateStore(Request $request)
+    {
+        // Validate the incoming request data
+        $validator = Validator::make($request->all(), [
+            'store_id' => 'required|exists:stores,id',
+            'name' => 'required|max:191',
+            'location' => 'required|max:191',
+            'photo' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust the file size and allowed types as needed
+            'work_days' => 'required|array', // Assuming work_days is an array
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'lang' => 'required|in:en,ar',
+        ], [
+            // Custom error messages based on language
+            'store_id.required' => ($request->input('lang') === 'ar') ? 'معرف المتجر مطلوب.' : 'Store ID is required.',
+            'store_id.exists' => ($request->input('lang') === 'ar') ? 'معرف المتجر غير صالح.' : 'Invalid store ID.',
+            'name.required' => ($request->input('lang') === 'ar') ? ' اسم المتجر مطلوب.' : 'The store name field is required.',
+            'name.max' => ($request->input('lang') === 'ar') ? 'يجب أن يكون اسم المتجر أقل من :max حرف.' : 'The store name must be less than :max characters.',
+            'location.required' => ($request->input('lang') === 'ar') ? ' العنوان مطلوب.' : 'The address field is required.',
+            'photo.required' => ($request->input('lang') === 'ar') ? ' الصورة مطلوب.' : 'The photo field is required.',
+            'photo.image' => ($request->input('lang') === 'ar') ? 'يجب أن يكون الملف نوع صورة.' : 'The file must be an image.',
+            'photo.mimes' => ($request->input('lang') === 'ar') ? 'يجب أن يكون نوع الملف jpeg أو png أو jpg أو gif فقط.' : 'The file type must be jpeg, png, jpg, or gif only.',
+            'photo.max' => ($request->input('lang') === 'ar') ? 'يجب أن يكون حجم الملف أقل من :max كيلوبايت.' : 'The file size must be less than :max kilobytes.',
+            'work_days.required' => ($request->input('lang') === 'ar') ? ' أيام العمل مطلوب.' : 'The work days field is required.',
+            'latitude.required' => ($request->input('lang') === 'ar') ? ' خط العرض مطلوب.' : 'The latitude field is required.',
+            'latitude.numeric' => ($request->input('lang') === 'ar') ? 'يجب أن يكون خط العرض رقمًا.' : 'The latitude must be a number.',
+            'longitude.required' => ($request->input('lang') === 'ar') ? ' خط الطول مطلوب.' : 'The longitude field is required.',
+            'longitude.numeric' => ($request->input('lang') === 'ar') ? 'يجب أن يكون خط الطول رقمًا.' : 'The longitude must be a number.',
+        ]);
+        
+        // Check if validation fails
+        if ($validator->fails()) {
+            $errors = $validator->errors();
+            return response()->json(['status' => 'error', 'errors' => $errors], 422);
+        }
+        
+        $storeId = $request->input('store_id');
+        $lang = $request->input('lang');
+        $store = Store::find($storeId);
+    
+        // Check if the store exists
+        if (!$store) {
+            return response()->json([
+                'status' => 'error',
+                'message' => ($lang === 'ar') ? 'المتجر غير موجود.' : 'Store not found.',
+            ], 404);
+        }
+    
+        // Check if the name or photo has changed
+        $nameChanged = $request->filled('name') && $store->name !== $request->input('name');
+        $photoChanged = $request->hasFile('photo');
+    
+        // If the name or photo has changed, create a request for approval
+        if ($nameChanged || $photoChanged) {
+            $requestData = [
+                'user_id' => auth()->id(),
+                'store_id' => $storeId,
+                'type' => 'update_store',
+                'data' => json_encode([
+                    'name' => $request->input('name'),
+                    'photo' => $request->hasFile('photo') ? $this->handleStoreImageUpload($store, $request->file('photo')) :  $store->photo,
+                    'work_days' => $request->input('work_days'),
+                    'latitude' => $request->input('latitude'),
+                    'longitude' => $request->input('longitude'),
+                ]),
+                'approved' => false, // Set to false initially as it needs approval
+            ];
+        
+            // Add the request to the requests table
+            $newRequest = StoreRequest::create($requestData);
+        
+            // Return a response indicating that a request has been sent for approval
+            return response()->json([
+                'status' => 'success',
+                'message' => ($lang === 'ar') ? 'تم إرسال طلب التحديث بنجاح.' : 'Update request sent successfully.',
+                'request_id' => $newRequest->id,
+            ]);
+        }
+        
+        // Update the store details if no request is needed or after the request is approved
+        $store->update([
+            'name' => $request->input('name', $store->name),
+            'location' => $request->input('location', $store->location),
+            'photo' => $request->hasFile('photo') ? $this->handleStoreImageUpload($store, $request->file('photo')) : $store->photo,
+            'work_days' => $request->input('work_days', $store->work_days),
+            'latitude' => $request->input('latitude', $store->latitude),
+            'longitude' => $request->input('longitude', $store->longitude),
+        ]);
+        
+        // Return a success response
+        return response()->json([
+            'status' => 'success',
+            'message' => ($lang === 'ar') ? 'تم تحديث بيانات المتجر بنجاح.' : 'Store data updated successfully.',
+            'store' => $store,
+        ]);
+        
+    }
+    
 
 }
