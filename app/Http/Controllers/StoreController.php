@@ -18,6 +18,8 @@ use App\Models\Region; // Import the Region model
 use App\Models\WebsiteManager;
 use App\Models\City;
 use Illuminate\Validation\ValidationException;
+use App\Models\Discount; // Assuming the Discount model namespace
+use Carbon\Carbon;
 
 class StoreController extends Controller
 {
@@ -965,8 +967,8 @@ class StoreController extends Controller
     }
 
     public function MergedImageQr(Request  $request)
-    {      
-          $storeId = $request->input('storeId');
+    {
+        $storeId = $request->input('storeId');
 
         // Get the store information (adjust the logic to fit your needs)
         $store = Store::find($storeId);
@@ -988,4 +990,131 @@ class StoreController extends Controller
         return response()->download($outputPath, 'merged_image.png');
     }
 
+
+    public function getDiscountsByStoreId(Request $request)
+    {
+        // Validate the incoming JSON data
+        $validator = Validator::make($request->all(), [
+            'storeId' => 'required|integer|exists:stores,id',
+        ]);
+
+        // If the validation fails, return the error response
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()->first()], 400);
+        }
+
+        // Retrieve the store ID from the request
+        $storeId = $request->input('storeId');
+
+        // Retrieve the discounts associated with the provided store ID
+        $discounts = Discount::where('store_id', $storeId)
+            ->where('discounts_status', 'end')
+            ->where('is_deleted', 0)
+            ->get();
+
+        // Return the discounts in JSON format
+        return response()->json(['discounts' => $discounts]);
+    }
+    public function createDiscount(Request $request)
+    {
+        // Determine the language
+        $lang = $request->input('lang');
+
+        // Define language-specific error messages
+        $errorMessages = [
+            'store_id.required' => ($lang === 'ar') ? 'معرف المتجر مطلوب.' : 'Store ID is required.',
+            'store_id.integer' => ($lang === 'ar') ? 'معرف المتجر يجب أن يكون عددًا صحيحًا.' : 'Store ID must be an integer.',
+            'store_id.exists' => ($lang === 'ar') ? 'معرف المتجر غير موجود.' : 'Store ID does not exist.',
+            'percent.required' => ($lang === 'ar') ? 'نسبة الخصم مطلوبة.' : 'Discount percentage is required.',
+            'percent.numeric' => ($lang === 'ar') ? 'نسبة الخصم يجب أن تكون قيمة رقمية.' : 'Discount percentage must be a numeric value.',
+            'percent.min' => ($lang === 'ar') ? 'نسبة الخصم يجب أن لا تقل عن 1.' : 'Discount percentage must not be less than 1.',
+            'percent.max' => ($lang === 'ar') ? 'نسبة الخصم يجب أن لا تزيد عن 100.' : 'Discount percentage must not exceed 100.',
+            'category.required' => ($lang === 'ar') ? 'الفئة مطلوبة.' : 'Category is required.',
+            'category.string' => ($lang === 'ar') ? 'الفئة يجب أن تكون نصًا.' : 'Category must be a string.',
+            'category.max' => ($lang === 'ar') ? 'الفئة يجب أن لا تتجاوز :max حرفًا.' : 'Category must not exceed :max characters.',
+            'start_date.required' => ($lang === 'ar') ? 'تاريخ بداية الخصم مطلوب.' : 'Start date of the discount is required.',
+            'start_date.date' => ($lang === 'ar') ? 'تاريخ بداية الخصم يجب أن يكون تاريخًا صالحًا.' : 'Start date of the discount must be a valid date.',
+            'start_date.after_or_equal' => ($lang === 'ar') ? 'تاريخ بداية الخصم يجب أن يكون من اليوم أو بعد ذلك.' : 'Start date of the discount must be from today or a future date.',
+            'end_date.required' => ($lang === 'ar') ? 'تاريخ نهاية الخصم مطلوب.' : 'End date of the discount is required.',
+            'end_date.date' => ($lang === 'ar') ? 'تاريخ نهاية الخصم يجب أن يكون تاريخًا صالحًا.' : 'End date of the discount must be a valid date.',
+            'end_date.after' => ($lang === 'ar') ? 'تاريخ نهاية الخصم يجب أن يكون بعد تاريخ البداية.' : 'End date of the discount must be after the start date.',
+            'discounts_status.required' => ($lang === 'ar') ? 'حالة الخصم مطلوبة.' : 'Discount status is required.',
+            'discounts_status.in' => ($lang === 'ar') ? 'حالة الخصم يجب أن تكون "start" أو "end" فقط.' : 'Discount status must be either "start" or "end".',
+            'lang.required' => ($lang === 'ar') ? 'حقل اللغة مطلوب.' : 'Language field is required.',
+            'lang.in' => ($lang === 'ar') ? 'يجب أن يكون حقل اللغة إما "en" أو "ar".' : 'Language field must be either "en" or "ar".',
+        ];
+
+
+        // Validate the incoming JSON data with language-specific error messages
+        $validator = Validator::make($request->all(), [
+            'store_id' => 'required|integer|exists:stores,id',
+            'percent' => 'required|numeric|min:1|max:100',
+            'category' => 'required|string|max:255',
+            'start_date' => [
+                'required',
+                'date',
+                // Check if start_date is after or equal to today's date
+                function ($attribute, $value, $fail) {
+                    if (Carbon::parse($value)->isBefore(Carbon::today())) {
+                        $fail(__('The :attribute must start from today or a future date.', ['attribute' => __('Start Date')]));
+                    }
+                },
+            ],
+            'end_date' => 'required|date|after:start_date',
+            'discounts_status' => 'required|in:start,end',
+            'lang' => 'required|in:en,ar',
+        ], $errorMessages);
+
+        // If the validation fails, return the error response with language-specific messages
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()->first()], 400);
+        }
+
+        // Create a new discount instance and save it to the database
+        // (same as the previous implementation)
+
+        // Return a success response with the created discount details
+        return response()->json([
+            'message' => ($lang === 'ar') ? 'تم إنشاء الخصم بنجاح.' : 'Discount created successfully.',
+        ]);
+    }
+
+    public function DeleteDiscount(Request $request)
+    {
+        // Validate the incoming request data
+        $validator = Validator::make($request->all(), [
+            'discount_id' => 'required|exists:discounts,id',
+            'lang' => 'required|in:en,ar',
+        ]);
+
+        // Check if validation fails
+        if ($validator->fails()) {
+            $errors = $validator->errors();
+            return response()->json(['status' => 'error', 'errors' => $errors], 422);
+        }
+
+        $discountId = $request->input('discount_id');
+        $lang = $request->input('lang');
+
+        // Retrieve the discount by ID
+        $discount = Discount::find($discountId);
+
+        // Check if the discount exists
+        if (!$discount) {
+            return response()->json([
+                'status' => 'error',
+                'message' => ($lang === 'ar') ? 'الخصم غير موجود.' : 'Discount does not exist.',
+            ], 404);
+        }
+
+        // Update the discount and set is_deleted to 1
+        $discount->is_deleted = 1;
+        $discount->save();
+
+        // Return a success response
+        return response()->json([
+            'status' => 'success',
+            'message' => ($lang === 'ar') ? 'تم حذف الخصم بنجاح.' : 'Discount deleted successfully.',
+        ]);
+    }
 }

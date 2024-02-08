@@ -57,4 +57,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/vendor/store/create', [StoreController::class, 'createStore']);
     Route::post('/vendor/store/delete', [StoreController::class, 'deleteStore']);
     Route::post('/vendor/store/qr', [StoreController::class, 'MergedImageQr']);
+    Route::post('/vendor/store/Discounts', [StoreController::class, 'getDiscountsByStoreId']);
+    Route::post('/vendor/store/Discounts/create', [StoreController::class, 'createDiscount']);
+    Route::post('/vendor/store/Discounts/delete', [StoreController::class, 'DeleteDiscount']);
+    
 });
