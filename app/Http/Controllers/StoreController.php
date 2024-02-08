@@ -18,7 +18,9 @@ use App\Models\Region; // Import the Region model
 use App\Models\WebsiteManager;
 use App\Models\City;
 use Illuminate\Validation\ValidationException;
-use App\Models\Discount; // Assuming the Discount model namespace
+use App\Models\Discount; 
+use App\Models\Request as Requests ;
+
 use Carbon\Carbon;
 
 class StoreController extends Controller
@@ -1079,42 +1081,55 @@ class StoreController extends Controller
         ]);
     }
 
-    public function DeleteDiscount(Request $request)
-    {
-        // Validate the incoming request data
-        $validator = Validator::make($request->all(), [
-            'discount_id' => 'required|exists:discounts,id',
-            'lang' => 'required|in:en,ar',
-        ]);
+    public function updateDiscount(Request $request)
+{
+    // Validate the incoming request data
+    $validator = Validator::make($request->all(), [
+        'discount_id' => 'required|exists:discounts,id',
+        'lang' => 'required|in:en,ar',
+    ]);
 
-        // Check if validation fails
-        if ($validator->fails()) {
-            $errors = $validator->errors();
-            return response()->json(['status' => 'error', 'errors' => $errors], 422);
-        }
-
-        $discountId = $request->input('discount_id');
-        $lang = $request->input('lang');
-
-        // Retrieve the discount by ID
-        $discount = Discount::find($discountId);
-
-        // Check if the discount exists
-        if (!$discount) {
-            return response()->json([
-                'status' => 'error',
-                'message' => ($lang === 'ar') ? 'الخصم غير موجود.' : 'Discount does not exist.',
-            ], 404);
-        }
-
-        // Update the discount and set is_deleted to 1
-        $discount->is_deleted = 1;
-        $discount->save();
-
-        // Return a success response
-        return response()->json([
-            'status' => 'success',
-            'message' => ($lang === 'ar') ? 'تم حذف الخصم بنجاح.' : 'Discount deleted successfully.',
-        ]);
+    // Check if validation fails
+    if ($validator->fails()) {
+        $errors = $validator->errors();
+        return response()->json(['status' => 'error', 'errors' => $errors], 422);
     }
+
+    $discountId = $request->input('discount_id');
+    $lang = $request->input('lang');
+
+    // Retrieve the discount by ID
+    $discount = Discount::find($discountId);
+
+    // Check if the discount exists
+    if (!$discount) {
+        return response()->json([
+            'status' => 'error',
+            'message' => ($lang === 'ar') ? 'الخصم غير موجود.' : 'Discount does not exist.',
+        ], 404);
+    }
+
+    // Create a request to be approved
+    $requestData = [
+        'user_id' => auth()->id(),
+        'store_id' => $discount->store_id,
+        'type' => 'delete_discount',
+        'data' => [
+            'discount_id' => $discountId,
+            'delete' => $discount->is_deleted == 1, 
+        ],
+        'approved' => false, // Set to false initially as it needs approval
+    ];
+
+    // Add the request to the requests table
+    $newRequest = Requests::create($requestData);
+
+    // Return a success response
+    return response()->json([
+        'status' => 'success',
+        'message' => ($lang === 'ar') ? 'تم إرسال طلب الغاء الخصم بنجاح.' : 'cancel request sent successfully.',
+        'request_id' => $newRequest->id,
+    ]);
+}
+
 }
