@@ -1081,7 +1081,7 @@ class StoreController extends Controller
         ]);
     }
 
-    public function updateDiscount(Request $request)
+    public function DeleteDiscount(Request $request)
 {
     // Validate the incoming request data
     $validator = Validator::make($request->all(), [
