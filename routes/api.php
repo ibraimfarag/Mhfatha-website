@@ -56,5 +56,5 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/vendor/stores', [StoreController::class, 'userStores']);
     Route::post('/vendor/store/create', [StoreController::class, 'createStore']);
     Route::post('/vendor/store/delete', [StoreController::class, 'deleteStore']);
-    Route::post('/vendor/store/qr', [StoreController::class, 'downloadMergedImage']);
+    Route::post('/vendor/store/qr', [StoreController::class, 'MergedImageQr']);
 });

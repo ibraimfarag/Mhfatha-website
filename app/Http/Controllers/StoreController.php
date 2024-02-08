@@ -167,7 +167,7 @@ class StoreController extends Controller
         // Save the merged image to the output path
         $background->save($outputPath);
     }
-    public function downloadMergedImage($storeId,Request  $request)
+    public function downloadMergedImage($storeId)
     {
         // Get the store information (adjust the logic to fit your needs)
         $store = Store::find($storeId);
@@ -963,4 +963,29 @@ class StoreController extends Controller
         // Return a success response with the appropriate message
         return response()->json(['message' => $message]);
     }
+
+    public function MergedImageQr(Request  $request)
+    {      
+          $storeId = $request->input('storeId');
+
+        // Get the store information (adjust the logic to fit your needs)
+        $store = Store::find($storeId);
+
+        // Paths
+        $backgroundPath = public_path('FrontEnd/assets/images/banner/background.png');
+        $qrCodePath = public_path('FrontEnd/assets/images/stores_qr/') . $store->qr;
+        $outputPath = public_path('FrontEnd/assets/images/stores_qr_banar/merged_image.png'); // Adjust this path as needed
+
+        // Check if both images exist
+        if (!file_exists($backgroundPath) || !file_exists($qrCodePath)) {
+            return response()->json(['error' => 'Image not found'], 404);
+        }
+
+        // Merge images using $this->mergeImages
+        $this->mergeImages($backgroundPath, $qrCodePath, $outputPath, 355, ['x' => 469, 'y' => 2505]);
+
+        // Download the merged image
+        return response()->download($outputPath, 'merged_image.png');
+    }
+
 }
