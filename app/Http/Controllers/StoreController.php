@@ -967,30 +967,32 @@ class StoreController extends Controller
         return response()->json(['message' => $message]);
     }
 
-    public function MergedImageQr(Request  $request)
+    public function MergedImageQr(Request $request)
     {
         $storeId = $request->input('storeId');
-
+    
         // Get the store information (adjust the logic to fit your needs)
         $store = Store::find($storeId);
-
+    
         // Paths
         $backgroundPath = public_path('FrontEnd/assets/images/banner/background.png');
         $qrCodePath = public_path('FrontEnd/assets/images/stores_qr/') . $store->qr;
-        $outputPath = public_path('FrontEnd/assets/images/stores_qr_banar/merged_image.png'); // Adjust this path as needed
-
+        $outputPath = public_path('FrontEnd/assets/images/stores_qr_banar/merged_image_' . $storeId . '.png'); // Dynamic output path
+    
         // Check if both images exist
         if (!file_exists($backgroundPath) || !file_exists($qrCodePath)) {
             return response()->json(['error' => 'Image not found'], 404);
         }
-
+    
         // Merge images using $this->mergeImages
         $this->mergeImages($backgroundPath, $qrCodePath, $outputPath, 355, ['x' => 469, 'y' => 2505]);
-   
-        $mergedImageUrl = url('/FrontEnd/assets/images/stores_qr_banar/merged_image.png');
-
-        return response()->json(['url' => $mergedImageUrl,'Content-Type' => 'image/png']);
+    
+        // Generate the URL for the merged image
+        $mergedImageUrl = url('/FrontEnd/assets/images/stores_qr_banar/merged_image_' . $storeId . '.png');
+    
+        return response()->json(['url' => $mergedImageUrl, 'Content-Type' => 'image/png']);
     }
+    
 
  
     public function getDiscountsByStoreId(Request $request)
