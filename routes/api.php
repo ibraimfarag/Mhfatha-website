@@ -53,10 +53,14 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/filter-stores', [StoreController::class, 'filterStoresApi']);
 
     // /* --------------------------------- vendor --------------------------------- */
+    
     Route::post('/vendor/stores', [StoreController::class, 'userStores']);
     Route::post('/vendor/store/create', [StoreController::class, 'createStore']);
+    Route::post('/vendor/store/edit', [StoreController::class, 'updateStore']);
     Route::post('/vendor/store/delete', [StoreController::class, 'deleteStore']);
+
     Route::post('/vendor/store/qr', [StoreController::class, 'MergedImageQr']);
+
     Route::post('/vendor/store/discounts', [StoreController::class, 'getDiscountsByStoreId']);
     Route::post('/vendor/store/discounts/create', [StoreController::class, 'createDiscount']);
     Route::post('/vendor/store/discounts/delete', [StoreController::class, 'DeleteDiscount']);
