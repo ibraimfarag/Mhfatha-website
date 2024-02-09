@@ -771,7 +771,7 @@ class StoreController extends Controller
     {
         $userId = auth()->id();
         // Retrieve stores associated with the authenticated user
-        $userStores = Store::where('user_id', $userId)->get();
+        $userStores = Store::where('user_id', $userId)->where('is_deleted', 0)->get();
 
         // Count verified stores where verification = 1 and is_bann = 0 and is_deleted = 0
         $verifiedStoresCount = Store::where('user_id', auth()->id())
@@ -821,7 +821,6 @@ class StoreController extends Controller
             'sumTotalPayments' => $sumTotalPayments,
         ]);
     }
-
 
     /**
      * Create a new store.
@@ -927,8 +926,6 @@ class StoreController extends Controller
         ]);
     }
 
-
-
     public function deleteStore(Request $request)
     {
         // Validate the incoming JSON data
@@ -966,35 +963,31 @@ class StoreController extends Controller
         // Return a success response with the appropriate message
         return response()->json(['message' => $message]);
     }
-
     public function MergedImageQr(Request $request)
     {
         $storeId = $request->input('storeId');
-    
+
         // Get the store information (adjust the logic to fit your needs)
         $store = Store::find($storeId);
-    
+
         // Paths
         $backgroundPath = public_path('FrontEnd/assets/images/banner/background.png');
         $qrCodePath = public_path('FrontEnd/assets/images/stores_qr/') . $store->qr;
         $outputPath = public_path('FrontEnd/assets/images/stores_qr_banar/merged_image_' . $storeId . '.png'); // Dynamic output path
-    
+
         // Check if both images exist
         if (!file_exists($backgroundPath) || !file_exists($qrCodePath)) {
             return response()->json(['error' => 'Image not found'], 404);
         }
-    
+
         // Merge images using $this->mergeImages
         $this->mergeImages($backgroundPath, $qrCodePath, $outputPath, 355, ['x' => 469, 'y' => 2505]);
-    
+
         // Generate the URL for the merged image
         $mergedImageUrl = url('/FrontEnd/assets/images/stores_qr_banar/merged_image_' . $storeId . '.png');
-    
+
         return response()->json(['url' => $mergedImageUrl, 'Content-Type' => 'image/png']);
     }
-    
-
- 
     public function getDiscountsByStoreId(Request $request)
     {
         // Validate the incoming JSON data
@@ -1138,51 +1131,51 @@ class StoreController extends Controller
     public function updateStore(Request $request)
     {
         // Validate the incoming request data
-     // Validate the incoming request data
-$validator = Validator::make($request->all(), [
-    'store_id' => 'required|exists:stores,id',
-    'name' => 'required|max:191',
-    'location' => 'required|max:191',
-    'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust the file size and allowed types as needed
-    'work_days' => 'required', // Assuming work_days is an array
-    'latitude' => 'required|numeric',
-    'longitude' => 'required|numeric',
-    'tax_number' => 'nullable|max:20',
-    'category_id' => 'nullable|exists:store_categories,id',
-    'region' => 'nullable|max:191',
-    'lang' => 'required|in:en,ar',
-], [
-    // Custom error messages based on language
-    'store_id.required' => ($request->input('lang') === 'ar') ? 'معرف المتجر مطلوب.' : 'Store ID is required.',
-    'store_id.exists' => ($request->input('lang') === 'ar') ? 'معرف المتجر غير صالح.' : 'Invalid store ID.',
-    'name.required' => ($request->input('lang') === 'ar') ? ' اسم المتجر مطلوب.' : 'The store name field is required.',
-    'name.max' => ($request->input('lang') === 'ar') ? 'يجب أن يكون اسم المتجر أقل من :max حرف.' : 'The store name must be less than :max characters.',
-    'location.required' => ($request->input('lang') === 'ar') ? ' العنوان مطلوب.' : 'The address field is required.',
-    'photo.required' => ($request->input('lang') === 'ar') ? ' الصورة مطلوب.' : 'The photo field is required.',
-    'photo.image' => ($request->input('lang') === 'ar') ? 'يجب أن يكون الملف نوع صورة.' : 'The file must be an image.',
-    'photo.mimes' => ($request->input('lang') === 'ar') ? 'يجب أن يكون نوع الملف jpeg أو png أو jpg أو gif فقط.' : 'The file type must be jpeg, png, jpg, or gif only.',
-    'photo.max' => ($request->input('lang') === 'ar') ? 'يجب أن يكون حجم الملف أقل من :max كيلوبايت.' : 'The file size must be less than :max kilobytes.',
-    'work_days.required' => ($request->input('lang') === 'ar') ? ' أيام العمل مطلوب.' : 'The work days field is required.',
-    'latitude.required' => ($request->input('lang') === 'ar') ? ' خط العرض مطلوب.' : 'The latitude field is required.',
-    'latitude.numeric' => ($request->input('lang') === 'ar') ? 'يجب أن يكون خط العرض رقمًا.' : 'The latitude must be a number.',
-    'longitude.required' => ($request->input('lang') === 'ar') ? ' خط الطول مطلوب.' : 'The longitude field is required.',
-    'longitude.numeric' => ($request->input('lang') === 'ar') ? 'يجب أن يكون خط الطول رقمًا.' : 'The longitude must be a number.',
-    'tax_number.max' => ($request->input('lang') === 'ar') ? 'يجب أن يكون رقم الضريبة أقل من :max حرف.' : 'The tax number must be less than :max characters.',
-    'category_id.exists' => ($request->input('lang') === 'ar') ? 'معرف التصنيف غير صالح.' : 'Invalid category ID.',
-    'region.max' => ($request->input('lang') === 'ar') ? 'يجب أن يكون الإقليم أقل من :max حرف.' : 'The region must be less than :max characters.',
-]);
+        // Validate the incoming request data
+        $validator = Validator::make($request->all(), [
+            'store_id' => 'required|exists:stores,id',
+            'name' => 'required|max:191',
+            'location' => 'required|max:191',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust the file size and allowed types as needed
+            'work_days' => 'required', // Assuming work_days is an array
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'tax_number' => 'nullable|max:20',
+            'category_id' => 'nullable|exists:store_categories,id',
+            'region' => 'nullable|max:191',
+            'lang' => 'required|in:en,ar',
+        ], [
+            // Custom error messages based on language
+            'store_id.required' => ($request->input('lang') === 'ar') ? 'معرف المتجر مطلوب.' : 'Store ID is required.',
+            'store_id.exists' => ($request->input('lang') === 'ar') ? 'معرف المتجر غير صالح.' : 'Invalid store ID.',
+            'name.required' => ($request->input('lang') === 'ar') ? ' اسم المتجر مطلوب.' : 'The store name field is required.',
+            'name.max' => ($request->input('lang') === 'ar') ? 'يجب أن يكون اسم المتجر أقل من :max حرف.' : 'The store name must be less than :max characters.',
+            'location.required' => ($request->input('lang') === 'ar') ? ' العنوان مطلوب.' : 'The address field is required.',
+            'photo.required' => ($request->input('lang') === 'ar') ? ' الصورة مطلوب.' : 'The photo field is required.',
+            'photo.image' => ($request->input('lang') === 'ar') ? 'يجب أن يكون الملف نوع صورة.' : 'The file must be an image.',
+            'photo.mimes' => ($request->input('lang') === 'ar') ? 'يجب أن يكون نوع الملف jpeg أو png أو jpg أو gif فقط.' : 'The file type must be jpeg, png, jpg, or gif only.',
+            'photo.max' => ($request->input('lang') === 'ar') ? 'يجب أن يكون حجم الملف أقل من :max كيلوبايت.' : 'The file size must be less than :max kilobytes.',
+            'work_days.required' => ($request->input('lang') === 'ar') ? ' أيام العمل مطلوب.' : 'The work days field is required.',
+            'latitude.required' => ($request->input('lang') === 'ar') ? ' خط العرض مطلوب.' : 'The latitude field is required.',
+            'latitude.numeric' => ($request->input('lang') === 'ar') ? 'يجب أن يكون خط العرض رقمًا.' : 'The latitude must be a number.',
+            'longitude.required' => ($request->input('lang') === 'ar') ? ' خط الطول مطلوب.' : 'The longitude field is required.',
+            'longitude.numeric' => ($request->input('lang') === 'ar') ? 'يجب أن يكون خط الطول رقمًا.' : 'The longitude must be a number.',
+            'tax_number.max' => ($request->input('lang') === 'ar') ? 'يجب أن يكون رقم الضريبة أقل من :max حرف.' : 'The tax number must be less than :max characters.',
+            'category_id.exists' => ($request->input('lang') === 'ar') ? 'معرف التصنيف غير صالح.' : 'Invalid category ID.',
+            'region.max' => ($request->input('lang') === 'ar') ? 'يجب أن يكون الإقليم أقل من :max حرف.' : 'The region must be less than :max characters.',
+        ]);
 
-    
+
         // Check if validation fails
         if ($validator->fails()) {
             $errors = $validator->errors();
             return response()->json(['status' => 'error', 'errors' => $errors], 422);
         }
-    
+
         $storeId = $request->input('store_id');
         $lang = $request->input('lang');
         $store = Store::find($storeId);
-    
+
         // Check if the store exists
         if (!$store) {
             return response()->json([
@@ -1190,14 +1183,14 @@ $validator = Validator::make($request->all(), [
                 'message' => ($lang === 'ar') ? 'المتجر غير موجود.' : 'Store not found.',
             ], 404);
         }
-    
+
         // Check if any relevant field has changed
         $nameChanged = $request->filled('name') && $store->name !== $request->input('name');
         $photoChanged = $request->hasFile('photo');
         $taxNumberChanged = $request->filled('tax_number') && $store->tax_number !== $request->input('tax_number');
         $categoryIdChanged = $request->filled('category_id') && $store->category_id !== $request->input('category_id');
         $regionChanged = $request->filled('region') && $store->region !== $request->input('region');
-    
+
         // If any relevant field has changed, create a request for approval
         if ($nameChanged || $photoChanged || $taxNumberChanged || $categoryIdChanged || $regionChanged) {
             $requestData = [
@@ -1216,10 +1209,10 @@ $validator = Validator::make($request->all(), [
                 ]),
                 'approved' => false, // Set to false initially as it needs approval
             ];
-    
+
             // Add the request to the requests table
             $newRequest = StoreRequest::create($requestData);
-    
+
             // Return a response indicating that a request has been sent for approval
             return response()->json([
                 'status' => 'success',
@@ -1227,7 +1220,7 @@ $validator = Validator::make($request->all(), [
                 'request_id' => $newRequest->id,
             ]);
         }
-    
+
         // Update the store details if no request is needed or after the request is approved
         $store->update([
             'name' => $request->input('name', $store->name),
@@ -1240,7 +1233,7 @@ $validator = Validator::make($request->all(), [
             'category_id' => $request->input('category_id', $store->category_id),
             'region' => $request->input('region', $store->region),
         ]);
-    
+
         // Return a success response
         return response()->json([
             'status' => 'success',
@@ -1248,6 +1241,4 @@ $validator = Validator::make($request->all(), [
             'store' => $store,
         ]);
     }
-        
-
 }
