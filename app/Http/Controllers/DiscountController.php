@@ -135,4 +135,88 @@ class DiscountController extends Controller
         $lang = $request->input('lang');
         return back()->with('success', 'Discount deleted successfully')->with('lang', $lang);
     }
+
+
+    public function getDiscountsByStoreId(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'store_id' => 'required|exists:stores,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $store_id = $request->input('store_id');
+
+        $discounts = Discount::where('store_id', $store_id)
+            ->where('discounts_status', 'working')
+            ->where('is_deleted', 0)
+            ->get();
+
+        return response()->json(['discounts' => $discounts]);
+    }
+
+    public function createStoreDiscount(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'store_id' => 'required|exists:stores,id',
+            'percent' => 'required|numeric|min:0|max:100',
+            'category' => 'required|string',
+            'start_date' => 'required|date_format:Y-m-d',
+            'end_date' => 'required|date_format:Y-m-d|after:start_date',
+            'lang' => 'nullable|in:en,ar', // Adding language validation
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $lang = $request->input('lang', 'en'); // Default to English if language not specified or invalid
+
+        if ($lang == 'ar') {
+            app()->setLocale('ar');
+        }
+
+        $discount = Discount::create([
+            'store_id' => $request->store_id,
+            'percent' => $request->percent,
+            'category' => $request->category,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'discounts_status' => 'working', // Assuming the default status is active
+            'is_deleted' => 0, // Assuming the discount is not deleted upon creation
+        ]);
+
+        $message = ($lang == 'ar') ? 'تم إنشاء الخصم بنجاح' : 'Discount created successfully';
+
+        return response()->json(['message' => $message, 'discount' => $discount], 201);
+    }
+
+
+    public function deleteDiscount(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'discount_id' => 'required|exists:discounts,id',
+            'lang' => 'nullable|in:en,ar', // Adding language validation
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $discount = Discount::findOrFail($request->discount_id);
+
+        $lang = $request->input('lang', 'en'); // Default to English if language not specified or invalid
+
+        if ($lang == 'ar') {
+            app()->setLocale('ar');
+        }
+
+        $discount->update(['is_deleted' => 1]);
+
+        $message = ($lang == 'ar') ? 'تم حذف الخصم بنجاح' : 'Discount deleted successfully';
+
+        return response()->json(['message' => $message], 200);
+    }
 }
