@@ -11,7 +11,7 @@ use App\Models\User;
 use App\Models\UserDiscount;
 use Illuminate\Support\Facades\App;
 use DataTables;
-
+use App\Models\Request as StoreRequest;
 class DiscountController extends Controller
 {
     public function index(Store $store, Request $request)
@@ -194,29 +194,50 @@ class DiscountController extends Controller
     }
 
 
-    public function deleteDiscount(Request $request)
+    public function createDeleteDiscountRequest(Request $request)
     {
+        // Validate the incoming request data
         $validator = Validator::make($request->all(), [
             'discount_id' => 'required|exists:discounts,id',
-            'lang' => 'nullable|in:en,ar', // Adding language validation
+            'lang' => 'required|in:en,ar',
         ]);
-
+    
+        // Check if validation fails
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            $errors = $validator->errors();
+            return response()->json(['status' => 'error', 'errors' => $errors], 422);
         }
-
-        $discount = Discount::findOrFail($request->discount_id);
-
-        $lang = $request->input('lang', 'en'); // Default to English if language not specified or invalid
-
-        if ($lang == 'ar') {
-            app()->setLocale('ar');
+    
+        $lang = $request->input('lang');
+    
+        $discount = Discount::find($request->discount_id);
+        $store = $discount->store_id;
+    
+        // Check if the discount exists
+        if (!$discount) {
+            return response()->json([
+                'status' => 'error',
+                'message' => ($lang === 'ar') ? 'الخصم غير موجود.' : 'Discount not found.',
+            ], 404);
         }
-
-        $discount->update(['is_deleted' => 1]);
-
-        $message = ($lang == 'ar') ? 'تم حذف الخصم بنجاح' : 'Discount deleted successfully';
-
-        return response()->json(['message' => $message], 200);
+    
+        // Create a request for deleting the discount
+        $requestData = [
+            'user_id' => auth()->id(),
+            'store_id' => $store,
+            'type' => 'delete_discount',
+            'data' => json_encode(['discount_id' => $request->discount_id]),
+            'approved' => false, // Set to false initially as it needs approval
+        ];
+    
+        // Add the request to the requests table
+        $newRequest = StoreRequest::create($requestData);
+    
+        // Return a response indicating that a request has been sent for approval
+        return response()->json([
+            'status' => 'success',
+            'message' => ($lang === 'ar') ? 'تم إرسال طلب حذف الخصم بنجاح.' : 'Delete discount request sent successfully.',
+            'request_id' => $newRequest->id,
+        ]);
     }
-}
+    }
