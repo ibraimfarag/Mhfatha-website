@@ -1145,7 +1145,7 @@ $validator = Validator::make($request->all(), [
     'latitude' => 'required|numeric',
     'longitude' => 'required|numeric',
     'tax_number' => 'nullable|max:20',
-    'category_id' => 'nullable|exists:categories,id',
+    'category_id' => 'nullable|exists:store_categories,id',
     'region' => 'nullable|max:191',
     'lang' => 'required|in:en,ar',
 ], [
