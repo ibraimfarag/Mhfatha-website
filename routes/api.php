@@ -63,7 +63,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/vendor/store/discounts', [DiscountController::class, 'getDiscountsByStoreId']);
     Route::post('/vendor/store/discounts/create', [DiscountController::class, 'createDiscount']);
-    Route::post('/vendor/store/discounts/delete', [DiscountController::class, 'DeleteDiscount']);
+    Route::post('/vendor/store/discounts/delete', [DiscountController::class, 'createDeleteDiscountRequest']);
 
 
 
