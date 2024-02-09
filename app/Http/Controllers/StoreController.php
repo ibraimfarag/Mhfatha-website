@@ -986,14 +986,13 @@ class StoreController extends Controller
 
         // Merge images using $this->mergeImages
         $this->mergeImages($backgroundPath, $qrCodePath, $outputPath, 355, ['x' => 469, 'y' => 2505]);
-        $headers = [
-            'Content-Type' => 'image/png',
-        ];
-        // Download the merged image
-        return response()->download($outputPath, 'merged_image.png', $headers);
+   
+        $mergedImageUrl = url('/FrontEnd/assets/images/stores_qr_banar/merged_image.png');
+
+        return response()->json(['url' => $mergedImageUrl,'Content-Type' => 'image/png']);
     }
 
-
+ 
     public function getDiscountsByStoreId(Request $request)
     {
         // Validate the incoming JSON data
