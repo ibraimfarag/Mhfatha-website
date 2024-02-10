@@ -141,22 +141,34 @@ class DiscountController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'store_id' => 'required|exists:stores,id',
+            'lang' => 'nullable|in:en,ar',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
+    
+        $lang = $request->input('lang', 'en'); // Default to English if language not specified or invalid
+    
+        if ($lang == 'ar') {
+            app()->setLocale('ar');
+        }
+    
         $store_id = $request->input('store_id');
-
+    
         $discounts = Discount::where('store_id', $store_id)
             ->where('discounts_status', 'working')
             ->where('is_deleted', 0)
             ->get();
-
+    
+        if ($discounts->isEmpty()) {
+            $message = ($lang == 'ar') ? 'لا توجد خصومات' : 'No discounts ';
+            return response()->json(['message' => $message], 404);
+        }
+    
         return response()->json(['discounts' => $discounts]);
     }
-
+    
     public function createStoreDiscount(Request $request)
     {
         $validator = Validator::make($request->all(), [
