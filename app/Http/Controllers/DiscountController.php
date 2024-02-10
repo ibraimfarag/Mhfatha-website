@@ -161,11 +161,16 @@ class DiscountController extends Controller
             ->where('is_deleted', 0)
             ->get();
     
-        if ($discounts->isEmpty()) {
-            $message = ($lang == 'ar') ? 'لا توجد خصومات' : 'No discounts ';
-            return response()->json(['message' => $message], 200);
-        }
-    
+            if ($discounts->isEmpty()) {
+                $response = [
+                    'discounts' => [
+                        'message' => ($lang == 'ar') ? 'لا توجد خصومات' : 'No discounts'
+                    ]
+                ];
+                
+                return response()->json($response, 200);
+            }
+                
         return response()->json(['discounts' => $discounts]);
     }
     
