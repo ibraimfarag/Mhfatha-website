@@ -163,7 +163,7 @@ class DiscountController extends Controller
     
         if ($discounts->isEmpty()) {
             $message = ($lang == 'ar') ? 'لا توجد خصومات' : 'No discounts ';
-            return response()->json(['message' => $message], 404);
+            return response()->json(['message' => $message], 250);
         }
     
         return response()->json(['discounts' => $discounts]);
