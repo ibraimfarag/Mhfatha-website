@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.3",
+        "beyondcode/laravel-websockets": "^1.14",
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
@@ -19,6 +20,7 @@
         "laravelcollective/html": "^6.4",
         "league/oauth2-server": "^8.2",
         "psr/http-message": "^1.0.1",
+        "pusher/pusher-php-server": "~3.0",
         "simplesoftwareio/simple-qrcode": "^4.2"
     },
     "require-dev": {
