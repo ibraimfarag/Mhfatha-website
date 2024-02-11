@@ -8,8 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomEncrypter;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\NotificationController;
-use Illuminate\Notifications\Notification;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -68,11 +67,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/vendor/store/discounts/delete', [DiscountController::class, 'createDeleteDiscountRequest']);
 
 
-// /* -------------------------------------------------------------------------- */
-// /*                                Notification                                */
-// /* -------------------------------------------------------------------------- */
-    
-Route::post('/admin/notification', [NotificationController::class, 'sendNotification']);
+
 
 
 
