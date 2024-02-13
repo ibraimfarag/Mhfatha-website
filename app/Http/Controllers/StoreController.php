@@ -103,19 +103,19 @@ class StoreController extends Controller
             // Check verification status
             if ($store->verification === 0) {
                 $message = $lang === 'ar' ? 'جاري التحقق من المتجر.' : 'Store verification is pending.';
-                return response()->json(['message' => $message], 200);
+                return response()->json(['error' => $message], 404);
             }
 
             // Check if the store is banned
             if ($store->is_bann === 1) {
                 $message = $lang === 'ar' ? 'هذا المتجر مغلق مؤقتًا من جهة الادارة.' : 'This store is temporarily closed by management.';
-                return response()->json(['message' => $message], 200);
+                return response()->json(['error' => $message], 404);
             }
 
             // Check store status
             if ($store->status === 0) {
                 $message = $lang === 'ar' ? 'هذا المتجر مغلق مؤقتًا من قبل التاجر.' : 'This store is temporarily closed by the merchant.';
-                return response()->json(['message' => $message], 200);
+                return response()->json(['error' => $message], 404);
             }
             $discounts = $store->Discounts->where('discounts_status', 'working')->where('is_deleted', 0);
 
@@ -124,12 +124,12 @@ class StoreController extends Controller
                 return response()->json(['discounts' => $discounts->all(), 'store' => $store]);
             } else {
                 $message = $lang === 'ar' ? 'لا توجد خصومات متاحة.' : 'No discount available.';
-                return response()->json(['message' => $message, 'store' => $store], 200);
+                return response()->json(['error' => $message, 'store' => $store], 404);
             }
         } catch (\Exception $e) {
             // Handle decryption errors
             $errorMessage = $lang === 'ar' ? 'فشل في التعرف على المتجر.' : 'Failed to recognize the store.';
-            return response()->json(['error' => $errorMessage], 500);
+            return response()->json(['error' => $errorMessage], 404);
         }
     }
 
