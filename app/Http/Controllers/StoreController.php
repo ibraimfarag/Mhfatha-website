@@ -111,6 +111,10 @@ class StoreController extends Controller
                 $message = $lang === 'ar' ? 'هذا المتجر مغلق مؤقتًا من جهة الادارة.' : 'This store is temporarily closed by management.';
                 return response()->json(['error' => $message], 404);
             }
+            if ($store->is_deleted === 1) {
+                $message = $lang === 'ar' ? 'هذا المتجر غير متاح ' : 'This store is not available.';
+                return response()->json(['error' => $message], 404);
+            }
 
             // Check store status
             if ($store->status === 0) {
