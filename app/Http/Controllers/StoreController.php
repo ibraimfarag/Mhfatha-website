@@ -101,7 +101,7 @@ class StoreController extends Controller
             }
 
             // Check verification status
-            if ($store->verification === 0) {
+            if ($store->verifcation === 0) {
                 $message = $lang === 'ar' ? 'جاري التحقق من المتجر.' : 'Store verification is pending.';
                 return response()->json(['error' => $message], 404);
             }
