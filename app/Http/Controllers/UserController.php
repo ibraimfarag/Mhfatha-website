@@ -843,4 +843,43 @@ class UserController extends Controller
         $successMessage = $lang === 'ar' ? 'تم تحديث كلمة السر  بنجاح.' : 'Password updated successfully.';
         return response()->json(['message' => $successMessage, "Success" => true, "reseted" => true], 200);
     }
+
+    public function updateDeviceInfo(Request $request)
+    {
+        // Decode JSON request body
+        $requestData = json_decode($request->getContent(), true);
+
+        // Check if JSON decoding failed
+        if ($requestData === null) {
+            return response()->json(['error' => 'Invalid JSON payload.'], 400);
+        }
+
+        // Validate the incoming request data
+        $validator = Validator::make($requestData, [
+            'device_token' => 'nullable|string',
+            'platform' => 'nullable|string',
+            'platform_version' => 'nullable|string',
+            'platform_device' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()->first()], 422);
+        }
+        $userId = Auth::user()->id;
+        $user = User::find($userId);
+
+        // Update the user's device token, platform, and platform version
+        $user->device_token = $requestData['device_token'] ?? $user->device_token;
+        $user->platform = $requestData['platform'] ?? $user->platform;
+        $user->platform_version = $requestData['platform_version'] ?? $user->platform_version;
+        $user->platform_device = $requestData['platform_device'] ?? $user->platform_device;
+
+
+
+        // Save the updated user data
+        $user->save();
+
+        // Return a success response
+        return response()->json(['message' => 'Device information updated successfully']);
+    }
 }

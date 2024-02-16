@@ -42,6 +42,7 @@ Route::get('/update-discounts', [UserDiscountController::class, 'checkDiscountsE
 Route::middleware('auth:api')->group(function () {
 
 
+    Route::post('/update-device-info', [UserController::class, 'updateDeviceInfo']);
     Route::get('/user', [UserController::class, 'getUserInfoApi']);
     Route::post('/auth/changepassword', [UserController::class, 'changePassword']);
     Route::post('/auth/update', [UserController::class, 'updateProfileWithOtp']);

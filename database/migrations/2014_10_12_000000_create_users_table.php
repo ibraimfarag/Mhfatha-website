@@ -27,6 +27,10 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->boolean('is_vendor')->default(0);
             $table->boolean('is_admin')->default(0);
+            $table->string('device_token')->nullable();
+            $table->string('platform')->nullable();
+            $table->string('platform_device')->nullable();
+            $table->string('platform_version')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

@@ -27,6 +27,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_vendor',
         'is_admin',
         'password',
+        'device_token',
+        'platform', 
+        'platform_device', 
+        'platform_version', 
     ];
 
 
