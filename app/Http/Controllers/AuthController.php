@@ -149,10 +149,6 @@ class AuthController extends Controller
         return back(); // Redirect to the login page
     }
 
-
-
-
-
     // /* -------------------------------------------------------------------------- */
     // /* ----------------------------------- api ---------------------------------- */
     // /* -------------------------------------------------------------------------- */
@@ -164,51 +160,61 @@ class AuthController extends Controller
     public function login_api(Request $request)
     {
         $currentLanguage = $request->input('lang');
-        
+
         $credentials = $request->only('email_or_mobile', 'password');
-    
+
         $field = filter_var($request->input('email_or_mobile'), FILTER_VALIDATE_EMAIL) ? 'email' : 'mobile';
-    
+
         $credentials[$field] = $request->input('email_or_mobile');
         unset($credentials['email_or_mobile']);
-    
+
 
         if (Auth::attempt($credentials)) {
-            $token = Str::random(60);
+            // $token = Str::random(60);
 
             /** @var \App\Models\User $user **/
 
             $user = Auth::user();
-            $success['token'] =  $user->createToken('ApiToken')->accessToken;
+            // $success['token'] =  $user->createToken('ApiToken')->accessToken;
+            $user->tokens()->delete();
+            $token = $user->createToken('ApiToken')->accessToken;
 
+            if ($user->is_banned) {
+                $errorMessage = ($currentLanguage == 'ar') ? 'تم حظر حسابك، يرجى الاتصال بالدعم لمزيد من المساعدة' : 'Your account has been banned, please contact support for further assistance';
+                return response()->json(['error' => $errorMessage], 403);
+            }
+
+            if ($user->is_deleted) {
+                $errorMessage = ($currentLanguage == 'ar') ? 'تم حذف حسابك، يرجى الاتصال بالدعم لاسترداد حسابك' : 'Your account has been deleted, please contact support to recover your account';
+                return response()->json(['error' => $errorMessage], 403);
+            }
 
             return response()->json([
 
-                'token' => $success['token'],
-
-          
+                // 'token' => $success['token'],
+                'token' => $token,
                 'success' => true,
                 'message' => 'Login successful',
                 'user' => Auth::user(),
 
 
             ], 200);
-            
-    
+
+
             if ($currentLanguage == 'ar') {
                 $response['message'] = 'تم تسجيل الدخول بنجاح';
             } else {
                 $response['message'] = 'Login successful';
             }
-    
+
             return response()->json($response, 200);
         }
-    
+
         $errorMessage = ($currentLanguage == 'ar') ? 'البريد الإلكتروني/الجوال أو كلمة المرور غير صحيحه' : 'Invalid email/mobile or password';
-    
+
         return response()->json(['error' => $errorMessage], 401);
     }
-    
+
     /**
      * register_api
      *
@@ -258,10 +264,10 @@ class AuthController extends Controller
             return response()->json(['success' => false, 'messages' => $errorMessages], 400);
         }
 
-$mobilenumber =  '(+966)' . $request->input('mobile');
-$mobilenumberAR =  $request->input('mobile').'(966+)' ;
+        $mobilenumber =  '(+966)' . $request->input('mobile');
+        $mobilenumberAR =  $request->input('mobile') . '(966+)';
 
-// Check if a new photo was uploaded
+        // Check if a new photo was uploaded
         if ($request->hasFile('photo')) {
             $image = $request->file('photo');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
@@ -273,27 +279,27 @@ $mobilenumberAR =  $request->input('mobile').'(966+)' ;
 
 
         $enteredOtp = $request->input('otp');
-    if (empty($enteredOtp) || is_null($enteredOtp)) {
-        // OTP is required, return an error response
-        $errorMessage = $currentLanguage === 'ar' ? "تم ارسال رمز التفعيل عبر الواتس اب الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to whatsapp number $mobilenumber. Please enter the code.";
-        return response()->json(['success' => true, "OTP" => true, 'message' => $errorMessage], 200);
-    }
+        if (empty($enteredOtp) || is_null($enteredOtp)) {
+            // OTP is required, return an error response
+            $errorMessage = $currentLanguage === 'ar' ? "تم ارسال رمز التفعيل عبر الواتس اب الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to whatsapp number $mobilenumber. Please enter the code.";
+            return response()->json(['success' => true, "OTP" => true, 'message' => $errorMessage], 200);
+        }
 
-    // Generate and send OTP
-    // $otp = rand(10000, 99999); // Generate a 6-digit OTP (you can use a more secure method)
-    $otp = "12345"; // Generate a 6-digit OTP (you can use a more secure method)
+        // Generate and send OTP
+        // $otp = rand(10000, 99999); // Generate a 6-digit OTP (you can use a more secure method)
+        $otp = "12345"; // Generate a 6-digit OTP (you can use a more secure method)
 
-    // For simplicity, you can store the OTP in the session
-    Session::put('otp', $otp);
+        // For simplicity, you can store the OTP in the session
+        Session::put('otp', $otp);
 
-    // Send the OTP to the user's mobile number (you need to implement SMS sending here)
+        // Send the OTP to the user's mobile number (you need to implement SMS sending here)
 
-    // Check if the entered OTP matches the generated OTP
-    if ($enteredOtp !== Session::get('otp')) {
-        // Invalid OTP, return an error response
-        $errorMessage = $currentLanguage === 'ar' ? 'رمز OTP غير صالح. يرجى المحاولة مرة أخرى.' : 'Invalid OTP. Please try again.';
-        return response()->json(['success' => false, 'message' => $errorMessage], 400);
-    }
+        // Check if the entered OTP matches the generated OTP
+        if ($enteredOtp !== Session::get('otp')) {
+            // Invalid OTP, return an error response
+            $errorMessage = $currentLanguage === 'ar' ? 'رمز OTP غير صالح. يرجى المحاولة مرة أخرى.' : 'Invalid OTP. Please try again.';
+            return response()->json(['success' => false, 'message' => $errorMessage], 400);
+        }
 
 
         // Create a new user record
@@ -344,7 +350,6 @@ $mobilenumberAR =  $request->input('mobile').'(966+)' ;
     public function checkInternetConnection()
     {
 
-            return response()->json(['status' => 'connected']);
-       
+        return response()->json(['status' => 'connected']);
     }
 }

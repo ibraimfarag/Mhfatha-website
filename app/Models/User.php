@@ -31,6 +31,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'platform', 
         'platform_device', 
         'platform_version', 
+        'is_banned', 
+        'is_deleted', 
+        'is_temporarily', 
+        'messages',
+        'notifications', 
     ];
 
 

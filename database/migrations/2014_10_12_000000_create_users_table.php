@@ -33,6 +33,11 @@ class CreateUsersTable extends Migration
             $table->string('platform_version')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->boolean('is_banned')->default(0);
+            $table->boolean('is_deleted')->default(0);
+            $table->boolean('is_temporarily')->default(0);
+            $table->json('messages')->nullable();
+            $table->json('notifications')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->foreign('region')->references('id')->on('regions');
