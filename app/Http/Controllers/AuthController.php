@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
 use  App\Models\User;
+use GrahamCampbell\ResultType\Success;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -352,4 +353,55 @@ class AuthController extends Controller
 
         return response()->json(['status' => 'connected']);
     }
+
+    /**
+     * Validate the provided token.
+     *
+     * @param string $token
+     * @return bool
+     */
+    // public function validateToken(Request $request)
+    // {
+    //     /** @var \App\Models\User $user **/
+    //     $user = Auth::user();
+    //     // $user = Auth::guard('api')->user();
+    //     $token = $request->input('token');
+    //     // $t = $user->accessToken;
+    //     try {
+    //         // Attempt to authenticate the user with the provided token
+
+
+    //         if ($user && $user->id) {
+    //             // If the user is authenticated, validate if the token matches
+    //             if (  $user->tokens == $token) {
+    //                 // Token is valid
+    //                 return response()->json(['valid' => true], 200);
+    //             }
+    //         }
+    //     } catch (\Exception $e) {
+    //         // Handle any exceptions if necessary
+    //         return response()->json(['valid' => false, 'message' => 'Token validation failed'], 401);
+    //     }
+
+    //     // Token is not valid
+    //     return response()->json(['valid' => false, 'message' => 'Token validation failed'], 401);
+
+    // }
+
+    public function validateToken(Request $request)
+    {
+        $token = $request->bearerToken();
+
+        if (!$token) {
+            return response()->json(['success' => false], 200);
+        }
+
+        // Check if the token is valid
+        if (Auth::guard('api')->check()) {
+            return response()->json(['success' => true], 200);
+        }
+
+        return response()->json(['success' => false], 200);
+    }
 }
+// eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiNjAxYmZlYzk4NDFkOWRiYjU2MDFhZTZiOGIwOGI5MTg3MmUyN2ZlYWZmYjVhNmU1YzkyYWQ5MWYwMTAxOGJmOGI4MzhiNTIyMWY4YTE2ZGIiLCJpYXQiOjE3MDgyMDM4MzcuODY4MTI0MDA4MTc4NzEwOTM3NSwibmJmIjoxNzA4MjAzODM3Ljg2ODEyOTAxNDk2ODg3MjA3MDMxMjUsImV4cCI6MTczOTgyNjIzNy44NjM5MDQ5NTMwMDI5Mjk2ODc1LCJzdWIiOiIxOCIsInNjb3BlcyI6W119.XdYp0iN9lln7EA1W30fH2MSz3GeZmZKTvpMrAEKJwdWxWb7kvxgpV1BzpFTx47PXsBbMv44sZWwviXl1OJNmYNLB5743e6LOLD5rqq7Ag-9O7ldYTT6yVm7XOE-OAtyTRO0TARCXTXp6dDd7eMqEp9O6PD5MjnjQRTTABLMLsYYUPgrGQIBsD0btmaw95GgBj5-M030DvLir3JxG0FrJNiLwWuKk2sp5LQ411WZ2cIh4y8NaCmlqUmajgUefErg2aqKnZw6__gMpfdHqEuhnGaFJe0sXwgIBRSXIclA7fvXUlQADs973DnHQLPwMsvzcUvFb59MgibJ1m5nUh2P0oRWQvgSnv6-DUalnA-i1UYjUtEMZo3QO3HihfOYBvEEkXm-Ya93DpNs1Jj0lCC2u2R_jdX4yHimtLo_nEHq6M01j_KUEoC6LqpDL6kWhkKLR00vngQmTLQemSYloz5nX2Sf-lzDb2QePogTHQBkmGHn1nVVIWtohe-Q3shzAw2p9SunKP5vkfE2pB6k21_eRwyxOPzY1Gv2-TNJ6O80__QCuCCfbXWP0kqJthwFr0XRm_QWfNPPt0u3vGdMswTMjWc7yOngQddcC0zeX7WmrDTPgjiWoBelcfxVo7sc3H9hli4cWexnzJc8JsfPLWjrrEkkJZkXHKJKattG92TI7qrM

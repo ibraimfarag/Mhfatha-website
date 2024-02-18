@@ -29,6 +29,7 @@ Route::get('/discounts', [DiscountController::class, 'index_api']);
 
 
 Route::post('login-post', [AuthController::class, 'login_api']);
+Route::post('validateToken', [AuthController::class, 'validateToken']);
 
 Route::post('register-post', [AuthController::class, 'register_api']);
 
