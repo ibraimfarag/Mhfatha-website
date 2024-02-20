@@ -9,6 +9,7 @@ use App\Models\UserDiscount;
 use App\Models\Store; // Correct casing for the Store class
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\WebsiteManager;
 
 
 
@@ -190,7 +191,10 @@ class UserDiscountController extends Controller
             $totalPayment = $requestData['total_payment'];
 
             $afterDiscount = $totalPayment - $totalPayment * ($percent / 100);
-
+            $websiteManager = WebsiteManager::first();
+            $commission = $websiteManager->commission;
+            $obtainedProfit= (($afterDiscount * $commission) /100);
+            
             // Create a new user discount entry
             $userDiscount = new UserDiscount();
             $userDiscount->user_id = $requestData['user_id'];
@@ -198,6 +202,7 @@ class UserDiscountController extends Controller
             $userDiscount->discount_id = $requestData['discount_id'];
             $userDiscount->total_payment = $totalPayment;
             $userDiscount->after_discount = $afterDiscount;
+            $userDiscount->obtained = $obtainedProfit;
             $userDiscount->date = now();
             // You can set other fields like date, status, reason, etc. here
             $storeId = $requestData['store_id'];

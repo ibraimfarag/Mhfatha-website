@@ -17,6 +17,10 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Region; // Import the Region model
 use App\Models\City;
 use App\Models\StoreCategory;
+use App\Models\WebsiteManager;
+use App\Models\Request as Requests;
+
+
 
 class UserController extends Controller
 {
@@ -882,4 +886,193 @@ class UserController extends Controller
         // Return a success response
         return response()->json(['message' => 'Device information updated successfully']);
     }
+
+    public function getAllUsers()
+    {
+        if (!Auth::user()->is_admin) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Fetch all users
+        $users = User::all();
+
+        // Return the list of users
+        return response()->json(['users' => $users]);
+    }
+
+
+
+    // Method to update a user's profile
+    public function updateUser(Request $request)
+    {
+        // Validate the incoming request data
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'gender' => 'required|in:male,female',
+            'birthday' => 'required|date',
+            'city' => 'required|string|max:255',
+            'region' => 'required|string|max:255',
+            'mobile' => 'required|string|max:20',
+            'email' => 'required|string|email|max:255',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust file type and size as needed
+            'is_vendor' => 'required|boolean',
+            'is_admin' => 'required|boolean',
+            'password' => 'nullable|string|min:8', // Optionally allow updating the password
+            'device_token' => 'nullable|string',
+            'platform' => 'nullable|string',
+            'platform_device' => 'nullable|string',
+            'platform_version' => 'nullable|string',
+            'is_banned' => 'required|boolean',
+            'is_deleted' => 'required|boolean',
+            'is_temporarily' => 'required|boolean',
+            'messages' => 'required|boolean',
+            'notifications' => 'required|boolean',
+            'lang' => 'nullable|string|in:en,ar', // Allow only 'en' and 'ar' for language
+        ]);
+
+        // Check for validation errors
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
+
+        // (!Auth::user()->is_admin)ser is an admin
+        if (!Auth::user()->is_admin) {
+            return response()->json(['error' => trans('auth.unauthorized')], 403);
+        }
+
+        // Determine response language
+        $lang = $request->input('lang', 'en');
+        app()->setLocale($lang);
+
+        // Retrieve the user by ID
+        $user = User::find($request->input('user_id'));
+
+        // Check if the user exists
+        if (!$user) {
+            $errorMessage = $lang === 'ar' ? 'لم يتم العثور على المستخدم.' : 'User not found.';
+            return response()->json(['error' => $errorMessage], 404);
+        }
+
+        // Update the user's profile
+        $userData = $request->only([
+            'first_name',
+            'middle_name',
+            'last_name',
+            'gender',
+            'birthday',
+            'city',
+            'region',
+            'mobile',
+            'email',
+            'is_vendor',
+            'is_admin',
+            'is_banned',
+            'is_deleted',
+            'is_temporarily',
+            'messages',
+            'notifications',
+        ]);
+
+        // Check if a new profile image was uploaded
+        if ($request->hasFile('photo')) {
+            // Delete the old profile image (if it exists)
+            if ($user->photo) {
+                // Storage::delete($user->photo);
+            }
+
+            // Store the new profile image
+            $photoPath = $request->file('photo')->store('photos');
+            $userData['photo'] = $photoPath;
+        }
+
+        // Update the user's password if provided
+        if ($request->filled('password')) {
+            $userData['password'] = Hash::make($request->input('password'));
+        }
+
+        // Update device information if provided
+        if ($request->filled(['device_token', 'platform', 'platform_device', 'platform_version'])) {
+            $userData['device_token'] = $request->input('device_token');
+            $userData['platform'] = $request->input('platform');
+            $userData['platform_device'] = $request->input('platform_device');
+            $userData['platform_version'] = $request->input('platform_version');
+        }
+
+        // Apply updates to the user's profile
+        $user->update($userData);
+
+        // Return a success response
+        $message = $lang === 'ar' ? 'تم تحديث ملف التعريف الخاص بالمستخدم بنجاح' : 'User profile updated successfully';
+        return response()->json(['message' => $message]);
+    }
+
+
+    public function getUsersStatistics()
+    {
+    
+        if (!Auth::user()->is_admin) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+    
+        // Count of all users
+        $totalUsersCount = User::count();
+    
+        // Count of users who are vendors
+        $vendorsCount = User::where('is_vendor', true)->count();
+    
+        // Count of users who are not vendors
+        $nonVendorsCount = $totalUsersCount - $vendorsCount;
+    
+        // Count of discounts where discounts_status is "working"
+        $workingDiscountsCount = Discount::where('discounts_status', 'working')->count();
+    
+        // Count of user discounts
+        $userDiscountsCount = UserDiscount::count();
+    
+        // Sum of total payments for stores
+        $totalPaymentsSum = UserDiscount::sum('after_discount');
+    
+        // Fetch the website manager
+        $websiteManager = WebsiteManager::first();
+    
+        // Calculate profits
+        $profits = UserDiscount::where('obtained_status', 0)->sum('obtained');
+    
+        // Calculate the percentage of vendors and non-vendors
+        $vendorsPercentage = $totalUsersCount > 0 ? ($vendorsCount / $totalUsersCount) * 100 : 0;
+        $nonVendorsPercentage = $totalUsersCount > 0 ? ($nonVendorsCount / $totalUsersCount) * 100 : 0;
+    
+        // Format the percentages
+        $vendorsPercentage = number_format($vendorsPercentage, 2);
+        $nonVendorsPercentage = number_format($nonVendorsPercentage, 2);
+    
+        // Retrieve all users, stores, and requests
+        $users = User::all();
+        $stores = Store::all();
+        $requests = Requests::all();
+        $userDiscounts = UserDiscount::orderBy('id', 'desc')->get();
+    
+        // Prepare the response
+        $statistics = [
+            'total_users' => $totalUsersCount,
+            'vendors_count' => $vendorsCount,
+            'non_vendors_count' => $nonVendorsCount,
+            'vendors_percentage' => $vendorsPercentage . '%',
+            'non_vendors_percentage' => $nonVendorsPercentage . '%',
+            'working_discounts_count' => $workingDiscountsCount,
+            'user_discounts_count' => $userDiscountsCount,
+            'total_payments_sum' => $totalPaymentsSum,
+            'profits' => $profits,
+        ];
+    
+        return response()->json(['statistics' => $statistics, 'users' => $users, 'stores' => $stores, 'requests' => $requests, 'user_discounts' => $userDiscounts]);
+    }
+    
+
+    // $websiteManager = WebsiteManager::first();
+    // 
+
 }

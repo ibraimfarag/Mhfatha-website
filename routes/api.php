@@ -56,21 +56,24 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/filter-stores', [StoreController::class, 'filterStoresApi']);
 
     // /* --------------------------------- vendor --------------------------------- */
-    
-    Route::post('/vendor/stores', [StoreController::class, 'userStores']);
-    Route::post('/vendor/store/create', [StoreController::class, 'createStore']);
-    Route::post('/vendor/store/edit', [StoreController::class, 'updateStore']);
-    Route::post('/vendor/store/delete', [StoreController::class, 'deleteStore']);
 
-    Route::post('/vendor/store/qr', [StoreController::class, 'MergedImageQr']);
+    Route::post('vendor/stores', [StoreController::class, 'userStores']);
 
-    Route::post('/vendor/store/discounts', [DiscountController::class, 'getDiscountsByStoreId']);
-    Route::post('/vendor/store/discounts/create', [DiscountController::class, 'createStoreDiscount']);
-    Route::post('/vendor/store/discounts/delete', [DiscountController::class, 'createDeleteDiscountRequest']);
-
-
-
+    Route::prefix('vendor/store')->group(function () {
+        Route::post('create', [StoreController::class, 'createStore']);
+        Route::post('edit', [StoreController::class, 'updateStore']);
+        Route::post('delete', [StoreController::class, 'deleteStore']);
+        Route::post('qr', [StoreController::class, 'MergedImageQr']);
+        Route::post('discounts', [DiscountController::class, 'getDiscountsByStoreId']);
+        Route::post('discounts/create', [DiscountController::class, 'createStoreDiscount']);
+        Route::post('discounts/delete', [DiscountController::class, 'createDeleteDiscountRequest']);
+    });
 
 
 
+    Route::prefix('admin')->group(function () {
+
+        Route::get('users', [UserController::class, 'getAllUsers']);
+        Route::get('statistics', [UserController::class, 'getUsersStatistics']);
+    });
 });
