@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\WebsiteManager;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\File;
+use App\Models\AppUpdate;
 
 
 class WebsiteManagerController extends Controller
@@ -149,6 +150,47 @@ public function update(Request $request)
     $websiteManager->update($validatedData);
     // dd(session()->all());
     return redirect()->back()->with('success', __('Website Manager information updated successfully.'), ['lang' => $request->input('lang')]);
+}
+
+
+public function getVersion(Request $request)
+{
+    // Validate the input
+    $request->validate([
+        'platform' => 'required|in:iOS,Android',
+    ]);
+
+    // Get the platform from the request
+    $platform = $request->input('platform');
+
+    // Initialize variables to hold version and required status
+    $version = null;
+    $required = null;
+
+    // Retrieve version information based on the platform
+    if ($platform === 'iOS') {
+        $update = AppUpdate::select('ios_version', 'ios_required')->first();
+        if ($update) {
+            $version = $update->ios_version;
+            $required = $update->ios_required;
+        }
+    } elseif ($platform === 'Android') {
+        $update = AppUpdate::select('android_version', 'android_required')->first();
+        if ($update) {
+            $version = $update->android_version;
+            $required = $update->android_required;
+        }
+    }
+
+    // Prepare response
+    $response = [
+        'platform' => $platform,
+        'version' => $version,
+        'required' => $required,
+    ];
+
+    // Return response
+    return response()->json($response);
 }
 
 
