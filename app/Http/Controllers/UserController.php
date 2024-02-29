@@ -909,7 +909,6 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
             'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
             'gender' => 'required|in:male,female',
             'birthday' => 'required|date',
@@ -918,18 +917,6 @@ class UserController extends Controller
             'mobile' => 'required|string|max:20',
             'email' => 'required|string|email|max:255',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust file type and size as needed
-            'is_vendor' => 'required|boolean',
-            'is_admin' => 'required|boolean',
-            'password' => 'nullable|string|min:8', // Optionally allow updating the password
-            'device_token' => 'nullable|string',
-            'platform' => 'nullable|string',
-            'platform_device' => 'nullable|string',
-            'platform_version' => 'nullable|string',
-            'is_banned' => 'required|boolean',
-            'is_deleted' => 'required|boolean',
-            'is_temporarily' => 'required|boolean',
-            'messages' => 'required|boolean',
-            'notifications' => 'required|boolean',
             'lang' => 'nullable|string|in:en,ar', // Allow only 'en' and 'ar' for language
         ]);
 
@@ -959,53 +946,43 @@ class UserController extends Controller
         // Update the user's profile
         $userData = $request->only([
             'first_name',
-            'middle_name',
             'last_name',
             'gender',
             'birthday',
-            'city',
             'region',
             'mobile',
             'email',
-            'is_vendor',
-            'is_admin',
-            'is_banned',
-            'is_deleted',
-            'is_temporarily',
-            'messages',
-            'notifications',
         ]);
 
-        // Check if a new profile image was uploaded
+
+
+
         if ($request->hasFile('photo')) {
             // Delete the old profile image (if it exists)
             if ($user->photo) {
-                // Storage::delete($user->photo);
+                $oldImagePath = public_path('FrontEnd/assets/images/user_images/' . $user->photo);
+                if (File::exists($oldImagePath)) {
+                    File::delete($oldImagePath);
+                }
             }
 
             // Store the new profile image
-            $photoPath = $request->file('photo')->store('photos');
-            $userData['photo'] = $photoPath;
+            $image = $request->file('photo');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('FrontEnd/assets/images/user_images'), $imageName);
+            $user->photo = $imageName;
+        } elseif ($request->input('photo') === null) {
+            // If input photo is null, retain the old photo
+            $user->photo = Auth::user()->photo;
         }
 
-        // Update the user's password if provided
-        if ($request->filled('password')) {
-            $userData['password'] = Hash::make($request->input('password'));
-        }
 
-        // Update device information if provided
-        if ($request->filled(['device_token', 'platform', 'platform_device', 'platform_version'])) {
-            $userData['device_token'] = $request->input('device_token');
-            $userData['platform'] = $request->input('platform');
-            $userData['platform_device'] = $request->input('platform_device');
-            $userData['platform_version'] = $request->input('platform_version');
-        }
 
         // Apply updates to the user's profile
         $user->update($userData);
 
         // Return a success response
-        $message = $lang === 'ar' ? 'تم تحديث ملف التعريف الخاص بالمستخدم بنجاح' : 'User profile updated successfully';
+        $message = $lang === 'ar' ? 'تم تحديث الملف الخاص بالمستخدم بنجاح' : 'User profile updated successfully';
         return response()->json(['message' => $message]);
     }
 
@@ -1075,4 +1052,138 @@ class UserController extends Controller
     // $websiteManager = WebsiteManager::first();
     // 
 
+    public function updateUserStatus(Request $request)
+    {
+        // Validate the incoming request data
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
+            'query' => 'required|string',
+        ]);
+
+        // Check for validation errors
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
+
+        // Retrieve the user by ID
+        $user = User::find($request->input('user_id'));
+
+        // Check if the user exists
+        if (!$user) {
+            return response()->json(['error' => 'User not found.'], 404);
+        }
+
+        // Retrieve the query string
+        $query = $request->input('query');
+
+        // Update user status based on the query
+        switch ($query) {
+            case 'ban':
+                $user->is_banned = 1;
+                $message = 'User banned successfully.';
+                break;
+            case 'unban':
+                $user->is_banned = 0;
+                $message = 'User unbanned successfully.';
+                break;
+            case 'temporarily':
+                $user->is_temporarily = 1;
+                $message = 'User marked as temporarily suspended successfully.';
+                break;
+            case 'restore_temporary':
+                $user->is_temporarily = 0;
+                $message = 'User restored from temporary suspension successfully.';
+                break;
+            case 'make_vendor':
+                $user->is_vendor = 1;
+                $message = 'User set as vendor successfully.';
+                break;
+            case 'remove_vendor':
+                $user->is_vendor = 0;
+                $message = 'Vendor status removed from user successfully.';
+                break;
+            case 'make_admin':
+                $user->is_admin = 1;
+                $message = 'User set as admin successfully.';
+                break;
+            case 'remove_admin':
+                $user->is_admin = 0;
+                $message = 'Admin status removed from user successfully.';
+                break;
+            case 'delete':
+                $user->is_deleted = 1;
+                $message = 'Admin status removed from user successfully.';
+                break;
+            default:
+                return response()->json(['error' => 'Invalid query.'], 422);
+        }
+
+        // Save the updated user status
+        $user->save();
+
+        // Return a success response
+        return response()->json(['message' => $message]);
+    }
+
+    public function updateUserInfo(Request $request)
+    {
+        // Validate the incoming request data
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|exists:users,id',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'gender' => 'required|in:male,female',
+            'birthday' => 'required|date',
+            'city' => 'required|string|max:255',
+            'region' => 'required|string|max:255',
+            'mobile' => 'required|string|max:20',
+            'email' => 'required|string|email|max:255',
+            'photo' => 'nullable|string|max:255',
+            'lang' => 'nullable|string|in:en,ar', // Allow only 'en' and 'ar' for language
+        ]);
+
+        // Check for validation errors
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
+
+        // Retrieve the user by ID
+        $user = User::find($request->input('id'));
+
+        // Check if the user exists
+        if (!$user) {
+            $errorMessage = $request->input('lang') === 'ar' ? 'لم يتم العثور على المستخدم.' : 'User not found.';
+            return response()->json(['error' => $errorMessage], 404);
+        }
+  if ($request->hasFile('photo')) {
+            // Delete the old profile image (if it exists)
+            if ($user->photo) {
+                // Storage::delete($user->photo);
+            }
+
+            // Store the new profile image
+            $photoPath = $request->file('photo')->store('photos');
+            $userData['photo'] = $photoPath;
+        }
+        // Update user information
+        $user->update([
+            'first_name' => $request->input('first_name'),
+            'last_name' => $request->input('last_name'),
+            'gender' => $request->input('gender'),
+            'birthday' => $request->input('birthday'),
+            'city' => $request->input('city'),
+            'region' => $request->input('region'),
+            'mobile' => $request->input('mobile'),
+            'email' => $request->input('email'),
+            'photo' => $request->input('photo'),
+        ]);
+
+        // Determine response language
+        $lang = $request->input('lang', 'en');
+        app()->setLocale($lang);
+
+        // Return a success response
+        $message = $lang === 'ar' ? 'تم تحديث معلومات المستخدم بنجاح.' : 'User information updated successfully.';
+        return response()->json(['message' => $message]);
+    }
 }
