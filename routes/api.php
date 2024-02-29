@@ -83,6 +83,8 @@ Route::middleware('auth:api')->group(
 
             Route::get('users', [UserController::class, 'getAllUsers']);
             Route::get('statistics', [UserController::class, 'getUsersStatistics']);
+            Route::post('actions', [UserController::class, 'updateUserStatus']);
+            Route::post('user/update', [UserController::class, 'updateUser']);
         });
     }
 
