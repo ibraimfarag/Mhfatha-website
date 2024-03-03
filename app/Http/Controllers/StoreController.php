@@ -1245,4 +1245,66 @@ class StoreController extends Controller
             'store' => $store,
         ]);
     }
+
+    public function manageStore(Request $request)
+    {
+        // Validate the incoming request data
+        $validator = Validator::make($request->all(), [
+            'store_id' => 'required|exists:stores,id',
+            'query' => 'required|in:delete,restore,ban,unban',
+        ]);
+
+        // Check if validation fails
+        if ($validator->fails()) {
+            $errors = $validator->errors();
+            return response()->json(['status' => 'error', 'errors' => $errors], 422);
+        }
+
+        $storeId = $request->input('store_id');
+        $query = $request->input('query');
+
+        // Retrieve the store by ID
+        $store = Store::find($storeId);
+
+        // Check if the store exists
+        if (!$store) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Store not found.',
+            ], 404);
+        }
+
+        // Perform the operation based on the query
+        switch ($query) {
+            case 'delete':
+                $store->is_deleted = 1 ;
+                $message = 'Store deleted successfully.';
+                break;
+            case 'restore':
+                $store->is_deleted = 0 ;
+                $message = 'Store restored successfully.';
+                break;
+            case 'ban':
+                $store->is_bann = 1;
+                $message = 'Store banned successfully.';
+                break;
+            case 'unban':
+                $store->is_bann = 0;
+                $message = 'Store unbanned successfully.';
+                break;
+            default:
+                // This case should never be reached if validation is done properly
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid query.',
+                ], 400);
+        }
+
+        // Return a success response
+        return response()->json([
+            'status' => 'success',
+            'message' => $message,
+        ]);
+    }
+
 }
