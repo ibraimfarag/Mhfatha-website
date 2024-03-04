@@ -9,6 +9,7 @@ use App\Http\Controllers\CustomEncrypter;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WebsiteManagerController;
+use App\Http\Controllers\RequestsController;
 
 
 /*
@@ -90,6 +91,10 @@ Route::middleware('auth:api')->group(
 
 
             Route::post('store/actions', [StoreController::class, 'manageStore']);
+
+            Route::post('requests', [RequestsController::class, 'MyRequests']);
+
+            
         });
     }
 

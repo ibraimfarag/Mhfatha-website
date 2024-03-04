@@ -1027,7 +1027,7 @@ class UserController extends Controller
         // Retrieve all users, stores, and requests
         $users = User::all();
         $stores = Store::all();
-        $requests = Requests::all();
+        $requests = Requests::where('approved', 0)->get();
         $userDiscounts = UserDiscount::orderBy('id', 'desc')->get();
     
         // Prepare the response

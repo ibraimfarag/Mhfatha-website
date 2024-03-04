@@ -913,6 +913,13 @@ class StoreController extends Controller
             // If no image is uploaded, set a default image
             $store->photo = 'null-market.png'; // Change 'null-market.png' to your default image filename
         }
+        $regionId = $request->input('region');
+        $regionNameAR= Region::find($regionId)->region_ar;
+        $regionNameEn= Region::find($regionId)->region_en;
+        
+        $categoryId = $request->input('category_id');
+    $categoryNameAr = StoreCategory::find($categoryId)->category_name_ar;
+    $categoryNameEn = StoreCategory::find($categoryId)->category_name_en;
 
         // Save the selected work days and their working hours
         $workDays = $request->input('work_days');
@@ -922,6 +929,30 @@ class StoreController extends Controller
         $store->save();
         $this->generateQrCode($store->id);
 
+        // Insert a row into the requests table
+        $requestData = [
+            'user_id' => $user->id,
+            'store_id' => $store->id,
+            'type' => 'create_store',
+            'data' => json_encode([
+                'name' => $request->input('name'),
+                'photo' => $request->hasFile('photo') ? $this->handleStoreImageUpload($store, $request->file('photo')) : $store->photo,
+                'work_days' => $request->input('work_days'),
+                'latitude' => $request->input('latitude'),
+                'longitude' => $request->input('longitude'),
+                'tax_number' => $request->input('tax_number'),
+                'category_id' => $request->input('category_id'),
+                'region' => $request->input('region'),
+                'region_name_ar' => $regionNameAR,
+                'region_name_en' => $regionNameEn,
+                'category_name_ar' => $categoryNameAr,
+                'category_name_en' => $categoryNameEn,
+                'location' => $request->input('location'),
+
+            ]),
+            'approved' => false, // Assuming the request is initially not approved
+        ];
+        StoreRequest::create($requestData);
         // Return a JSON response indicating successful store creation
         return response()->json([
             'status' => 'success',
@@ -958,11 +989,18 @@ class StoreController extends Controller
         }
 
         // Set the 'is_deleted' field to 1
-        $store->is_deleted = 1;
-        $store->save();
-
+        // $store->is_deleted = 1;
+        // $store->save();
+        $requestData = [
+            'user_id' => $userId,
+            'store_id' => $storeId,
+            'type' => 'delete_store',
+            'data' => null, // No additional data needed for store deletion
+            'approved' => false, // Assuming the request is initially not approved
+        ];
+        StoreRequest::create($requestData);
         // Determine the appropriate response message based on the language
-        $message = ($lang === 'ar') ? 'تم حذف المتجر بنجاح' : 'Store deleted successfully';
+        $message = ($lang === 'ar') ? 'تم ارسال طلب حذف المتجر بنجاح' : 'Store deleted request sent successfully';
 
         // Return a success response with the appropriate message
         return response()->json(['message' => $message]);
@@ -1194,6 +1232,13 @@ class StoreController extends Controller
         $taxNumberChanged = $request->filled('tax_number') && $store->tax_number !== $request->input('tax_number');
         $categoryIdChanged = $request->filled('category_id') && $store->category_id !== $request->input('category_id');
         $regionChanged = $request->filled('region') && $store->region !== $request->input('region');
+        $regionId = $request->input('region');
+        $regionNameAR= Region::find($regionId)->region_ar;
+        $regionNameEn= Region::find($regionId)->region_en;
+        
+        $categoryId = $request->input('category_id');
+    $categoryNameAr = StoreCategory::find($categoryId)->category_name_ar;
+    $categoryNameEn = StoreCategory::find($categoryId)->category_name_en;
 
         // If any relevant field has changed, create a request for approval
         if ($nameChanged || $photoChanged || $taxNumberChanged || $categoryIdChanged || $regionChanged) {
@@ -1210,6 +1255,12 @@ class StoreController extends Controller
                     'tax_number' => $request->input('tax_number'),
                     'category_id' => $request->input('category_id'),
                     'region' => $request->input('region'),
+
+
+                    'region_name_ar' => $regionNameAR,
+                    'region_name_en' => $regionNameEn,
+                    'category_name_ar' => $categoryNameAr,
+                    'category_name_en' => $categoryNameEn,
                 ]),
                 'approved' => false, // Set to false initially as it needs approval
             ];
@@ -1277,11 +1328,11 @@ class StoreController extends Controller
         // Perform the operation based on the query
         switch ($query) {
             case 'delete':
-                $store->is_deleted = 1 ;
+                $store->is_deleted = 1;
                 $message = 'Store deleted successfully.';
                 break;
             case 'restore':
-                $store->is_deleted = 0 ;
+                $store->is_deleted = 0;
                 $message = 'Store restored successfully.';
                 break;
             case 'ban':
@@ -1306,5 +1357,4 @@ class StoreController extends Controller
             'message' => $message,
         ]);
     }
-
 }
