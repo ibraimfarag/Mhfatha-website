@@ -1032,12 +1032,35 @@ class UserController extends Controller
 
         // Initialize an empty array to store formatted data
         $formattedRequests = [];
-
+        $typeNames = [
+            'update_store' => [
+                'en' => 'Update Store',
+                'ar' => 'تحديث المتجر',
+            ],
+            'delete_discount' => [
+                'en' => 'Delete Discount',
+                'ar' => 'حذف الخصم',
+            ],
+            'create_store' => [
+                'en' => 'Create Store',
+                'ar' => 'إنشاء متجر',
+            ],
+            'delete_store' => [
+                'en' => 'Delete Store',
+                'ar' => 'حذف المتجر',
+            ],
+        ];
         // Loop through each request
         foreach ($requests as $request) {
             // Get user and store names using relationships
             $userName = $request->user->first_name . ' ' . $request->user->last_name;
             $storeName = $request->store->name;
+
+
+            // Get type name based on the type value and current language
+            $typeNameEn = isset($typeNames[$request->type]['en']) ? $typeNames[$request->type]['en'] : $request->type;
+            $typeNameAr = isset($typeNames[$request->type]['ar']) ? $typeNames[$request->type]['ar'] : $request->type;
+
 
             // Add formatted data to the array
             $formattedRequests[] = [
@@ -1046,6 +1069,8 @@ class UserController extends Controller
                 'store_id' => $request->store_id,
                 'store_name' => $storeName,
                 'type' => $request->type,
+                'type_name_en' => $typeNameEn,
+                'type_name_ar' => $typeNameAr,
             ];
         }
         $userDiscounts = UserDiscount::orderBy('id', 'desc')->get();
