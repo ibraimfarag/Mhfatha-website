@@ -1063,7 +1063,7 @@ class UserController extends Controller
             'profits' => $profits,
         ];
 
-        return response()->json(['statistics' => $statistics, 'users' => $users, 'stores' => $stores, 'requests' => $requests, 'user_discounts' => $userDiscounts]);
+        return response()->json(['statistics' => $statistics, 'users' => $users, 'stores' => $stores, 'requests' => $formattedRequests, 'user_discounts' => $userDiscounts]);
     }
 
 
