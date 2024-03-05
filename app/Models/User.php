@@ -28,14 +28,14 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_admin',
         'password',
         'device_token',
-        'platform', 
-        'platform_device', 
-        'platform_version', 
-        'is_banned', 
-        'is_deleted', 
-        'is_temporarily', 
+        'platform',
+        'platform_device',
+        'platform_version',
+        'is_banned',
+        'is_deleted',
+        'is_temporarily',
         'messages',
-        'notifications', 
+        'notifications',
     ];
 
 
@@ -55,7 +55,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(UserDiscount::class);
     }
-    
+
     public function region()
     {
         return $this->belongsTo(Region::class);
@@ -64,5 +64,9 @@ class User extends Authenticatable implements MustVerifyEmail
     public function city()
     {
         return $this->belongsTo(City::class);
+    }
+    public function requests()
+    {
+        return $this->hasMany(Request::class);
     }
 }

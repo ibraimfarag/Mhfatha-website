@@ -30,7 +30,7 @@ class Store extends Model
         'is_bann',
         'bann_msg',
         "is_deleted",
-        
+
     ];
 
     public function user()
@@ -61,5 +61,8 @@ class Store extends Model
     {
         return $this->belongsTo(City::class);
     }
-
+    public function requests()
+    {
+        return $this->hasMany(Request::class);
+    }
 }

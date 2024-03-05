@@ -987,52 +987,69 @@ class UserController extends Controller
 
     public function getUsersStatistics()
     {
-    
+
         if (!Auth::user()->is_admin) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
-    
+
         // Count of all users
         $totalUsersCount = User::count();
-    
+
         // Count of users who are vendors
         $vendorsCount = User::where('is_vendor', true)->count();
-    
+
         // Count of users who are not vendors
         $nonVendorsCount = $totalUsersCount - $vendorsCount;
-    
+
         // Count of discounts where discounts_status is "working"
         $workingDiscountsCount = Discount::where('discounts_status', 'working')->count();
-    
+
         // Count of user discounts
         $userDiscountsCount = UserDiscount::count();
-    
+
         // Sum of total payments for stores
         $totalPaymentsSum = UserDiscount::sum('after_discount');
-    
+
         // Fetch the website manager
         $websiteManager = WebsiteManager::first();
-    
+
         // Calculate profits
         $profits = UserDiscount::where('obtained_status', 0)->sum('obtained');
-    
+
         // Calculate the percentage of vendors and non-vendors
         $vendorsPercentage = $totalUsersCount > 0 ? ($vendorsCount / $totalUsersCount) * 100 : 0;
         $nonVendorsPercentage = $totalUsersCount > 0 ? ($nonVendorsCount / $totalUsersCount) * 100 : 0;
-    
+
         // Format the percentages
         $vendorsPercentage = number_format($vendorsPercentage, 2);
         $nonVendorsPercentage = number_format($nonVendorsPercentage, 2);
-    
+
         // Retrieve all users, stores, and requests
         $users = User::all();
         $stores = Store::all();
-        $requests = Requests::where('approved', 0)
-        ->join('users', 'requests.user_id', '=', 'users.id')
-        ->join('stores', 'requests.store_id', '=', 'stores.id')
-        ->select('requests.*', 'users.name as user_name', 'stores.name as store_name')
-        ->get();        $userDiscounts = UserDiscount::orderBy('id', 'desc')->get();
-    
+        // Fetch all requests with approved status as 0
+        $requests = Request::where('approved', 0)->get();
+
+        // Initialize an empty array to store formatted data
+        $formattedRequests = [];
+
+        // Loop through each request
+        foreach ($requests as $request) {
+            // Get user and store names using relationships
+            $userName = $request->user->first_name . ' ' . $request->user->last_name;
+            $storeName = $request->store->name;
+
+            // Add formatted data to the array
+            $formattedRequests[] = [
+                'user_id' => $request->user_id,
+                'user_name' => $userName,
+                'store_id' => $request->store_id,
+                'store_name' => $storeName,
+                'type' => $request->type,
+            ];
+        }
+        $userDiscounts = UserDiscount::orderBy('id', 'desc')->get();
+
         // Prepare the response
         $statistics = [
             'total_users' => $totalUsersCount,
@@ -1045,10 +1062,10 @@ class UserController extends Controller
             'total_payments_sum' => $totalPaymentsSum,
             'profits' => $profits,
         ];
-    
+
         return response()->json(['statistics' => $statistics, 'users' => $users, 'stores' => $stores, 'requests' => $requests, 'user_discounts' => $userDiscounts]);
     }
-    
+
 
     // $websiteManager = WebsiteManager::first();
     // 
@@ -1125,5 +1142,4 @@ class UserController extends Controller
         // Return a success response
         return response()->json(['message' => $message]);
     }
-
 }
