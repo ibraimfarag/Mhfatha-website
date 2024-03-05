@@ -46,7 +46,7 @@ class RequestsController extends Controller
                     // Update the corresponding row in the "stores" table
                     $storeId = $request->store_id;
                     $store = Store::find($storeId);
-
+                    $request->approved = 1;
                     if ($store) {
                         // Update store attributes using data from the "data" column
                         $storeData = json_decode($request->data, true);
@@ -82,6 +82,7 @@ class RequestsController extends Controller
                     // Retrieve the discount by ID
                     $discountId = $data['discount_id'];
                     $discount = Discount::find($discountId);
+                    $request->approved = 1;
 
                     if ($discount) {
                         // Set is_deleted to 1
@@ -98,6 +99,7 @@ class RequestsController extends Controller
                 case 'create_store':
                     // Retrieve the store associated with the request
                     $store = Store::find($request->store_id);
+                    $request->approved = 1;
 
                     // Check if the store exists
                     if ($store) {
@@ -115,6 +117,7 @@ class RequestsController extends Controller
                 case 'delete_store':
                     // Retrieve the store associated with the request
                     $store = Store::find($request->store_id);
+                    $request->approved = 1;
 
                     // Check if the store exists
                     if ($store) {
