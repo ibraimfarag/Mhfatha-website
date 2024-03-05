@@ -1104,8 +1104,10 @@ class UserController extends Controller
                                         'attribute_name_en' => $attributeTranslationEn . ' (' . $day . ')',
                                         'attribute_name_ar' => $attributeTranslationAr . ' (' . $day . ')',
                                         'attribute' => $key,
-                                        'old_value' => $oldWorkDays[$day],
-                                        'new_value' => $hours,
+                                        'old_value_en' => isset($oldWorkDays[$day]) ? (int)$oldWorkDays[$day] : null,
+                                        'old_value_ar' => isset($oldWorkDays[$day]) ? (int)$oldWorkDays[$day] : null,
+                                        'new_value_en' => (int)$hours,
+                                        'new_value_ar' => (int)$hours,
                                     ];
                                 }
                             }
@@ -1124,12 +1126,12 @@ class UserController extends Controller
                                 'attribute_name_en' => $attributeTranslationEn,
                                 'attribute_name_ar' => $attributeTranslationAr,
                                 'attribute' => $key,
-                                'old_value' => intval($oldStoreData[$key]),
-                                'new_value' => intval($value),
-                                'old_value_en' => $oldRegionNameEn,
-                                'old_value_ar' => $oldRegionNameAr,                
-                                'new_value_en' => $newRegionNameEn,
-                                'new_value_ar' => $newRegionNameAr,
+                                'old_value' => $value,
+                                'new_value' => $newRegionNameEn !== null ? $newRegionNameEn : null,
+                                'old_value_en' => $oldRegionNameEn !== null ? $oldRegionNameEn : null,
+                                'old_value_ar' => $oldRegionNameAr !== null ? $oldRegionNameAr : null,
+                                'new_value_en' => $newRegionNameEn !== null ? $newRegionNameEn : null,
+                                'new_value_ar' => $newRegionNameAr !== null ? $newRegionNameAr : null,
                             ];
                         } else {
                             // For attributes other than "work_days" and "region", directly compare the values
@@ -1139,8 +1141,10 @@ class UserController extends Controller
                                     'attribute_name_en' => $attributeTranslationEn,
                                     'attribute_name_ar' => $attributeTranslationAr,
                                     'attribute' => $key,
-                                    'old_value' => is_numeric($oldStoreData[$key]) ? intval($oldStoreData[$key]) : $oldStoreData[$key],
-                                    'new_value' => is_numeric($value) ? intval($value) : $value,
+                                    'old_value_en' => $oldStoreData[$key] !== null ? (int)$oldStoreData[$key] : null,
+                                    'old_value_ar' => $oldStoreData[$key] !== null ? (int)$oldStoreData[$key] : null,
+                                    'new_value_en' => (int)$value,
+                                    'new_value_ar' => (int)$value,
                                 ];
                             }
                         }
