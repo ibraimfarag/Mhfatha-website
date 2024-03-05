@@ -1109,22 +1109,20 @@ class UserController extends Controller
                                     ];
                                 }
                             }
-                        } elseif ($key === 'region') {
-                            // Get the name of the region from the Region table by ID
-                            $oldRegionName = Region::find($oldStoreData[$key])->name;
-                            $newRegionName = Region::find($value)->name;
+                        }elseif ($key === 'region') {
+                            // Retrieve the region name from the Region model
+                            $regionNameEn = Region::find($value)->region_en;
+                            $regionNameAr = Region::find($value)->region_ar;
                 
-                            if ($oldRegionName !== $newRegionName) {
-                                // Add the difference to the list
-                                $differences[] = [
-                                    'attribute_name_en' => $attributeTranslationEn,
-                                    'attribute_name_ar' => $attributeTranslationAr,
-                                    'attribute' => $key,
-                                    'old_value' => $oldRegionName,
-                                    'new_value' => $newRegionName,
-                                ];
-                            }
-                        }else {
+                            // Add the difference to the list
+                            $differences[] = [
+                                'attribute_name_en' => $attributeTranslationEn,
+                                'attribute_name_ar' => $attributeTranslationAr,
+                                'attribute' => $key,
+                                'old_value' => $oldStoreData[$key],
+                                'new_value' => $regionNameEn, // Change this to $regionNameAr if needed
+                            ];
+                        } else {
                             // For attributes other than "work_days", directly compare the values
                             if ($value != $oldStoreData[$key]) {
                                 // Add the difference to the list
