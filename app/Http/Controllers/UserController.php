@@ -1050,6 +1050,18 @@ class UserController extends Controller
                 'ar' => 'حذف المتجر',
             ],
         ];
+
+        $attributeTranslations = [
+            'name' => ['en' => 'Name', 'ar' => 'الاسم'],
+            'location' => ['en' => 'Location', 'ar' => 'الموقع'],
+            'phone' => ['en' => 'Phone', 'ar' => 'الهاتف'],
+            'photo' => ['en' => 'Photo', 'ar' => 'الصورة'],
+            'tax_number' => ['en' => 'Commercial Registration No', 'ar' => 'السجل التجاري'],
+            'work_days' => ['en' => 'Work Days', 'ar' => 'أيام العمل'],
+            'region' => ['en' => 'Region', 'ar' => 'المنطقة'],
+            'latitude' => ['en' => 'Latitude', 'ar' => 'خط العرض'],
+            'longitude' => ['en' => 'Longitude', 'ar' => 'خط الطول'],
+        ];
         // Loop through each request
         foreach ($requests as $request) {
             // Get user and store names using relationships
@@ -1064,28 +1076,55 @@ class UserController extends Controller
             if ($request->type == 'update_store') {
                 // Get the new store data from the JSON "data" column
                 $newStoreData = json_decode($request->data, true);
-        
+
                 // Get the old store data from the database
                 $oldStore = Store::find($request->store_id);
                 $oldStoreData = $oldStore->toArray();
-        
+
                 // Compare the attributes and identify differences
                 $differences = [];
                 foreach ($newStoreData as $key => $value) {
                     // Check if the attribute exists in the old data
                     if (array_key_exists($key, $oldStoreData)) {
                         // Compare the values
-                        if ($value != $oldStoreData[$key]) {
-                            // Add the difference to the list
-                            $differences[] = [
-                                'attribute' => $key,
-                                'old_value' => $oldStoreData[$key],
-                                'new_value' => $value,
-                            ];
+                        $attributeTranslationEn = $attributeTranslations[$key]['en'] ?? $key;
+                        $attributeTranslationAr = $attributeTranslations[$key]['ar'] ?? $key;
+
+                        if ($key === 'work_days') {
+                            // Decode the old and new work days from JSON
+                            $oldWorkDays = json_decode($oldStoreData[$key], true);
+                            $newWorkDays = json_decode($value, true);
+
+                            // Compare each day's work hours
+                            foreach ($newWorkDays as $day => $hours) {
+                                if (!isset($oldWorkDays[$day]) || $oldWorkDays[$day] !== $hours) {
+                                    // Add the difference to the list
+                                    $differences[] = [
+                                        'attribute_name_en' => $attributeTranslationEn . ' (' . $day . ')',
+                                        'attribute_name_ar' => $attributeTranslationAr . ' (' . $day . ')',
+                                        'attribute' => $key,
+                                        'old_value' => isset($oldWorkDays[$day]) ? $oldWorkDays[$day] : null,
+                                        'new_value' => $hours,
+                                    ];
+                                }
+                            }
+                        } else {
+                            // For attributes other than "work_days", directly compare the values
+                            if ($value != $oldStoreData[$key]) {
+                                // Add the difference to the list
+                                $differences[] = [
+                                    'attribute_name_en' => $attributeTranslationEn,
+                                    'attribute_name_ar' => $attributeTranslationAr,
+                                    'attribute' => $key,
+                                    'old_value' => $oldStoreData[$key],
+                                    'new_value' => $value,
+                                ];
+                            }
                         }
                     }
                 }
-        
+
+
                 // Add differences to the formatted array
                 $formattedRequests[] = [
                     'user_id' => $request->user_id,
@@ -1108,7 +1147,8 @@ class UserController extends Controller
                     'type_name_en' => $typeNameEn,
                     'type_name_ar' => $typeNameAr,
                 ];
-            }        }
+            }
+        }
         $userDiscounts = UserDiscount::orderBy('id', 'desc')->get();
 
         // Prepare the response
