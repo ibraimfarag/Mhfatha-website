@@ -31,22 +31,32 @@ class RequestsController extends Controller
 
         // Retrieve request by ID
         $requestId = $request->input('id');
+        $action = $request->input('action');
+        // Check if the request exists
+        if (!$requestId || !$action) {
+            return response()->json(['message' => 'Request ID and action are required'], 400);
+        }
+        
         $request = StoreRequest::find($requestId);
 
-        // Check if the request exists
         if (!$request) {
             return response()->json(['message' => 'Request not found'], 404);
         }
+    
+        // Check if the request is already approved or not
+        if ($request->approved) {
+            return response()->json(['message' => 'Request is already approved'], 400);
+        }
 
         // Check if the request is approved
-        if ($request->approved) {
+        if ($action === '1') {
             // Check the type of request
             switch ($request->type) {
                 case 'update_store':
                     // Update the corresponding row in the "stores" table
                     $storeId = $request->store_id;
                     $store = Store::find($storeId);
-                    $request->approved = 1;
+                    
                     if ($store) {
                         // Update store attributes using data from the "data" column
                         $storeData = json_decode($request->data, true);
@@ -82,7 +92,7 @@ class RequestsController extends Controller
                     // Retrieve the discount by ID
                     $discountId = $data['discount_id'];
                     $discount = Discount::find($discountId);
-                    $request->approved = 1;
+                    
 
                     if ($discount) {
                         // Set is_deleted to 1
@@ -99,7 +109,7 @@ class RequestsController extends Controller
                 case 'create_store':
                     // Retrieve the store associated with the request
                     $store = Store::find($request->store_id);
-                    $request->approved = 1;
+                    
 
                     // Check if the store exists
                     if ($store) {
@@ -117,7 +127,7 @@ class RequestsController extends Controller
                 case 'delete_store':
                     // Retrieve the store associated with the request
                     $store = Store::find($request->store_id);
-                    $request->approved = 1;
+                    
 
                     // Check if the store exists
                     if ($store) {
@@ -138,8 +148,18 @@ class RequestsController extends Controller
                 default:
                     return response()->json(['message' => 'Unsupported request type'], 400);
             }
+            $request->approved = true;
+            $request->save();
+            return response()->json(['message' => 'Request approved successfully']);
+        }  elseif ($action === '2') {
+            // Not approve the request
+            // You can perform additional actions here if needed
+            $request->approved = false;
+            $request->save();
+            return response()->json(['message' => 'Request not approved']);
         } else {
-            return response()->json(['message' => 'Request not approved'], 400);
+            // Invalid action
+            return response()->json(['message' => 'Invalid action'], 400);
         }
     }
 }
