@@ -1087,56 +1087,56 @@ class UserController extends Controller
                 foreach ($newStoreData as $key => $value) {
                     // Check if the attribute exists in the old data
                     if (array_key_exists($key, $oldStoreData)) {
-                        // Compare the values
-                        $attributeTranslationEn = $attributeTranslations[$key]['en'] ?? $key;
-                        $attributeTranslationAr = $attributeTranslations[$key]['ar'] ?? $key;
-                
-                        if ($key === 'work_days') {
-                            // Decode the old and new work days from JSON
-                            $oldWorkDays = json_decode($oldStoreData[$key], true);
-                            $newWorkDays = json_decode($value, true);
-                
-                            // Compare each day's work hours
-                            foreach ($newWorkDays as $day => $hours) {
-                                if (!isset($oldWorkDays[$day]) || $oldWorkDays[$day] !== $hours) {
-                                    // Add the difference to the list
-                                    $differences[] = [
-                                        'attribute_name_en' => $attributeTranslationEn . ' (' . $day . ')',
-                                        'attribute_name_ar' => $attributeTranslationAr . ' (' . $day . ')',
-                                        'attribute' => $key,
-                                        'old_value_en' => isset($oldWorkDays[$day]) ? (int)$oldWorkDays[$day] : null,
-                                        'old_value_ar' => isset($oldWorkDays[$day]) ? (int)$oldWorkDays[$day] : null,
-                                        'new_value_en' => (int)$hours,
-                                        'new_value_ar' => (int)$hours,
-                                    ];
-                                }
-                            }
-                        } elseif ($key === 'region') {
-                            // Retrieve the region name from the Region model
-                            $oldRegion = Region::find($oldStoreData[$key]);
-                            $oldRegionNameEn = $oldRegion ? $oldRegion->region_en : null;
-                            $oldRegionNameAr = $oldRegion ? $oldRegion->region_ar : null;
-                
-                            $newRegion = Region::find($value);
-                            $newRegionNameEn = $newRegion ? $newRegion->region_en : null;
-                            $newRegionNameAr = $newRegion ? $newRegion->region_ar : null;
-                
+                        // Compare the values only if they are different
+                        if ($value != $oldStoreData[$key]) {
                             // Add the difference to the list
-                            $differences[] = [
-                                'attribute_name_en' => $attributeTranslationEn,
-                                'attribute_name_ar' => $attributeTranslationAr,
-                                'attribute' => $key,
-                                'old_value' => $oldStoreData[$key],
-                                'new_value' => $value,
-                                'old_value_en' => $oldRegionNameEn !== null ? $oldRegionNameEn : null,
-                                'old_value_ar' => $oldRegionNameAr !== null ? $oldRegionNameAr : null,
-                                'new_value_en' => $newRegionNameEn !== null ? $newRegionNameEn : null,
-                                'new_value_ar' => $newRegionNameAr !== null ? $newRegionNameAr : null,
-                            ];
-                        } else {
-                            // For attributes other than "work_days" and "region", directly compare the values
-                            if ($value != $oldStoreData[$key]) {
+                            $attributeTranslationEn = $attributeTranslations[$key]['en'] ?? $key;
+                            $attributeTranslationAr = $attributeTranslations[$key]['ar'] ?? $key;
+                
+                            if ($key === 'work_days') {
+                                // Decode the old and new work days from JSON
+                                $oldWorkDays = json_decode($oldStoreData[$key], true);
+                                $newWorkDays = json_decode($value, true);
+                
+                                // Compare each day's work hours
+                                foreach ($newWorkDays as $day => $hours) {
+                                    if (!isset($oldWorkDays[$day]) || $oldWorkDays[$day] !== $hours) {
+                                        // Add the difference to the list
+                                        $differences[] = [
+                                            'attribute_name_en' => $attributeTranslationEn . ' (' . $day . ')',
+                                            'attribute_name_ar' => $attributeTranslationAr . ' (' . $day . ')',
+                                            'attribute' => $key,
+                                            'old_value_en' => isset($oldWorkDays[$day]) ? (int)$oldWorkDays[$day] : null,
+                                            'old_value_ar' => isset($oldWorkDays[$day]) ? (int)$oldWorkDays[$day] : null,
+                                            'new_value_en' => (int)$hours,
+                                            'new_value_ar' => (int)$hours,
+                                        ];
+                                    }
+                                }
+                            } elseif ($key === 'region') {
+                                // Retrieve the region name from the Region model
+                                $oldRegion = Region::find($oldStoreData[$key]);
+                                $oldRegionNameEn = $oldRegion ? $oldRegion->region_en : null;
+                                $oldRegionNameAr = $oldRegion ? $oldRegion->region_ar : null;
+                
+                                $newRegion = Region::find($value);
+                                $newRegionNameEn = $newRegion ? $newRegion->region_en : null;
+                                $newRegionNameAr = $newRegion ? $newRegion->region_ar : null;
+                
                                 // Add the difference to the list
+                                $differences[] = [
+                                    'attribute_name_en' => $attributeTranslationEn,
+                                    'attribute_name_ar' => $attributeTranslationAr,
+                                    'attribute' => $key,
+                                    'old_value' => $oldStoreData[$key],
+                                    'new_value' => $value,
+                                    'old_value_en' => $oldRegionNameEn !== null ? $oldRegionNameEn : null,
+                                    'old_value_ar' => $oldRegionNameAr !== null ? $oldRegionNameAr : null,
+                                    'new_value_en' => $newRegionNameEn !== null ? $newRegionNameEn : null,
+                                    'new_value_ar' => $newRegionNameAr !== null ? $newRegionNameAr : null,
+                                ];
+                            } else {
+                                // For attributes other than "work_days" and "region", directly compare the values
                                 $differences[] = [
                                     'attribute_name_en' => $attributeTranslationEn,
                                     'attribute_name_ar' => $attributeTranslationAr,
@@ -1150,7 +1150,7 @@ class UserController extends Controller
                         }
                     }
                 }
-                
+                                
 
 
                 // Add differences to the formatted array
