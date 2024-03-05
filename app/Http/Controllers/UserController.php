@@ -1114,12 +1114,12 @@ class UserController extends Controller
                         } elseif ($key === 'region') {
                             // Retrieve the region name from the Region model
                             $oldRegion = Region::find($oldStoreData[$key]);
-                            $oldRegionNameEn = $oldRegion ? $oldRegion->region_en : null;
-                            $oldRegionNameAr = $oldRegion ? $oldRegion->region_ar : null;
+                            $oldRegionNameEn = $oldRegion->region_en;
+                            $oldRegionNameAr = $oldRegion->region_ar;
 
                             $newRegion = Region::find($value);
-                            $newRegionNameEn = $newRegion ? $newRegion->region_en : null;
-                            $newRegionNameAr = $newRegion ? $newRegion->region_ar : null;
+                            $newRegionNameEn = $newRegion->region_en ;
+                            $newRegionNameAr = $newRegion->region_ar ;
 
                             // Add the difference to the list
                             $differences[] = [
