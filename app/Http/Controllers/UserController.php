@@ -1104,39 +1104,51 @@ class UserController extends Controller
                                         'attribute_name_en' => $attributeTranslationEn . ' (' . $day . ')',
                                         'attribute_name_ar' => $attributeTranslationAr . ' (' . $day . ')',
                                         'attribute' => $key,
-                                        'old_value' => isset($oldWorkDays[$day]) ? $oldWorkDays[$day] : null,
-                                        'new_value' => $hours,
+                                        'old_value_en' => isset($oldWorkDays[$day]) ? $oldWorkDays[$day] : null,
+                                        'old_value_ar' => isset($oldWorkDays[$day]) ? $oldWorkDays[$day] : null,
+                                        'new_value_en' => $hours,
+                                        'new_value_ar' => $hours, // Adjust this if the Arabic translation is different
                                     ];
                                 }
                             }
-                        }elseif ($key === 'region') {
+                        } elseif ($key === 'region') {
                             // Retrieve the region name from the Region model
-                            $regionNameEn = Region::find($value)->region_en;
-                            $regionNameAr = Region::find($value)->region_ar;
-                
+                            $oldRegion = Region::find($oldStoreData[$key]);
+                            $oldRegionNameEn = $oldRegion ? $oldRegion->region_en : null;
+                            $oldRegionNameAr = $oldRegion ? $oldRegion->region_ar : null;
+
+                            $newRegion = Region::find($value);
+                            $newRegionNameEn = $newRegion ? $newRegion->region_en : null;
+                            $newRegionNameAr = $newRegion ? $newRegion->region_ar : null;
+
                             // Add the difference to the list
                             $differences[] = [
                                 'attribute_name_en' => $attributeTranslationEn,
                                 'attribute_name_ar' => $attributeTranslationAr,
                                 'attribute' => $key,
-                                'old_value' => $oldStoreData[$key],
-                                'new_value' => $regionNameEn, // Change this to $regionNameAr if needed
+                                'old_value_en' => $oldRegionNameEn,
+                                'old_value_ar' => $oldRegionNameAr,
+                                'new_value_en' => $newRegionNameEn,
+                                'new_value_ar' => $newRegionNameAr,
                             ];
                         } else {
-                            // For attributes other than "work_days", directly compare the values
+                            // For attributes other than "work_days" and "region", directly compare the values
                             if ($value != $oldStoreData[$key]) {
                                 // Add the difference to the list
                                 $differences[] = [
                                     'attribute_name_en' => $attributeTranslationEn,
                                     'attribute_name_ar' => $attributeTranslationAr,
                                     'attribute' => $key,
-                                    'old_value' => $oldStoreData[$key],
-                                    'new_value' => $value,
+                                    'old_value_en' => $oldStoreData[$key],
+                                    'old_value_ar' => $oldStoreData[$key],
+                                    'new_value_en' => $value,
+                                    'new_value_ar' => $value, // Adjust this if the Arabic translation is different
                                 ];
                             }
                         }
                     }
                 }
+
 
 
                 // Add differences to the formatted array
