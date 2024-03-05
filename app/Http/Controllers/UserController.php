@@ -1127,8 +1127,8 @@ class UserController extends Controller
                                 'attribute_name_ar' => $attributeTranslationAr,
                                 'attribute' => $key,
                                 'old_value' => $oldStoreData[$key],
-                                'old_value_en' => $oldRegionNameEn,
-                                'old_value_ar' => $oldRegionNameAr,
+                                'old_value_en' => $oldRegionNameEn !== null ? $oldRegionNameEn : null,
+                                'old_value_ar' => $oldRegionNameAr !== null ? $oldRegionNameAr : null,                
                                 'new_value_en' => $newRegionNameEn,
                                 'new_value_ar' => $newRegionNameAr,
                             ];
