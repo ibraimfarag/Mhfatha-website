@@ -1090,12 +1090,12 @@ class UserController extends Controller
                         // Compare the values
                         $attributeTranslationEn = $attributeTranslations[$key]['en'] ?? $key;
                         $attributeTranslationAr = $attributeTranslations[$key]['ar'] ?? $key;
-
+                
                         if ($key === 'work_days') {
                             // Decode the old and new work days from JSON
                             $oldWorkDays = json_decode($oldStoreData[$key], true);
                             $newWorkDays = json_decode($value, true);
-
+                
                             // Compare each day's work hours
                             foreach ($newWorkDays as $day => $hours) {
                                 if (!isset($oldWorkDays[$day]) || $oldWorkDays[$day] !== $hours) {
@@ -1104,10 +1104,8 @@ class UserController extends Controller
                                         'attribute_name_en' => $attributeTranslationEn . ' (' . $day . ')',
                                         'attribute_name_ar' => $attributeTranslationAr . ' (' . $day . ')',
                                         'attribute' => $key,
-                                        'old_value_en' => isset($oldWorkDays[$day]) ? $oldWorkDays[$day] : null,
-                                        'old_value_ar' => isset($oldWorkDays[$day]) ? $oldWorkDays[$day] : null,
-                                        'new_value_en' => $hours,
-                                        'new_value_ar' => $hours, // Adjust this if the Arabic translation is different
+                                        'old_value' => $oldWorkDays[$day] ?? null,
+                                        'new_value' => $hours,
                                     ];
                                 }
                             }
@@ -1116,21 +1114,19 @@ class UserController extends Controller
                             $oldRegion = Region::find($oldStoreData[$key]);
                             $oldRegionNameEn = $oldRegion->region_en;
                             $oldRegionNameAr = $oldRegion->region_ar;
-
+                
                             $newRegion = Region::find($value);
-                            $newRegionNameEn = $newRegion->region_en ;
-                            $newRegionNameAr = $newRegion->region_ar ;
-
+                            $newRegionNameEn = $newRegion->region_en;
+                            $newRegionNameAr = $newRegion->region_ar;
+                
                             // Add the difference to the list
                             $differences[] = [
                                 'attribute_name_en' => $attributeTranslationEn,
                                 'attribute_name_ar' => $attributeTranslationAr,
                                 'attribute' => $key,
-                                'old_value' => $oldStoreData[$key],
-                                'new_value' => $value,
-                                'old_value_en' => $oldRegionNameEn !== null ? $oldRegionNameEn : null,
-                                'old_value_ar' => $oldRegionNameAr !== null ? $oldRegionNameAr : null,                
-                                'new_value_en' => $newRegionNameEn,
+                                'old_value' => $oldRegionNameEn ?? null,
+                                'new_value' => $newRegionNameEn,
+                                'old_value_ar' => $oldRegionNameAr ?? null,
                                 'new_value_ar' => $newRegionNameAr,
                             ];
                         } else {
@@ -1141,16 +1137,14 @@ class UserController extends Controller
                                     'attribute_name_en' => $attributeTranslationEn,
                                     'attribute_name_ar' => $attributeTranslationAr,
                                     'attribute' => $key,
-                                    'old_value_en' => $oldStoreData[$key],
-                                    'old_value_ar' => $oldStoreData[$key],
-                                    'new_value_en' => $value,
-                                    'new_value_ar' => $value, // Adjust this if the Arabic translation is different
+                                    'old_value' => $oldStoreData[$key],
+                                    'new_value' => $value,
                                 ];
                             }
                         }
                     }
                 }
-
+                
 
 
                 // Add differences to the formatted array
