@@ -1061,46 +1061,54 @@ class UserController extends Controller
             $typeNameEn = isset($typeNames[$request->type]['en']) ? $typeNames[$request->type]['en'] : $request->type;
             $typeNameAr = isset($typeNames[$request->type]['ar']) ? $typeNames[$request->type]['ar'] : $request->type;
 
-            $newStoreData = json_decode($request->data, true);
-
-            // Get the old store data from the database
-            $oldStore = Store::find($request->store_id);
-            $oldStoreData = $oldStore->toArray();
+            if ($request->type == 'update_store') {
+                // Get the new store data from the JSON "data" column
+                $newStoreData = json_decode($request->data, true);
         
-            // Compare the attributes and identify differences
-            $differences = [];
-
-
-            foreach ($newStoreData as $key => $value) {
-                // Check if the attribute exists in the old data
-                if (array_key_exists($key, $oldStoreData)) {
-                    // Compare the values
-                    if ($value != $oldStoreData[$key]) {
-                        // Add the difference to the list
-                        $differences[] = [
-                            'attribute' => $key,
-                            'old_value' => $oldStoreData[$key],
-                            'new_value' => $value,
-                        ];
+                // Get the old store data from the database
+                $oldStore = Store::find($request->store_id);
+                $oldStoreData = $oldStore->toArray();
+        
+                // Compare the attributes and identify differences
+                $differences = [];
+                foreach ($newStoreData as $key => $value) {
+                    // Check if the attribute exists in the old data
+                    if (array_key_exists($key, $oldStoreData)) {
+                        // Compare the values
+                        if ($value != $oldStoreData[$key]) {
+                            // Add the difference to the list
+                            $differences[] = [
+                                'attribute' => $key,
+                                'old_value' => $oldStoreData[$key],
+                                'new_value' => $value,
+                            ];
+                        }
                     }
                 }
-            }
-
-
-            // Add formatted data to the array
-            $formattedRequests[] = [
-                'user_id' => $request->user_id,
-                'user_name' => $userName,
-                'store_id' => $request->store_id,
-                'store_name' => $storeName,
-                'type' => $request->type,
-                'type_name_en' => $typeNameEn,
-                'type_name_ar' => $typeNameAr,
-                'differences' => $differences,
-
-
-            ];
-        }
+        
+                // Add differences to the formatted array
+                $formattedRequests[] = [
+                    'user_id' => $request->user_id,
+                    'user_name' => $userName,
+                    'store_id' => $request->store_id,
+                    'store_name' => $storeName,
+                    'type' => $request->type,
+                    'type_name_en' => $typeNameEn,
+                    'type_name_ar' => $typeNameAr,
+                    'differences' => $differences,
+                ];
+            } else {
+                // If the request type is not "update_store," add basic information without comparisons
+                $formattedRequests[] = [
+                    'user_id' => $request->user_id,
+                    'user_name' => $userName,
+                    'store_id' => $request->store_id,
+                    'store_name' => $storeName,
+                    'type' => $request->type,
+                    'type_name_en' => $typeNameEn,
+                    'type_name_ar' => $typeNameAr,
+                ];
+            }        }
         $userDiscounts = UserDiscount::orderBy('id', 'desc')->get();
 
         // Prepare the response
