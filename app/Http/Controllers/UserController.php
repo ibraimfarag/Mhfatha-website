@@ -1104,7 +1104,7 @@ class UserController extends Controller
                                         'attribute_name_en' => $attributeTranslationEn . ' (' . $day . ')',
                                         'attribute_name_ar' => $attributeTranslationAr . ' (' . $day . ')',
                                         'attribute' => $key,
-                                        'old_value' => $oldWorkDays[$day] ?? null,
+                                        'old_value' => $oldWorkDays[$day],
                                         'new_value' => $hours,
                                     ];
                                 }
@@ -1112,21 +1112,23 @@ class UserController extends Controller
                         } elseif ($key === 'region') {
                             // Retrieve the region name from the Region model
                             $oldRegion = Region::find($oldStoreData[$key]);
-                            $oldRegionNameEn = $oldRegion->region_en;
-                            $oldRegionNameAr = $oldRegion->region_ar;
+                            $oldRegionNameEn = $oldRegion ? $oldRegion->region_en : null;
+                            $oldRegionNameAr = $oldRegion ? $oldRegion->region_ar : null;
                 
                             $newRegion = Region::find($value);
-                            $newRegionNameEn = $newRegion->region_en;
-                            $newRegionNameAr = $newRegion->region_ar;
+                            $newRegionNameEn = $newRegion ? $newRegion->region_en : null;
+                            $newRegionNameAr = $newRegion ? $newRegion->region_ar : null;
                 
                             // Add the difference to the list
                             $differences[] = [
                                 'attribute_name_en' => $attributeTranslationEn,
                                 'attribute_name_ar' => $attributeTranslationAr,
                                 'attribute' => $key,
-                                'old_value' => $oldRegionNameEn ?? null,
-                                'new_value' => $newRegionNameEn,
-                                'old_value_ar' => $oldRegionNameAr ?? null,
+                                'old_value' => intval($oldStoreData[$key]),
+                                'new_value' => intval($value),
+                                'old_value_en' => $oldRegionNameEn,
+                                'old_value_ar' => $oldRegionNameAr,                
+                                'new_value_en' => $newRegionNameEn,
                                 'new_value_ar' => $newRegionNameAr,
                             ];
                         } else {
@@ -1137,8 +1139,8 @@ class UserController extends Controller
                                     'attribute_name_en' => $attributeTranslationEn,
                                     'attribute_name_ar' => $attributeTranslationAr,
                                     'attribute' => $key,
-                                    'old_value' => $oldStoreData[$key],
-                                    'new_value' => $value,
+                                    'old_value' => is_numeric($oldStoreData[$key]) ? intval($oldStoreData[$key]) : $oldStoreData[$key],
+                                    'new_value' => is_numeric($value) ? intval($value) : $value,
                                 ];
                             }
                         }
