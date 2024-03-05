@@ -1061,6 +1061,31 @@ class UserController extends Controller
             $typeNameEn = isset($typeNames[$request->type]['en']) ? $typeNames[$request->type]['en'] : $request->type;
             $typeNameAr = isset($typeNames[$request->type]['ar']) ? $typeNames[$request->type]['ar'] : $request->type;
 
+            $newStoreData = json_decode($request->data, true);
+
+            // Get the old store data from the database
+            $oldStore = Store::find($request->store_id);
+            $oldStoreData = $oldStore->toArray();
+        
+            // Compare the attributes and identify differences
+            $differences = [];
+
+
+            foreach ($newStoreData as $key => $value) {
+                // Check if the attribute exists in the old data
+                if (array_key_exists($key, $oldStoreData)) {
+                    // Compare the values
+                    if ($value != $oldStoreData[$key]) {
+                        // Add the difference to the list
+                        $differences[] = [
+                            'attribute' => $key,
+                            'old_value' => $oldStoreData[$key],
+                            'new_value' => $value,
+                        ];
+                    }
+                }
+            }
+
 
             // Add formatted data to the array
             $formattedRequests[] = [
@@ -1071,6 +1096,9 @@ class UserController extends Controller
                 'type' => $request->type,
                 'type_name_en' => $typeNameEn,
                 'type_name_ar' => $typeNameAr,
+                'differences' => $differences,
+
+
             ];
         }
         $userDiscounts = UserDiscount::orderBy('id', 'desc')->get();
