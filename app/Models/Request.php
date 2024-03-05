@@ -17,4 +17,8 @@ class Request extends Model
     {
         return $this->belongsTo(User::class, 'user_id'); // Assuming user_id is the foreign key in the requests table
     }
+    public function store()
+    {
+        return $this->belongsTo(Store::class, 'store_id'); // Assuming store_id is the foreign key in the requests table
+    }
 }
