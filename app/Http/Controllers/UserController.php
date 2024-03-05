@@ -1028,7 +1028,7 @@ class UserController extends Controller
         $users = User::all();
         $stores = Store::all();
         // Fetch all requests with approved status as 0
-        $requests = Request::where('approved', 0)->get();
+        $requests = Requests::where('approved', 0)->get();
 
         // Initialize an empty array to store formatted data
         $formattedRequests = [];
