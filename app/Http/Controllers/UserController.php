@@ -1059,7 +1059,7 @@ class UserController extends Controller
             'tax_number' => ['en' => 'Commercial Registration No', 'ar' => 'السجل التجاري'],
             'work_days' => ['en' => 'Work Days', 'ar' => 'أيام العمل'],
             'region' => ['en' => 'Region', 'ar' => 'المنطقة'],
-            'category _id' => ['en' => 'category', 'ar' => 'الفئة'],
+            'category_id' => ['en' => 'category', 'ar' => 'الفئة'],
             'latitude' => ['en' => 'Latitude', 'ar' => 'خط العرض'],
             'longitude' => ['en' => 'Longitude', 'ar' => 'خط الطول'],
         ];
