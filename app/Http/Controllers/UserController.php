@@ -1155,6 +1155,7 @@ class UserController extends Controller
 
                 // Add differences to the formatted array
                 $formattedRequests[] = [
+                    'id' => $request->id,
                     'user_id' => $request->user_id,
                     'user_name' => $userName,
                     'store_id' => $request->store_id,
@@ -1167,6 +1168,7 @@ class UserController extends Controller
             } else {
                 // If the request type is not "update_store," add basic information without comparisons
                 $formattedRequests[] = [
+                    'id' => $request->id,
                     'user_id' => $request->user_id,
                     'user_name' => $userName,
                     'store_id' => $request->store_id,
