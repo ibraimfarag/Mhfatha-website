@@ -190,8 +190,8 @@ class RequestsController extends Controller
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
     
         // Set the path to your JSON file with the GOOGLE_APPLICATION_CREDENTIALS environment variable
-        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . base_path('public/firebase/fcm.json'));
-        $client->setApprovalPrompt('force');
+        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . base_path('public/firebase/mhfaata.json'));
+        // $client->setApprovalPrompt('force');
 
 
         // Use application default credentials
