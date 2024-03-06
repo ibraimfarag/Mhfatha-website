@@ -175,7 +175,7 @@ class RequestsController extends Controller
         $client = new \Google_Client();
     
         // Set the authentication configuration using the provided JSON data
-        $client->setAuthConfig('firebase/fcm.json');
+        $client->setAuthConfig('https://mhfatha.net/firebase/fcm.json');
     
         // Add the necessary scope for Firebase Messaging
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
