@@ -22,9 +22,7 @@ use Illuminate\Validation\ValidationException;
 use App\Models\Discount;
 use App\Models\Request as StoreRequest;
 use Carbon\Carbon;
-use Google;
-use Google_Service_Indexing;
-use Google_Service_Indexing_UrlNotification;
+use Illuminate\Support\Facades\Http;
 
 class RequestsController extends Controller
 {
@@ -223,33 +221,51 @@ class RequestsController extends Controller
         // Convert the payload to JSON
         $payload = json_encode($payload);
 
-        // Initialize a cURL session
-        $ch = curl_init();
+        // // Initialize a cURL session
+        // $ch = curl_init();
 
-        // Set the cURL options
-        curl_setopt($ch, CURLOPT_URL, $apiUrl);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        // // Set the cURL options
+        // curl_setopt($ch, CURLOPT_URL, $apiUrl);
+        // curl_setopt($ch, CURLOPT_POST, true);
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        // curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
 
-        // Execute the cURL request
-        $response = curl_exec($ch);
+        // // Execute the cURL request
+        // $response = curl_exec($ch);
+
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer '.$accessToken,
+        ])->post('https://fcm.googleapis.com/v1/projects/mhfaata/messages:send', [
+            'message' => [
+                'token' =>$user->device_token,
+                'notification' => [
+                    'body' => 'notificationBody',
+                    'title' => 'heloo',
+                ],
+            ],
+        ]);
+
 
         // Check for errors
-        if ($response === false) {
-            return response()->json(['error' => curl_error($ch)], 500);
-        }
+        // if ($response === false) {
+        //     return response()->json(['error' => curl_error($ch)], 500);
+        // }
 
         // Close the cURL session
-        curl_close($ch);
+        // curl_close($ch);
 
         // Return a JSON response indicating that the notification has been sent
-        return response()->json([
-            'message' => 'Notification has been sent',
-            'access_token' => $accessToken
-        ]);
+        // return response()->json([
+        //     'message' => 'Notification has been sent',
+        //     'access_token' => $accessToken,
+        //     'response'=> $response
+        // ]);
+        return $response->json();
+
     }
 }
 
