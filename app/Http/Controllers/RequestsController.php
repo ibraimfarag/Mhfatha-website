@@ -22,6 +22,9 @@ use Illuminate\Validation\ValidationException;
 use App\Models\Discount;
 use App\Models\Request as StoreRequest;
 use Carbon\Carbon;
+use Google;
+use Google_Service_Indexing;
+use Google_Service_Indexing_UrlNotification;
 
 class RequestsController extends Controller
 {
@@ -169,62 +172,62 @@ class RequestsController extends Controller
     }
     public function sendPushNotification(Request $request)
     {
-
-
-
         // Initialize a new Google_Client
         $client = new \Google\Client();
 
         // Set the authentication configuration using the provided JSON data
-        $client->setAuthConfig(base_path('public/firebase/mhfaata.json'));
+        $client->setAuthConfig(public_path('firebase/mhfaata.json'));
 
         // Add the necessary scope for Firebase Messaging
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
-
-        // Set the path to your JSON file with the GOOGLE_APPLICATION_CREDENTIALS environment variable
-        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . base_path('public/firebase/mhfaata.json'));
-        // $client->setApprovalPrompt('force');
-
 
         // Use application default credentials
         $client->useApplicationDefaultCredentials();
 
         // Get the URL for sending messages to FCM
-        $apiurl = 'https://fcm.googleapis.com/v1/projects/mhfaata/messages:send';
+        $apiUrl = 'https://fcm.googleapis.com/v1/projects/mhfaata/messages:send';
 
         // Obtain an access token
         $client->fetchAccessTokenWithAssertion();
 
         // Get the access token
-        $access_token = $client->getAccessToken()['access_token'];
+        $accessToken = $client->getAccessToken()['access_token'];
 
         // Set the request headers
         $headers = [
-            "Authorization: Bearer $access_token",
+            "Authorization: Bearer $accessToken",
             'Content-Type: application/json'
         ];
+
         // Prepare the test data for the notification
-        $test_data = [
+        $notificationData = [
             "title" => "TITLE_HERE",
             "description" => "DESCRIPTION_HERE",
         ];
 
-        // Construct the payload data
-        $data['data'] =  $test_data;
-        $user = User::where('id', 21)->first();
-        $data['token'] = $user['device_token'];  // Retrieve the FCM token from the users table
+        // Find the user from database (Replace this with your actual logic)
+        $user = User::find($request->user_id);
 
-        // Construct the payload for the FCM message
-        $payload['message'] = $data;
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        // Construct the payload data
+        $payload = [
+            'message' => [
+                'token' => $user->device_token, // Retrieve the FCM token from the users table
+                'data' => $notificationData,
+            ]
+        ];
+
+        // Convert the payload to JSON
         $payload = json_encode($payload);
 
-        // $testv = $data['token'];
-        
         // Initialize a cURL session
         $ch = curl_init();
 
         // Set the cURL options
-        curl_setopt($ch, CURLOPT_URL, $apiurl);
+        curl_setopt($ch, CURLOPT_URL, $apiUrl);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -232,14 +235,20 @@ class RequestsController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
 
         // Execute the cURL request
-        curl_exec($ch);
+        $response = curl_exec($ch);
+
+        // Check for errors
+        if ($response === false) {
+            return response()->json(['error' => curl_error($ch)], 500);
+        }
 
         // Close the cURL session
         curl_close($ch);
 
         // Return a JSON response indicating that the notification has been sent
         return response()->json([
-            'message' => 'Notification has been sent'
+            'message' => 'Notification has been sent',
+            'access_token' => $accessToken
         ]);
     }
 }
