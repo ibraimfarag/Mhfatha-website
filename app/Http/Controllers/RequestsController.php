@@ -72,6 +72,8 @@ class RequestsController extends Controller
                         $store->region = $storeData['region'];
 
                         // Update other attributes accordingly
+                        $request->approved = 1;
+                        $request->save();
 
                         // Save the changes
                         $store->save();
@@ -100,6 +102,8 @@ class RequestsController extends Controller
 
                         // Save the changes
                         $discount->save();
+                        $request->approved = 1;
+                        $request->save();
 
                         return response()->json(['message' => 'Discount deleted successfully']);
                     } else {
@@ -115,7 +119,8 @@ class RequestsController extends Controller
                     if ($store) {
                         // Set the verification column to 1 for the approved store
                         $store->verifcation = 1;
-
+                        $request->approved = 1;
+                        $request->save();
                         // Save the changes
                         $store->save();
 
