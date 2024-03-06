@@ -206,7 +206,7 @@ class RequestsController extends Controller
         ];
 
         // Find the user from database (Replace this with your actual logic)
-        $user = User::find($request->user_id);
+        $user = User::where('id', 21)->first();
 
         if (!$user) {
             return response()->json(['error' => 'User not found'], 404);
