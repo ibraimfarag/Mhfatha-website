@@ -236,10 +236,16 @@ class RequestsController extends Controller
     
     private function getUserByRecipientIdentifier($identifier)
     {
-        // Implement logic to find the user based on the provided identifier (ID, email, or mobile)
-        // For example:
-        $user = User::where('email', $identifier)->orWhere('mobile', $identifier)->orWhere('id', $identifier)->first();
-        // Replace this with your actual logic
+        // Check if the identifier is a numeric value (assuming it's an ID)
+        if (is_numeric($identifier)) {
+            // Search for the user by ID
+            $user = User::find($identifier);
+        } else {
+            // Search for the user by email or mobile
+            $user = User::where('email', $identifier)->orWhere('mobile', $identifier)->first();
+        }
+    
+        return $user;
     }
     
     private function sendNotificationToUsers($users, $accessToken, $apiUrl, $body, $title)
