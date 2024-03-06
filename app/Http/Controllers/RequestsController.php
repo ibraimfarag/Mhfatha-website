@@ -168,149 +168,111 @@ class RequestsController extends Controller
             return response()->json(['message' => 'Invalid action'], 400);
         }
     }
-    public function sendPushNotification(Request $request)
+    public function sendNotification(Request $request)
     {
+        // Retrieve action, body, title, and recipient information from the request body
+        $action = $request->input('action');
+        $body = $request->input('body');
+        $title = $request->input('title');
+        $recipientIdentifier = $request->input('recipient_identifier'); // This could be user ID, email, or mobile
+    
         // Initialize a new Google_Client
         $client = new \Google\Client();
-
+    
         // Set the authentication configuration using the provided JSON data
         $client->setAuthConfig(public_path('firebase/mhfaata.json'));
-
+    
         // Add the necessary scope for Firebase Messaging
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
-
+    
         // Use application default credentials
         $client->useApplicationDefaultCredentials();
-
+    
         // Get the URL for sending messages to FCM
         $apiUrl = 'https://fcm.googleapis.com/v1/projects/mhfaata/messages:send';
-
+    
         // Obtain an access token
         $client->fetchAccessTokenWithAssertion();
-
+    
         // Get the access token
         $accessToken = $client->getAccessToken()['access_token'];
-
-        // Set the request headers
-        $headers = [
-            "Authorization: Bearer $accessToken",
-            'Content-Type: application/json'
-        ];
-
-        // Prepare the test data for the notification
-        $notificationData = [
-            "title" => "TITLE_HERE",
-            "description" => "DESCRIPTION_HERE",
-        ];
-
-        // Find the user from database (Replace this with your actual logic)
-        $user = User::where('id', 21)->first();
-
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
+    
+        // Initialize response variable
+        $response = null;
+    
+        // Select the case based on the provided action
+        switch ($action) {
+            case 'sendToUser':
+                // Find the user based on the provided identifier (ID, email, or mobile)
+                $user = $this->getUserByRecipientIdentifier($recipientIdentifier);
+    
+                if (!$user) {
+                    return response()->json(['error' => 'User not found'], 404);
+                }
+    
+                $response = $this->sendNotificationToUser($user, $accessToken, $apiUrl, $body, $title);
+                break;
+    
+            case 'sendByFilters':
+                // Get users based on filters
+                $filteredUsers = User::where('gender', $request->input('gender'))
+                                     ->where('birthday', $request->input('birthday'))
+                                     ->where('region', $request->input('region'))
+                                     ->where('is_vendor', $request->input('is_vendor'))
+                                     ->where('is_admin', $request->input('is_admin'))
+                                     ->where('platform', $request->input('platform'))
+                                     ->get();
+    
+                $response = $this->sendNotificationToUsers($filteredUsers, $accessToken, $apiUrl, $body, $title);
+                break;
+    
+            default:
+                return response()->json(['error' => 'Invalid action'], 400);
         }
-
-        // Construct the payload data
-        $payload = [
-            'message' => [
-                'token' => $user->device_token, // Retrieve the FCM token from the users table
-                'data' => $notificationData,
-            ]
-        ];
-
-        // Convert the payload to JSON
-        $payload = json_encode($payload);
-
-        // // Initialize a cURL session
-        // $ch = curl_init();
-
-        // // Set the cURL options
-        // curl_setopt($ch, CURLOPT_URL, $apiUrl);
-        // curl_setopt($ch, CURLOPT_POST, true);
-        // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        // curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-
-        // // Execute the cURL request
-        // $response = curl_exec($ch);
-
-
+    
+        // Return the response
+        return $response;
+    }
+    
+    private function getUserByRecipientIdentifier($identifier)
+    {
+        // Implement logic to find the user based on the provided identifier (ID, email, or mobile)
+        // For example:
+        $user = User::where('email', $identifier)->orWhere('mobile', $identifier)->orWhere('id', $identifier)->first();
+        // Replace this with your actual logic
+    }
+    
+    private function sendNotificationToUsers($users, $accessToken, $apiUrl, $body, $title)
+    {
+        $responses = [];
+    
+        foreach ($users as $user) {
+            $response = $this->sendNotificationToUser($user, $accessToken, $apiUrl, $body, $title);
+            $responses[] = $response;
+        }
+    
+        return $responses;
+    }
+    
+    private function sendNotificationToUser($user, $accessToken, $apiUrl, $body, $title)
+    {
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer '.$accessToken,
-        ])->post('https://fcm.googleapis.com/v1/projects/mhfaata/messages:send', [
+            'Authorization' => 'Bearer ' . $accessToken,
+        ])->post($apiUrl, [
             'message' => [
-                'token' =>$user->device_token,
+                'token' => $user->device_token,
                 'notification' => [
-                    'body' => 'notificationBody',
-                    'title' => 'heloo',
+                    'body' => $body,
+                    'title' => $title,
                 ],
             ],
         ]);
-
-
-        // Check for errors
-        // if ($response === false) {
-        //     return response()->json(['error' => curl_error($ch)], 500);
-        // }
-
-        // Close the cURL session
-        // curl_close($ch);
-
-        // Return a JSON response indicating that the notification has been sent
-        // return response()->json([
-        //     'message' => 'Notification has been sent',
-        //     'access_token' => $accessToken,
-        //     'response'=> $response
-        // ]);
-        return $response->json();
-
+    
+        return $response;
     }
+            
+                
 }
 
 
-
-// $credentialsFilePath = "firebase/fcm.json";
-// $client = new \Google_Client();
-// $client->setAuthConfig($credentialsFilePath);
-// $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
-// $apiurl = 'https://fcm.googleapis.com/v1/projects/<PROJECT_ID>/messages:send';
-// $client->refreshTokenWithAssertion();
-// $token = $client->getAccessToken();
-// $access_token = $token['access_token'];
-
-// $headers = [
-//      "Authorization: Bearer $access_token",
-//      'Content-Type: application/json'
-// ];
-// $test_data = [
-//     "title" => "TITLE_HERE",
-//     "description" => "DESCRIPTION_HERE",
-// ]; 
-
-// $data['data'] =  $test_data;
-
-// $user = User::find('21');
-// $data['token'] = $user->device_token;
-
-// $payload['message'] = $data;
-// $payload = json_encode($payload);
-// $ch = curl_init();
-// curl_setopt($ch, CURLOPT_URL, $apiurl);
-// curl_setopt($ch, CURLOPT_POST, true);
-// curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-// curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-// curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-// curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-// curl_exec($ch);
-// $res = curl_close($ch);
-// if($res){
-//     return response()->json([
-//                   'message' => 'Notification has been Sent'
-//            ]);
-// }
-
-
-// base_path('public/firebase/mhfaata.json')
-// putenv('GOOGLE_APPLICATION_CREDENTIALS=' . base_path('public/firebase/mhfaata.json'));
