@@ -171,6 +171,7 @@ class RequestsController extends Controller
         // Load the JSON service account credentials
         $jsonKey = [
             'web' => [
+                "type" => "service_account",
                 'client_id' => '197190218958-2416ottf4hmh9abkgmafe52sni2g2p1m.apps.googleusercontent.com',
                 'project_id' => 'mhfaata',
                 'auth_uri' => 'https://accounts.google.com/o/oauth2/auth',
