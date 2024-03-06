@@ -226,7 +226,7 @@ class RequestsController extends Controller
         // Construct the payload for the FCM message
         $payload['message'] = $data;
         $payload = json_encode($payload);
-    
+    dd($data['token'] );
         // Initialize a cURL session
         $ch = curl_init();
     
