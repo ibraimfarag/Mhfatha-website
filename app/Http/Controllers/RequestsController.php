@@ -148,13 +148,13 @@ class RequestsController extends Controller
                 default:
                     return response()->json(['message' => 'Unsupported request type'], 400);
             }
-            $request->approved = true;
+            $request->approved = 1;
             $request->save();
             return response()->json(['message' => 'Request approved successfully']);
         }  elseif ($action === '2') {
             // Not approve the request
             // You can perform additional actions here if needed
-            $request->approved = false;
+            $request->approved = 2;
             $request->save();
             return response()->json(['message' => 'Request not approved']);
         } else {
