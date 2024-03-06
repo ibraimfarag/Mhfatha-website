@@ -170,77 +170,52 @@ class RequestsController extends Controller
     public function sendPushNotification(Request $request)
     {
 
-
-
-        // Initialize a new Google_Client
-        $client = new \Google\Client();
-
-        // Set the authentication configuration using the provided JSON data
-        $client->setAuthConfig(base_path('public/firebase/mhfaata.json'));
-
-        // Add the necessary scope for Firebase Messaging
+        // $credentialsFilePath = public_path('firebase/mhfaata.json');
+        $client = new \Google_Client();
+        $client->setAuthConfig(public_path('firebase/mhfaata.json'));
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
-
-        // Set the path to your JSON file with the GOOGLE_APPLICATION_CREDENTIALS environment variable
-        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . base_path('public/firebase/mhfaata.json'));
-        // $client->setApprovalPrompt('force');
-
-
-        // Use application default credentials
-        $client->useApplicationDefaultCredentials();
-
-        // Get the URL for sending messages to FCM
         $apiurl = 'https://fcm.googleapis.com/v1/projects/mhfaata/messages:send';
-
-        // Obtain an access token
-        $client->fetchAccessTokenWithAssertion();
-
-        // Get the access token
-        $access_token = $client->getAccessToken()['access_token'];
-
-        // Set the request headers
+        $client->refreshTokenWithAssertion();
+        $token = $client->getAccessToken();
+        $access_token = $token['access_token'];
+        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . public_path('firebase/mhfaata.json'));
         $headers = [
-            "Authorization: Bearer $access_token",
-            'Content-Type: application/json'
+             "Authorization: Bearer $access_token",
+             'Content-Type: application/json'
         ];
-
-        // Prepare the test data for the notification
         $test_data = [
             "title" => "TITLE_HERE",
             "description" => "DESCRIPTION_HERE",
-        ];
-
-        // Construct the payload data
+        ]; 
+        
         $data['data'] =  $test_data;
+        
         $user = User::find('21');
-        $data['token'] = $user->device_token; // Retrieve the FCM token from the users table
-
-        // Construct the payload for the FCM message
+        $data['token'] = $user->device_token;
+        
         $payload['message'] = $data;
         $payload = json_encode($payload);
-
-        // $testv = $data['token'];
-        
-        // Initialize a cURL session
         $ch = curl_init();
-
-        // Set the cURL options
         curl_setopt($ch, CURLOPT_URL, $apiurl);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-
-        // Execute the cURL request
         curl_exec($ch);
-
-        // Close the cURL session
-        curl_close($ch);
-
-        // Return a JSON response indicating that the notification has been sent
-        return response()->json([
-            'message' => 'Notification has been sent'
-        ]);
+        $res = curl_close($ch);
+        if($res){
+            return response()->json([
+                          'message' => 'Notification has been Sent'
+                   ]);
+        }
+        
     }
 }
+
+
+
+
+
+// base_path('public/firebase/mhfaata.json')
+// putenv('GOOGLE_APPLICATION_CREDENTIALS=' . base_path('public/firebase/mhfaata.json'));
