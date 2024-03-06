@@ -168,8 +168,7 @@ class RequestsController extends Controller
         }
     }
     public function sendPushNotification(Request $request){
-        // require_once 'vendor/autoload.php';
-    
+        // Load the JSON service account credentials
         $jsonKey = [
             'web' => [
                 'client_id' => '197190218958-2416ottf4hmh9abkgmafe52sni2g2p1m.apps.googleusercontent.com',
@@ -182,7 +181,7 @@ class RequestsController extends Controller
         ];
     
         // Initialize a new Google_Client
-        $client = new \Google_Client();
+        $client = new \Google\Client();
     
         // Set the authentication configuration using the provided JSON data
         $client->setAuthConfig($jsonKey);
@@ -191,9 +190,9 @@ class RequestsController extends Controller
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
     
         // Set the path to your JSON file with the GOOGLE_APPLICATION_CREDENTIALS environment variable
-        // This assumes you've downloaded the JSON file and set the environment variable
-        // For example, in your terminal: export GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/json/file.json
-        // Make sure to replace '/path/to/your/json/file.json' with the actual path to your JSON file
+        putenv('GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/json/file.json');
+    
+        // Use application default credentials
         $client->useApplicationDefaultCredentials();
     
         // Get the URL for sending messages to FCM
