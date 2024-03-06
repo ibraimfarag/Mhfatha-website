@@ -169,14 +169,14 @@ class RequestsController extends Controller
     }
     public function sendPushNotification(Request $request){
 
-        // Set the path to your JSON file containing Firebase Cloud Messaging (FCM) credentials
-        $credentialsFilePath = "firebase/fcm.json";
+        // JSON data containing Firebase Cloud Messaging (FCM) credentials
+        $credentialsJson = '{"web":{"client_id":"197190218958-2416ottf4hmh9abkgmafe52sni2g2p1m.apps.googleusercontent.com","project_id":"mhfaata","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"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"}}';
     
         // Initialize a new Google_Client
         $client = new \Google_Client();
     
-        // Set the authentication configuration using the provided credentials file
-        $client->setAuthConfig($credentialsFilePath);
+        // Set the authentication configuration using the provided JSON data
+        $client->setAuthConfig(json_decode($credentialsJson, true));
     
         // Add the necessary scope for Firebase Messaging
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
@@ -233,6 +233,5 @@ class RequestsController extends Controller
             'message' => 'Notification has been sent'
         ]);
     }
-    
-    
+        
 }
