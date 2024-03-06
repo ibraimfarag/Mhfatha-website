@@ -222,14 +222,14 @@ class RequestsController extends Controller
         // Construct the payload data
         $data['data'] =  $test_data;
         $user = User::find('18');
-        $data['token'] = $user['device_token']; // Retrieve the FCM token from the users table
+        $data['token'] = $user->device_token; // Retrieve the FCM token from the users table
 
         // Construct the payload for the FCM message
         $payload['message'] = $data;
         $payload = json_encode($payload);
 
-        $testv = $data['token'];
-        dd($testv);
+        // $testv = $data['token'];
+        
         // Initialize a cURL session
         $ch = curl_init();
 
