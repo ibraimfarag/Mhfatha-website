@@ -170,7 +170,6 @@ class RequestsController extends Controller
     public function sendPushNotification(Request $request)
     {
 
-        // $credentialsFilePath = public_path('firebase/mhfaata.json');
         $client = new \Google_Client();
         $client->setAuthConfig(public_path('firebase/mhfaata.json'));
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
@@ -178,7 +177,6 @@ class RequestsController extends Controller
         $client->refreshTokenWithAssertion();
         $token = $client->getAccessToken();
         $access_token = $token['access_token'];
-        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . public_path('firebase/mhfaata.json'));
         $headers = [
              "Authorization: Bearer $access_token",
              'Content-Type: application/json'
@@ -191,7 +189,8 @@ class RequestsController extends Controller
         $data['data'] =  $test_data;
         
         $user = User::find('21');
-        $data['token'] = $user->device_token;
+        $userToken=  $user->device_token;
+        $data['token'] = $user['device_token'];
         
         $payload['message'] = $data;
         $payload = json_encode($payload);
