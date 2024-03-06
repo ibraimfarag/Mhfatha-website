@@ -170,7 +170,7 @@ class RequestsController extends Controller
 
     public function sendPushNotification(Request $request){
 
-        $credentialsFilePath = public_path("firebase/fcm.json");
+        $credentialsFilePath = "firebase/fcm.json";
         $client = new \Google_Client();
         $client->setAuthConfig($credentialsFilePath);
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
