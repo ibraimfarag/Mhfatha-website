@@ -212,19 +212,40 @@ class RequestsController extends Controller
     
                 $response = $this->sendNotificationToUser($user, $accessToken, $apiUrl, $body, $title);
                 break;
-    
-            case 'sendByFilters':
-                // Get users based on filters
-                $filteredUsers = User::where('gender', $request->input('gender'))
-                                     ->where('birthday', $request->input('birthday'))
-                                     ->where('region', $request->input('region'))
-                                     ->where('is_vendor', $request->input('is_vendor'))
-                                     ->where('is_admin', $request->input('is_admin'))
-                                     ->where('platform', $request->input('platform'))
-                                     ->get();
-    
-                $response = $this->sendNotificationToUsers($filteredUsers, $accessToken, $apiUrl, $body, $title);
-                break;
+                
+                case 'sendByFilters':
+                    // Get users based on filters
+                    $filteredUsersQuery = User::query();
+        
+                    if ($request->has('gender')) {
+                        $filteredUsersQuery->where('gender', $request->input('gender'));
+                    }
+        
+                    if ($request->has('birthday')) {
+                        $filteredUsersQuery->where('birthday', $request->input('birthday'));
+                    }
+        
+                    if ($request->has('region')) {
+                        $filteredUsersQuery->where('region', $request->input('region'));
+                    }
+        
+                    if ($request->has('is_vendor')) {
+                        $filteredUsersQuery->where('is_vendor', $request->input('is_vendor'));
+                    }
+        
+                    if ($request->has('is_admin')) {
+                        $filteredUsersQuery->where('is_admin', $request->input('is_admin'));
+                    }
+        
+                    if ($request->has('platform')) {
+                        $filteredUsersQuery->where('platform', $request->input('platform'));
+                    }
+        
+                    $filteredUsers = $filteredUsersQuery->get();
+        
+                    $response = $this->sendNotificationToUsers($filteredUsers, $accessToken, $apiUrl, $body, $title);
+                    break;
+        
     
             default:
                 return response()->json(['error' => 'Invalid action'], 400);
