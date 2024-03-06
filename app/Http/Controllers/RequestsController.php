@@ -167,48 +167,72 @@ class RequestsController extends Controller
             return response()->json(['message' => 'Invalid action'], 400);
         }
     }
-
     public function sendPushNotification(Request $request){
 
+        // Set the path to your JSON file containing Firebase Cloud Messaging (FCM) credentials
         $credentialsFilePath = "firebase/fcm.json";
+    
+        // Initialize a new Google_Client
         $client = new \Google_Client();
-        $client->setAuthConfig("firebase/fcm.json");
+    
+        // Set the authentication configuration using the provided credentials file
+        $client->setAuthConfig($credentialsFilePath);
+    
+        // Add the necessary scope for Firebase Messaging
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
+    
+        // Get the URL for sending messages to FCM
         $apiurl = 'https://fcm.googleapis.com/v1/projects/mhfaata/messages:send';
-        $client->refreshTokenWithAssertion();
-        $token = $client->getAccessToken();
-        $access_token = $token['access_token'];
-        
+    
+        // Obtain an access token
+        $client->fetchAccessTokenWithAssertion();
+    
+        // Get the access token
+        $access_token = $client->getAccessToken()['access_token'];
+    
+        // Set the request headers
         $headers = [
-             "Authorization: Bearer $access_token",
-             'Content-Type: application/json'
+            "Authorization: Bearer $access_token",
+            'Content-Type: application/json'
         ];
+    
+        // Prepare the test data for the notification
         $test_data = [
             "title" => "TITLE_HERE",
             "description" => "DESCRIPTION_HERE",
         ]; 
-        
+    
+        // Construct the payload data
         $data['data'] =  $test_data;
         $user = User::find('18');
-
-        $data['token'] = $user['device_token']; // Retrive fcm_token from users table
+        $data['token'] = $user['device_token']; // Retrieve the FCM token from the users table
     
+        // Construct the payload for the FCM message
         $payload['message'] = $data;
         $payload = json_encode($payload);
+    
+        // Initialize a cURL session
         $ch = curl_init();
+    
+        // Set the cURL options
         curl_setopt($ch, CURLOPT_URL, $apiurl);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+    
+        // Execute the cURL request
         curl_exec($ch);
-        $res = curl_close($ch);
-        if($res){
-            return response()->json([
-                          'message' => 'Notification has been Sent'
-                   ]);
-        }
+    
+        // Close the cURL session
+        curl_close($ch);
+    
+        // Return a JSON response indicating that the notification has been sent
+        return response()->json([
+            'message' => 'Notification has been sent'
+        ]);
     }
+    
     
 }
