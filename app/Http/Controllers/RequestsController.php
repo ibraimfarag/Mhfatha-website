@@ -171,7 +171,6 @@ class RequestsController extends Controller
         // Load the JSON service account credentials
         $jsonKey = [
             'web' => [
-                "type" => "service_account",
                 'client_id' => '197190218958-2416ottf4hmh9abkgmafe52sni2g2p1m.apps.googleusercontent.com',
                 'project_id' => 'mhfaata',
                 'auth_uri' => 'https://accounts.google.com/o/oauth2/auth',
@@ -192,7 +191,9 @@ class RequestsController extends Controller
     
         // Set the path to your JSON file with the GOOGLE_APPLICATION_CREDENTIALS environment variable
         putenv('GOOGLE_APPLICATION_CREDENTIALS=' . base_path('public/firebase/fcm.json'));
-    
+        $client->setApprovalPrompt('force');
+
+
         // Use application default credentials
         $client->useApplicationDefaultCredentials();
     
