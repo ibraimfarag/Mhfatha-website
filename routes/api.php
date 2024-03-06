@@ -93,8 +93,9 @@ Route::middleware('auth:api')->group(
             Route::post('store/actions', [StoreController::class, 'manageStore']);
 
             Route::post('requests', [RequestsController::class, 'MyRequests']);
+            Route::post('sendnotification', [RequestsController::class, 'sendPushNotification']);
 
-            
+
         });
     }
 
