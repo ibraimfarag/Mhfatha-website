@@ -188,8 +188,7 @@ class RequestsController extends Controller
         
         $data['data'] =  $test_data;
         
-        $user = User::find('21');
-        $userToken=  $user->device_token;
+        $user = User::where('id', 21)->first();        $userToken=  $user->device_token;
         $data['token'] = $user['device_token'];
         
         $payload['message'] = $data;
