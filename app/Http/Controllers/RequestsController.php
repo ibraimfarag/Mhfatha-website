@@ -233,20 +233,26 @@ class RequestsController extends Controller
         // Return the response
         return $response;
     }
-    
     private function getUserByRecipientIdentifier($identifier)
     {
-        // Check if the identifier is a numeric value (assuming it's an ID)
-        if (is_numeric($identifier)) {
+        // Check if the identifier is numeric and has 10 digits (assuming it's a mobile number)
+        if (is_numeric($identifier) && strlen($identifier) == 10) {
+            // Search for the user by mobile number
+            $user = User::where('mobile', $identifier)->first();
+        } 
+        // Check if the identifier is numeric and less than 10 digits (assuming it's an ID)
+        elseif (is_numeric($identifier) && strlen($identifier) < 10) {
             // Search for the user by ID
             $user = User::find($identifier);
-        } else {
-            // Search for the user by email or mobile
-            $user = User::where('email', $identifier)->orWhere('mobile', $identifier)->first();
+        } 
+        else {
+            // Search for the user by email
+            $user = User::where('email', $identifier)->first();
         }
     
         return $user;
     }
+    
     
     private function sendNotificationToUsers($users, $accessToken, $apiUrl, $body, $title)
     {
