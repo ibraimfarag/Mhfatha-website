@@ -36,13 +36,13 @@ class RequestsController extends Controller
         if (!$requestId || !$action) {
             return response()->json(['message' => 'Request ID and action are required'], 400);
         }
-        
+
         $request = StoreRequest::find($requestId);
 
         if (!$request) {
             return response()->json(['message' => 'Request not found'], 404);
         }
-    
+
         // Check if the request is already approved or not
         if ($request->approved) {
             return response()->json(['message' => 'Request is already approved'], 400);
@@ -56,7 +56,7 @@ class RequestsController extends Controller
                     // Update the corresponding row in the "stores" table
                     $storeId = $request->store_id;
                     $store = Store::find($storeId);
-                    
+
                     if ($store) {
                         // Update store attributes using data from the "data" column
                         $storeData = json_decode($request->data, true);
@@ -94,7 +94,7 @@ class RequestsController extends Controller
                     // Retrieve the discount by ID
                     $discountId = $data['discount_id'];
                     $discount = Discount::find($discountId);
-                    
+
 
                     if ($discount) {
                         // Set is_deleted to 1
@@ -113,7 +113,7 @@ class RequestsController extends Controller
                 case 'create_store':
                     // Retrieve the store associated with the request
                     $store = Store::find($request->store_id);
-                    
+
 
                     // Check if the store exists
                     if ($store) {
@@ -132,7 +132,7 @@ class RequestsController extends Controller
                 case 'delete_store':
                     // Retrieve the store associated with the request
                     $store = Store::find($request->store_id);
-                    
+
 
                     // Check if the store exists
                     if ($store) {
@@ -156,7 +156,7 @@ class RequestsController extends Controller
             $request->approved = 1;
             $request->save();
             return response()->json(['message' => 'Request approved successfully']);
-        }  elseif ($action === '2') {
+        } elseif ($action === '2') {
             // Not approve the request
             // You can perform additional actions here if needed
             $request->approved = 2;
@@ -167,7 +167,8 @@ class RequestsController extends Controller
             return response()->json(['message' => 'Invalid action'], 400);
         }
     }
-    public function sendPushNotification(Request $request){
+    public function sendPushNotification(Request $request)
+    {
         // Load the JSON service account credentials
         $jsonKey = [
             'web' => [
@@ -179,16 +180,16 @@ class RequestsController extends Controller
                 'client_secret' => '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'
             ]
         ];
-    
+
         // Initialize a new Google_Client
         $client = new \Google\Client();
-    
+
         // Set the authentication configuration using the provided JSON data
         $client->setAuthConfig($jsonKey);
-    
+
         // Add the necessary scope for Firebase Messaging
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
-    
+
         // Set the path to your JSON file with the GOOGLE_APPLICATION_CREDENTIALS environment variable
         putenv('GOOGLE_APPLICATION_CREDENTIALS=' . base_path('public/firebase/mhfaata.json'));
         // $client->setApprovalPrompt('force');
@@ -196,40 +197,42 @@ class RequestsController extends Controller
 
         // Use application default credentials
         $client->useApplicationDefaultCredentials();
-    
+
         // Get the URL for sending messages to FCM
         $apiurl = 'https://fcm.googleapis.com/v1/projects/mhfaata/messages:send';
-    
+
         // Obtain an access token
         $client->fetchAccessTokenWithAssertion();
-    
+
         // Get the access token
         $access_token = $client->getAccessToken()['access_token'];
-    
+
         // Set the request headers
         $headers = [
             "Authorization: Bearer $access_token",
             'Content-Type: application/json'
         ];
-    
+
         // Prepare the test data for the notification
         $test_data = [
             "title" => "TITLE_HERE",
             "description" => "DESCRIPTION_HERE",
-        ]; 
-    
+        ];
+
         // Construct the payload data
         $data['data'] =  $test_data;
         $user = User::find('18');
         $data['token'] = $user['device_token']; // Retrieve the FCM token from the users table
-    
+
         // Construct the payload for the FCM message
         $payload['message'] = $data;
         $payload = json_encode($payload);
-    dd($data['token'] );
+
+        $testv = $data['token'];
+        dd($testv);
         // Initialize a cURL session
         $ch = curl_init();
-    
+
         // Set the cURL options
         curl_setopt($ch, CURLOPT_URL, $apiurl);
         curl_setopt($ch, CURLOPT_POST, true);
@@ -237,17 +240,16 @@ class RequestsController extends Controller
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-    
+
         // Execute the cURL request
         curl_exec($ch);
-    
+
         // Close the cURL session
         curl_close($ch);
-    
+
         // Return a JSON response indicating that the notification has been sent
         return response()->json([
             'message' => 'Notification has been sent'
         ]);
     }
-       
 }
