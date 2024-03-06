@@ -172,7 +172,7 @@ class RequestsController extends Controller
 
         $credentialsFilePath = "firebase/fcm.json";
         $client = new \Google_Client();
-        $client->setAuthConfig($credentialsFilePath);
+        $client->setAuthConfig("firebase/fcm.json");
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
         $apiurl = 'https://fcm.googleapis.com/v1/projects/mhfaata/messages:send';
         $client->refreshTokenWithAssertion();
