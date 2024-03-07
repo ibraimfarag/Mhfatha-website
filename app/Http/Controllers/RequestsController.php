@@ -81,7 +81,7 @@ class RequestsController extends Controller
                         // Send notification to the user
                         $notificationParams = [
                             'action' => 'sendToUser',
-                            'recipient_identifier' => $store->user_id, // Assuming user_id is the user associated with the store
+                            'recipient_identifier' => $request->user_id, // Assuming user_id is the user associated with the store
                             'body' => 'Your store has been updated.',
                             'title' => 'Store Update'
                         ];
