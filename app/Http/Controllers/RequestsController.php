@@ -78,6 +78,16 @@ class RequestsController extends Controller
 
                         // Save the changes
                         $store->save();
+                        // Send notification to the user
+                        $notificationParams = [
+                            'action' => 'sendToUser',
+                            'recipient_identifier' => $store->user_id, // Assuming user_id is the user associated with the store
+                            'body' => 'Your store has been updated.',
+                            'title' => 'Store Update'
+                        ];
+                
+                        // Call the sendNotification method
+                        $this->sendNotification(new Request($notificationParams));
 
                         return response()->json(['message' => 'Store updated successfully']);
                     } else {
@@ -175,82 +185,82 @@ class RequestsController extends Controller
         $body = $request->input('body');
         $title = $request->input('title');
         $recipientIdentifier = $request->input('recipient_identifier'); // This could be user ID, email, or mobile
-    
+
         // Initialize a new Google_Client
         $client = new \Google\Client();
-    
+
         // Set the authentication configuration using the provided JSON data
         $client->setAuthConfig(public_path('firebase/mhfaata.json'));
-    
+
         // Add the necessary scope for Firebase Messaging
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
-    
+
         // Use application default credentials
         $client->useApplicationDefaultCredentials();
-    
+
         // Get the URL for sending messages to FCM
         $apiUrl = 'https://fcm.googleapis.com/v1/projects/mhfaata/messages:send';
-    
+
         // Obtain an access token
         $client->fetchAccessTokenWithAssertion();
-    
+
         // Get the access token
         $accessToken = $client->getAccessToken()['access_token'];
-    
+
         // Initialize response variable
         $response = null;
-    
+
         // Select the case based on the provided action
         switch ($action) {
             case 'sendToUser':
                 // Find the user based on the provided identifier (ID, email, or mobile)
                 $user = $this->getUserByRecipientIdentifier($recipientIdentifier);
-    
+
                 if (!$user) {
                     return response()->json(['error' => 'User not found'], 404);
                 }
-    
+
                 $response = $this->sendNotificationToUser($user, $accessToken, $apiUrl, $body, $title);
                 break;
-                
-                case 'sendByFilters':
-                    // Get users based on filters
-                    $filteredUsersQuery = User::query();
-        
-                    if ($request->has('gender')) {
-                        $filteredUsersQuery->where('gender', $request->input('gender'));
-                    }
-        
-                    if ($request->has('birthday')) {
-                        $filteredUsersQuery->where('birthday', $request->input('birthday'));
-                    }
-        
-                    if ($request->has('region')) {
-                        $filteredUsersQuery->where('region', $request->input('region'));
-                    }
-        
-                    if ($request->has('is_vendor')) {
-                        $filteredUsersQuery->where('is_vendor', $request->input('is_vendor'));
-                    }
-        
-                    if ($request->has('is_admin')) {
-                        $filteredUsersQuery->where('is_admin', $request->input('is_admin'));
-                    }
-        
-                    if ($request->has('platform')) {
-                        $filteredUsersQuery->where('platform', $request->input('platform'));
-                    }
-        
-                    $filteredUsers = $filteredUsersQuery->get();
-        
-                    $response = $this->sendNotificationToUsers($filteredUsers, $accessToken, $apiUrl, $body, $title);
-                    break;
-        
-    
+
+            case 'sendByFilters':
+                // Get users based on filters
+                $filteredUsersQuery = User::query();
+
+                if ($request->has('gender')) {
+                    $filteredUsersQuery->where('gender', $request->input('gender'));
+                }
+
+                if ($request->has('birthday')) {
+                    $filteredUsersQuery->where('birthday', $request->input('birthday'));
+                }
+
+                if ($request->has('region')) {
+                    $filteredUsersQuery->where('region', $request->input('region'));
+                }
+
+                if ($request->has('is_vendor')) {
+                    $filteredUsersQuery->where('is_vendor', $request->input('is_vendor'));
+                }
+
+                if ($request->has('is_admin')) {
+                    $filteredUsersQuery->where('is_admin', $request->input('is_admin'));
+                }
+
+                if ($request->has('platform')) {
+                    $filteredUsersQuery->where('platform', $request->input('platform'));
+                }
+
+                $filteredUsers = $filteredUsersQuery->get();
+
+                $response = $this->sendNotificationToUsers($filteredUsers, $accessToken, $apiUrl, $body, $title);
+                break;
+
+
             default:
                 return response()->json(['error' => 'Invalid action'], 400);
         }
-    
+
         // Return the response
         return $response;
     }
@@ -260,33 +270,32 @@ class RequestsController extends Controller
         if (is_numeric($identifier) && strlen($identifier) == 10) {
             // Search for the user by mobile number
             $user = User::where('mobile', $identifier)->first();
-        } 
+        }
         // Check if the identifier is numeric and less than 10 digits (assuming it's an ID)
         elseif (is_numeric($identifier) && strlen($identifier) < 10) {
             // Search for the user by ID
             $user = User::find($identifier);
-        } 
-        else {
+        } else {
             // Search for the user by email
             $user = User::where('email', $identifier)->first();
         }
-    
+
         return $user;
     }
-    
-    
+
+
     private function sendNotificationToUsers($users, $accessToken, $apiUrl, $body, $title)
     {
         $responses = [];
-    
+
         foreach ($users as $user) {
             $response = $this->sendNotificationToUser($user, $accessToken, $apiUrl, $body, $title);
             $responses[] = $response;
         }
-    
+
         return $responses;
     }
-    
+
     private function sendNotificationToUser($user, $accessToken, $apiUrl, $body, $title)
     {
         $response = Http::withHeaders([
@@ -301,11 +310,7 @@ class RequestsController extends Controller
                 ],
             ],
         ]);
-    
+
         return $response;
     }
-            
-                
 }
-
-
