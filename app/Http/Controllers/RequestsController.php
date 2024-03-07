@@ -53,11 +53,12 @@ class RequestsController extends Controller
         if ($action === '1') {
             // Check the type of request
             switch ($request->type) {
+
                 case 'update_store':
                     // Update the corresponding row in the "stores" table
                     $storeId = $request->store_id;
                     $store = Store::find($storeId);
-
+                    $user = User::find($request->user_id);
                     if ($store) {
                         // Update store attributes using data from the "data" column
                         $storeData = json_decode($request->data, true);
@@ -81,11 +82,20 @@ class RequestsController extends Controller
                         // Send notification to the user
                         $notificationParams = [
                             'action' => 'sendToUser',
-                            'recipient_identifier' => $request->user_id, // Assuming user_id is the user associated with the store
-                            'body' => 'Your store has been updated.',
-                            'title' => 'Store Update'
+                            'recipient_identifier' => $request->user_id,
                         ];
-                
+                        
+                        // Check if the user's language is Arabic
+                        if ($user->lang === 'ar') {
+                            // If user's language is Arabic, set the title and body in Arabic
+                            $notificationParams['body'] = 'تم تحديث متجرك.';
+                            $notificationParams['title'] = 'تحديث المتجر';
+                        } else {
+                            // If user's language is not Arabic, set the title and body in English or default language
+                            $notificationParams['body'] = 'Your store has been updated.';
+                            $notificationParams['title'] = 'Store Update';
+                        }
+
                         // Call the sendNotification method
                         $this->sendNotification(new Request($notificationParams));
 
@@ -115,6 +125,15 @@ class RequestsController extends Controller
                         $discount->save();
                         $request->approved = 1;
                         $request->save();
+                        $notificationParams = [
+                            'action' => 'sendToUser',
+                            'recipient_identifier' => $request->user_id, // Assuming user_id is the user associated with the discount
+                            'body' => 'Your discount has been deleted.',
+                            'title' => 'Discount Deletion'
+                        ];
+
+                        // Call the sendNotification method
+                        $this->sendNotification(new Request($notificationParams));
 
                         return response()->json(['message' => 'Discount deleted successfully']);
                     } else {
@@ -134,6 +153,15 @@ class RequestsController extends Controller
                         $request->save();
                         // Save the changes
                         $store->save();
+                        $notificationParams = [
+                            'action' => 'sendToUser',
+                            'recipient_identifier' => $request->user_id, // Assuming user_id is the user associated with the store
+                            'body' => 'Your store has been created.',
+                            'title' => 'Store Creation'
+                        ];
+
+                        // Call the sendNotification method
+                        $this->sendNotification(new Request($notificationParams));
 
                         return response()->json(['message' => 'Store verification set to 1']);
                     } else {
@@ -150,6 +178,15 @@ class RequestsController extends Controller
                         // Delete the store
                         // $store->delete();
                         $store->is_deleted = 1;
+                        $notificationParams = [
+                            'action' => 'sendToUser',
+                            'recipient_identifier' =>  $request->user_id, // Assuming user_id is the user associated with the store
+                            'body' => 'Your store has been deleted.',
+                            'title' => 'Store Deletion'
+                        ];
+
+                        // Call the sendNotification method
+                        $this->sendNotification(new Request($notificationParams));
                         return response()->json(['message' => 'Store deleted successfully']);
                     } else {
                         return response()->json(['message' => 'Store not found'], 404);

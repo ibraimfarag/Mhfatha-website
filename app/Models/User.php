@@ -36,6 +36,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_temporarily',
         'messages',
         'notifications',
+        'lang'
     ];
 
 

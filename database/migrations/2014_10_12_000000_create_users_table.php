@@ -38,6 +38,7 @@ class CreateUsersTable extends Migration
             $table->boolean('is_temporarily')->default(0);
             $table->json('messages')->nullable();
             $table->json('notifications')->nullable();
+            $table->string('lang')->default('en')->after('notifications'); // Assuming 'en' is the default language
             $table->rememberToken();
             $table->timestamps();
             $table->foreign('region')->references('id')->on('regions');
