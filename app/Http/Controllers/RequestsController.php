@@ -88,11 +88,11 @@ class RequestsController extends Controller
                         // Check if the user's language is Arabic
                         if ($user->lang === 'ar') {
                             // If user's language is Arabic, set the title and body in Arabic
-                            $notificationParams['body'] = 'تم تحديث متجرك.';
+                            $notificationParams['body'] = 'تم الموافقة على طلب تحديث متجرك.';
                             $notificationParams['title'] = 'تحديث المتجر';
                         } else {
                             // If user's language is not Arabic, set the title and body in English or default language
-                            $notificationParams['body'] = 'Your store has been updated.';
+                            $notificationParams['body'] = '1Your store update request has been approved.';
                             $notificationParams['title'] = 'Store Update';
                         }
 
@@ -115,6 +115,7 @@ class RequestsController extends Controller
                     // Retrieve the discount by ID
                     $discountId = $data['discount_id'];
                     $discount = Discount::find($discountId);
+                    $user = User::find($request->user_id);
 
 
                     if ($discount) {
@@ -125,13 +126,22 @@ class RequestsController extends Controller
                         $discount->save();
                         $request->approved = 1;
                         $request->save();
+              
                         $notificationParams = [
                             'action' => 'sendToUser',
-                            'recipient_identifier' => $request->user_id, // Assuming user_id is the user associated with the discount
-                            'body' => 'Your discount has been deleted.',
-                            'title' => 'Discount Deletion'
+                            'recipient_identifier' => $request->user_id,
                         ];
-
+                        
+                        // Check if the user's language is Arabic
+                        if ($user->lang === 'ar') {
+                            // If user's language is Arabic, set the title and body in Arabic
+                            $notificationParams['body'] = 'لقد تم الموافقه على حذف الخصم الخاص بك.';
+                            $notificationParams['title'] = 'حذف خصم المتجر';
+                        } else {
+                            // If user's language is not Arabic, set the title and body in English or default language
+                            $notificationParams['body'] = 'You have been approved to delete your discount.';
+                            $notificationParams['title'] = 'Store Discount Deletion';
+                        }
                         // Call the sendNotification method
                         $this->sendNotification(new Request($notificationParams));
 
@@ -143,6 +153,7 @@ class RequestsController extends Controller
                 case 'create_store':
                     // Retrieve the store associated with the request
                     $store = Store::find($request->store_id);
+                    $user = User::find($request->user_id);
 
 
                     // Check if the store exists
@@ -153,13 +164,22 @@ class RequestsController extends Controller
                         $request->save();
                         // Save the changes
                         $store->save();
+                    
                         $notificationParams = [
                             'action' => 'sendToUser',
-                            'recipient_identifier' => $request->user_id, // Assuming user_id is the user associated with the store
-                            'body' => 'Your store has been created.',
-                            'title' => 'Store Creation'
+                            'recipient_identifier' => $request->user_id,
                         ];
-
+                        
+                        // Check if the user's language is Arabic
+                        if ($user->lang === 'ar') {
+                            // If user's language is Arabic, set the title and body in Arabic
+                            $notificationParams['body'] = 'لقد تم التحقق من متجرك.';
+                            $notificationParams['title'] = 'تحقق من المتجر';
+                        } else {
+                            // If user's language is not Arabic, set the title and body in English or default language
+                            $notificationParams['body'] = 'Your store has been verified.';
+                            $notificationParams['title'] = 'verify store';
+                        }
                         // Call the sendNotification method
                         $this->sendNotification(new Request($notificationParams));
 
@@ -171,6 +191,7 @@ class RequestsController extends Controller
                 case 'delete_store':
                     // Retrieve the store associated with the request
                     $store = Store::find($request->store_id);
+                    $user = User::find($request->user_id);
 
 
                     // Check if the store exists
@@ -184,6 +205,23 @@ class RequestsController extends Controller
                             'body' => 'Your store has been deleted.',
                             'title' => 'Store Deletion'
                         ];
+
+                        $notificationParams = [
+                            'action' => 'sendToUser',
+                            'recipient_identifier' => $request->user_id,
+                        ];
+                        
+                        // Check if the user's language is Arabic
+                        if ($user->lang === 'ar') {
+                            // If user's language is Arabic, set the title and body in Arabic
+                            $notificationParams['body'] = 'لقد تم الموافقه على حذف متجرك.';
+                            $notificationParams['title'] = 'حذف المتجر';
+                        } else {
+                            // If user's language is not Arabic, set the title and body in English or default language
+                            $notificationParams['body'] = 'You have been approved to delete your store.';
+                            $notificationParams['title'] = 'Store Deletion';
+                        }
+
 
                         // Call the sendNotification method
                         $this->sendNotification(new Request($notificationParams));
