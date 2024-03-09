@@ -95,6 +95,9 @@ Route::middleware('auth:api')->group(
             Route::post('requests', [RequestsController::class, 'MyRequests']);
             Route::post('sendnotification', [RequestsController::class, 'sendNotification']);
 
+            Route::post('accounts', [WebsiteManagerController::class, 'acceptDiscounts']);
+
+
 
         });
     }

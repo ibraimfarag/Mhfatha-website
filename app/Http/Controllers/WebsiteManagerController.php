@@ -197,31 +197,39 @@ public function getVersion(Request $request)
 }
 
 
-public function storesWithUnobtainedDiscounts()
-    {
-        // Retrieve all stores
-        $stores = Store::all();
+public function acceptDiscounts(Request $request)
+{
+    // Retrieve store_id from the request
+    $storeId = $request->input('storeId');
 
-        // Array to store stores with unobtained discounts
-        $storesWithUnobtainedDiscounts = [];
+    // Retrieve the input query
+    $query = $request->input('query');
 
-        // Loop through each store
-        foreach ($stores as $store) {
-            // Check if the store has any UserDiscounts with obtained_status = 0
-            $unobtainedDiscountsCount = UserDiscount::where('store_id', $store->id)
-                                                    ->where('obtained_status', 0)
-                                                    ->count();
+    // Handle different cases based on the input query
+    switch ($query) {
+        case 'accept_all':
+            // Accept all UserDiscounts for the specified store
+            UserDiscount::where('store_id', $storeId)
+                ->where('obtained_status', 0)
+                ->update(['obtained_status' => 1]);
+            break;
+        case 'selected':
+            // Retrieve the list of UserDiscount IDs from the request
+            $userDiscountIds = $request->input('user_discount_ids');
 
-            // If there are unobtained discounts, add the store to the result array
-            if ($unobtainedDiscountsCount > 0) {
-                $storesWithUnobtainedDiscounts[] = [
-                    'store_name' => $store->name,
-                    'unobtained_discounts_count' => $unobtainedDiscountsCount
-                ];
+            // Accept selected UserDiscounts
+            if (!empty($userDiscountIds)) {
+                UserDiscount::whereIn('id', $userDiscountIds)
+                    ->where('store_id', $storeId)
+                    ->where('obtained_status', 0)
+                    ->update(['obtained_status' => 1]);
             }
-        }
-
-        // Return the stores with unobtained discounts
-        return response()->json($storesWithUnobtainedDiscounts);
+            break;
+        default:
+            return response()->json(['error' => 'Invalid query']);
     }
+
+    return response()->json(['message' => 'Discounts accepted successfully']);
+}
+
 }
