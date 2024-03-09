@@ -1132,6 +1132,28 @@ class UserController extends Controller
                                     'new_value_en' => $newRegionNameEn !== null ? $newRegionNameEn : null,
                                     'new_value_ar' => $newRegionNameAr !== null ? $newRegionNameAr : null,
                                 ];
+                            } elseif ($key === 'category_id') {
+                                // Retrieve the category name from the Category model
+                                $oldCategory = StoreCategory::find($oldStoreData[$key]);
+                                $oldCategoryNameEn = $oldCategory ? $oldCategory->category_name_en : null;
+                                $oldCategoryNameAr = $oldCategory ? $oldCategory->category_name_ar : null;
+
+                                $newCategory = StoreCategory::find($value);
+                                $newCategoryNameEn = $newCategory ? $newCategory->category_name_en : null;
+                                $newCategoryNameAr = $newCategory ? $newCategory->category_name_ar : null;
+
+                                // Add the difference to the list
+                                $differences[] = [
+                                    'attribute_name_en' => $attributeTranslationEn,
+                                    'attribute_name_ar' => $attributeTranslationAr,
+                                    'attribute' => $key,
+                                    'old_value' => $oldStoreData[$key],
+                                    'new_value' => $value,
+                                    'old_value_en' => $oldCategoryNameEn !== null ? $oldCategoryNameEn : null,
+                                    'old_value_ar' => $oldCategoryNameAr !== null ? $oldCategoryNameAr : null,
+                                    'new_value_en' => $newCategoryNameEn !== null ? $newCategoryNameEn : null,
+                                    'new_value_ar' => $newCategoryNameAr !== null ? $newCategoryNameAr : null,
+                                ];
                             } else {
                                 // For attributes other than "work_days" and "region", directly compare the values
                                 $differences[] = [
@@ -1194,16 +1216,16 @@ class UserController extends Controller
             $unobtainedDiscountsCount = UserDiscount::where('store_id', $store->id)
                 ->where('obtained_status', 0)
                 ->count();
-                       // Calculate the sum of obtained discounts
+            // Calculate the sum of obtained discounts
             $obtainedDiscountsSum = UserDiscount::where('store_id', $store->id)
-            ->where('obtained_status', 0)
-            ->sum('obtained');
+                ->where('obtained_status', 0)
+                ->sum('obtained');
 
             $unobtainedDiscounts = UserDiscount::where('store_id', $store->id)
-            ->where('obtained_status', 0)
-            ->select('id', 'store_id', 'user_id', 'discount_id', 'total_payment', 'after_discount', 'date','obtained_status','obtained')
-            ->get();
-    
+                ->where('obtained_status', 0)
+                ->select('id', 'store_id', 'user_id', 'discount_id', 'total_payment', 'after_discount', 'date', 'obtained_status', 'obtained')
+                ->get();
+
             // If there are unobtained discounts, add the store to the result array
             if ($unobtainedDiscountsCount > 0) {
                 $storesWithUnobtainedDiscounts[] = [
@@ -1230,7 +1252,7 @@ class UserController extends Controller
             'profits' => $profits,
         ];
 
-        return response()->json(['statistics' => $statistics, 'users' => $users, 'stores' => $stores, 'requests' => $formattedRequests, 'user_discounts' => $userDiscounts, 'websiteManager' => $websiteManager,'storesDiscounts'=>$storesWithUnobtainedDiscounts]);
+        return response()->json(['statistics' => $statistics, 'users' => $users, 'stores' => $stores, 'requests' => $formattedRequests, 'user_discounts' => $userDiscounts, 'websiteManager' => $websiteManager, 'storesDiscounts' => $storesWithUnobtainedDiscounts]);
     }
 
 
