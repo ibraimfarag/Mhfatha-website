@@ -1202,12 +1202,19 @@ class UserController extends Controller
             $obtainedDiscountsSum = UserDiscount::where('store_id', $store->id)
             ->where('obtained_status', 0)
             ->sum('obtained');
+
+            $unobtainedDiscounts = UserDiscount::where('store_id', $store->id)
+            ->where('obtained_status', 0)
+            ->get();
+    
             // If there are unobtained discounts, add the store to the result array
             if ($unobtainedDiscountsCount > 0) {
                 $storesWithUnobtainedDiscounts[] = [
                     'store_name' => $store->name,
                     'unobtained_discounts_count' => $unobtainedDiscountsCount,
-                    'obtained_discounts_sum' => $obtainedDiscountsSum
+                    'obtained_discounts_sum' => $obtainedDiscountsSum,
+                    'unobtained_discounts' => $unobtainedDiscounts
+
                 ];
             }
         }
