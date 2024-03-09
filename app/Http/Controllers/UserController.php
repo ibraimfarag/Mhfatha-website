@@ -970,11 +970,7 @@ class UserController extends Controller
             $imageName = time() . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('FrontEnd/assets/images/user_images'), $imageName);
             $user->photo = $imageName;
-        } elseif ($request->input('photo') === null) {
-            // If input photo is null, retain the old photo
-            $user->photo = Auth::user()->photo;
         }
-
 
 
         // Apply updates to the user's profile
