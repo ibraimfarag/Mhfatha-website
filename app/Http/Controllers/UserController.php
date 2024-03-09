@@ -1205,6 +1205,7 @@ class UserController extends Controller
 
             $unobtainedDiscounts = UserDiscount::where('store_id', $store->id)
             ->where('obtained_status', 0)
+            ->select('id', 'store_id', 'user_id', 'discount_id', 'total_payment', 'after_discount', 'date','obtained_status','obtained')
             ->get();
     
             // If there are unobtained discounts, add the store to the result array
