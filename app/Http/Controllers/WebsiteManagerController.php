@@ -220,7 +220,7 @@ public function acceptDiscounts(Request $request)
             // Accept selected UserDiscounts
             if (!empty($userDiscountIds)) {
                 UserDiscount::whereIn('id', $userDiscountIds)
-                    ->where('store_id', $storeId)
+                  
                     ->where('obtained_status', 0)
                     ->update(['obtained_status' => 1]);
             }
