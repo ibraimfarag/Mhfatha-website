@@ -84,7 +84,7 @@ class RequestsController extends Controller
                             'action' => 'sendToUser',
                             'recipient_identifier' => $request->user_id,
                         ];
-                        
+
                         // Check if the user's language is Arabic
                         if ($user->lang === 'ar') {
                             // If user's language is Arabic, set the title and body in Arabic
@@ -126,12 +126,12 @@ class RequestsController extends Controller
                         $discount->save();
                         $request->approved = 1;
                         $request->save();
-              
+
                         $notificationParams = [
                             'action' => 'sendToUser',
                             'recipient_identifier' => $request->user_id,
                         ];
-                        
+
                         // Check if the user's language is Arabic
                         if ($user->lang === 'ar') {
                             // If user's language is Arabic, set the title and body in Arabic
@@ -164,12 +164,12 @@ class RequestsController extends Controller
                         $request->save();
                         // Save the changes
                         $store->save();
-                    
+
                         $notificationParams = [
                             'action' => 'sendToUser',
                             'recipient_identifier' => $request->user_id,
                         ];
-                        
+
                         // Check if the user's language is Arabic
                         if ($user->lang === 'ar') {
                             // If user's language is Arabic, set the title and body in Arabic
@@ -210,7 +210,7 @@ class RequestsController extends Controller
                             'action' => 'sendToUser',
                             'recipient_identifier' => $request->user_id,
                         ];
-                        
+
                         // Check if the user's language is Arabic
                         if ($user->lang === 'ar') {
                             // If user's language is Arabic, set the title and body in Arabic
@@ -259,6 +259,8 @@ class RequestsController extends Controller
         $action = $request->input('action');
         $body = $request->input('body');
         $title = $request->input('title');
+        $bodyAr = $request->input('body_ar');
+        $titleAr = $request->input('title_ar');
         $recipientIdentifier = $request->input('recipient_identifier'); // This could be user ID, email, or mobile
 
         // Initialize a new Google_Client
@@ -294,8 +296,13 @@ class RequestsController extends Controller
                 if (!$user) {
                     return response()->json(['error' => 'User not found'], 404);
                 }
+                $lang = $user->lang ?? 'en';
 
-                $response = $this->sendNotificationToUser($user, $accessToken, $apiUrl, $body, $title);
+                if ($lang === 'ar') {
+                    $response = $this->sendNotificationToUser($user, $accessToken, $apiUrl, $bodyAr, $titleAr);
+                } else {
+                    $response = $this->sendNotificationToUser($user, $accessToken, $apiUrl, $body, $title);
+                }
                 break;
 
             case 'sendByFilters':
@@ -325,10 +332,19 @@ class RequestsController extends Controller
                 if ($request->has('platform')) {
                     $filteredUsersQuery->where('platform', $request->input('platform'));
                 }
-
                 $filteredUsers = $filteredUsersQuery->get();
 
-                $response = $this->sendNotificationToUsers($filteredUsers, $accessToken, $apiUrl, $body, $title);
+                foreach ($filteredUsers as $user) {
+                    // Determine language
+                    $lang = $user->lang ?? 'en';
+
+                    if ($lang === 'ar') {
+                        $this->sendNotificationToUser($user, $accessToken, $apiUrl, $bodyAr, $titleAr);
+                    } else {
+                        $this->sendNotificationToUser($user, $accessToken, $apiUrl, $body, $title);
+                    }
+                }
+                $response = response()->json(['message' => 'Notifications sent successfully']);
                 break;
 
 
