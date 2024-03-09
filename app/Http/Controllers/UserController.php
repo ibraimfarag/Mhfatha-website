@@ -1212,6 +1212,7 @@ class UserController extends Controller
             if ($unobtainedDiscountsCount > 0) {
                 $storesWithUnobtainedDiscounts[] = [
                     'store_name' => $store->name,
+                    'store_id' => $store->id,
                     'unobtained_discounts_count' => $unobtainedDiscountsCount,
                     'obtained_discounts_sum' => $obtainedDiscountsSum,
                     'unobtained_discounts' => $unobtainedDiscounts
