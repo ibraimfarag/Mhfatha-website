@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\WebsiteManager;
+use App\Models\User;
+use App\Models\Store;
+use App\Models\UserDiscount;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\File;
 use App\Models\AppUpdate;
@@ -194,4 +197,31 @@ public function getVersion(Request $request)
 }
 
 
+public function storesWithUnobtainedDiscounts()
+    {
+        // Retrieve all stores
+        $stores = Store::all();
+
+        // Array to store stores with unobtained discounts
+        $storesWithUnobtainedDiscounts = [];
+
+        // Loop through each store
+        foreach ($stores as $store) {
+            // Check if the store has any UserDiscounts with obtained_status = 0
+            $unobtainedDiscountsCount = UserDiscount::where('store_id', $store->id)
+                                                    ->where('obtained_status', 0)
+                                                    ->count();
+
+            // If there are unobtained discounts, add the store to the result array
+            if ($unobtainedDiscountsCount > 0) {
+                $storesWithUnobtainedDiscounts[] = [
+                    'store_name' => $store->name,
+                    'unobtained_discounts_count' => $unobtainedDiscountsCount
+                ];
+            }
+        }
+
+        // Return the stores with unobtained discounts
+        return response()->json($storesWithUnobtainedDiscounts);
+    }
 }

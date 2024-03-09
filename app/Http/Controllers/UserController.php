@@ -849,44 +849,44 @@ class UserController extends Controller
     }
 
     public function updateDeviceInfo(Request $request)
-{
-    // Decode JSON request body
-    $requestData = json_decode($request->getContent(), true);
+    {
+        // Decode JSON request body
+        $requestData = json_decode($request->getContent(), true);
 
-    // Check if JSON decoding failed
-    if ($requestData === null) {
-        return response()->json(['error' => 'Invalid JSON payload.'], 400);
+        // Check if JSON decoding failed
+        if ($requestData === null) {
+            return response()->json(['error' => 'Invalid JSON payload.'], 400);
+        }
+
+        // Validate the incoming request data
+        $validator = Validator::make($requestData, [
+            'device_token' => 'nullable|string',
+            'platform' => 'nullable|string',
+            'platform_version' => 'nullable|string',
+            'platform_device' => 'nullable|string',
+            'lang' => 'nullable|string', // Add validation for 'lang'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()->first()], 422);
+        }
+
+        $userId = Auth::user()->id;
+        $user = User::find($userId);
+
+        // Update the user's device token, platform, platform version, and lang
+        $user->device_token = $requestData['device_token'] ?? $user->device_token;
+        $user->platform = $requestData['platform'] ?? $user->platform;
+        $user->platform_version = $requestData['platform_version'] ?? $user->platform_version;
+        $user->platform_device = $requestData['platform_device'] ?? $user->platform_device;
+        $user->lang = $requestData['lang'] ?? $user->lang; // Update lang
+
+        // Save the updated user data
+        $user->save();
+
+        // Return a success response
+        return response()->json(['message' => 'Device information updated successfully']);
     }
-
-    // Validate the incoming request data
-    $validator = Validator::make($requestData, [
-        'device_token' => 'nullable|string',
-        'platform' => 'nullable|string',
-        'platform_version' => 'nullable|string',
-        'platform_device' => 'nullable|string',
-        'lang' => 'nullable|string', // Add validation for 'lang'
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json(['error' => $validator->errors()->first()], 422);
-    }
-
-    $userId = Auth::user()->id;
-    $user = User::find($userId);
-
-    // Update the user's device token, platform, platform version, and lang
-    $user->device_token = $requestData['device_token'] ?? $user->device_token;
-    $user->platform = $requestData['platform'] ?? $user->platform;
-    $user->platform_version = $requestData['platform_version'] ?? $user->platform_version;
-    $user->platform_device = $requestData['platform_device'] ?? $user->platform_device;
-    $user->lang = $requestData['lang'] ?? $user->lang; // Update lang
-
-    // Save the updated user data
-    $user->save();
-
-    // Return a success response
-    return response()->json(['message' => 'Device information updated successfully']);
-}
 
     public function getAllUsers()
     {
@@ -1093,12 +1093,12 @@ class UserController extends Controller
                             // Add the difference to the list
                             $attributeTranslationEn = $attributeTranslations[$key]['en'] ?? $key;
                             $attributeTranslationAr = $attributeTranslations[$key]['ar'] ?? $key;
-                
+
                             if ($key === 'work_days') {
                                 // Decode the old and new work days from JSON
                                 $oldWorkDays = json_decode($oldStoreData[$key], true);
                                 $newWorkDays = json_decode($value, true);
-                
+
                                 // Compare each day's work hours
                                 foreach ($newWorkDays as $day => $hours) {
                                     if (!isset($oldWorkDays[$day]) || $oldWorkDays[$day] !== $hours) {
@@ -1119,11 +1119,11 @@ class UserController extends Controller
                                 $oldRegion = Region::find($oldStoreData[$key]);
                                 $oldRegionNameEn = $oldRegion ? $oldRegion->region_en : null;
                                 $oldRegionNameAr = $oldRegion ? $oldRegion->region_ar : null;
-                
+
                                 $newRegion = Region::find($value);
                                 $newRegionNameEn = $newRegion ? $newRegion->region_en : null;
                                 $newRegionNameAr = $newRegion ? $newRegion->region_ar : null;
-                
+
                                 // Add the difference to the list
                                 $differences[] = [
                                     'attribute_name_en' => $attributeTranslationEn,
@@ -1151,7 +1151,7 @@ class UserController extends Controller
                         }
                     }
                 }
-                                
+
 
 
                 // Add differences to the formatted array
@@ -1182,6 +1182,32 @@ class UserController extends Controller
         }
         $userDiscounts = UserDiscount::orderBy('id', 'desc')->get();
 
+
+
+
+
+        // Retrieve all stores
+        $stores = Store::all();
+
+        // Array to store stores with unobtained discounts
+        $storesWithUnobtainedDiscounts = [];
+
+        // Loop through each store
+        foreach ($stores as $store) {
+            // Check if the store has any UserDiscounts with obtained_status = 0
+            $unobtainedDiscountsCount = UserDiscount::where('store_id', $store->id)
+                ->where('obtained_status', 0)
+                ->count();
+
+            // If there are unobtained discounts, add the store to the result array
+            if ($unobtainedDiscountsCount > 0) {
+                $storesWithUnobtainedDiscounts[] = [
+                    'store_name' => $store->name,
+                    'unobtained_discounts_count' => $unobtainedDiscountsCount
+                ];
+            }
+        }
+
         // Prepare the response
         $statistics = [
             'total_users' => $totalUsersCount,
@@ -1195,7 +1221,7 @@ class UserController extends Controller
             'profits' => $profits,
         ];
 
-        return response()->json(['statistics' => $statistics, 'users' => $users, 'stores' => $stores, 'requests' => $formattedRequests, 'user_discounts' => $userDiscounts , 'websiteManager'=>$websiteManager]);
+        return response()->json(['statistics' => $statistics, 'users' => $users, 'stores' => $stores, 'requests' => $formattedRequests, 'user_discounts' => $userDiscounts, 'websiteManager' => $websiteManager,'storesDiscounts'=>$storesWithUnobtainedDiscounts]);
     }
 
 
