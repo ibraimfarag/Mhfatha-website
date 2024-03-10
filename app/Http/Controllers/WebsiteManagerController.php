@@ -332,7 +332,9 @@ class WebsiteManagerController extends Controller
                         // Update the WebsiteManager record
                         $websiteManager->update($validatedData);
 
-                        return "Website Manager information updated successfully.";
+                        // return "Website Manager information updated successfully.";
+                        return response()->json(['message' =>'Website Manager information updated successfully']);
+
                         break;
 
                     default:
