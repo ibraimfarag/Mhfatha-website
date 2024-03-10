@@ -97,6 +97,8 @@ Route::middleware('auth:api')->group(
 
             Route::post('accounts', [WebsiteManagerController::class, 'acceptDiscounts']);
 
+            Route::post('sets', [WebsiteManagerController::class, 'manageRecords']);
+
 
 
         });
