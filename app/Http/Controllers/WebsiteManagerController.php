@@ -298,6 +298,32 @@ function manageRecords($action, $modelName, $data) {
                     return "Invalid action.";
             }
             break;
+            case 'WebsiteManager':
+                switch ($action) {
+                    case 'update':
+                        // Retrieve the WebsiteManager record
+                        $websiteManager = WebsiteManager::first();
+    
+                        // Validate and update the fields
+                        $rules = [
+                            'commission' => 'string',
+                            'map_distance' => 'string',
+                            // Add rules for other fields as needed
+                        ];
+    
+                        // Validate the data
+                        $validatedData = validator($data, $rules)->validate();
+    
+                        // Update the WebsiteManager record
+                        $websiteManager->update($validatedData);
+    
+                        return "Website Manager information updated successfully.";
+                        break;
+    
+                    default:
+                        return "Invalid action.";
+                }
+                break;
 
         default:
             return "Invalid model name.";
