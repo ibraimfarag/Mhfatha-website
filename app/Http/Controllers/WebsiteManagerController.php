@@ -238,7 +238,7 @@ public function manageRecords(Request $request) {
     
     $action = $request->input('action');
     $modelName = $request->input('modelName');
-    $data = json_decode($request->input('data'), true); 
+    $data = json_decode($request->input('data')); 
 
     switch ($modelName) {
         case 'Region':
