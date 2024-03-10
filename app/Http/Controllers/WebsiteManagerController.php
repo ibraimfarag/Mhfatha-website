@@ -8,6 +8,8 @@ use App\Models\WebsiteManager;
 use App\Models\User;
 use App\Models\Store;
 use App\Models\UserDiscount;
+use App\Models\Region;
+use App\Models\StoreCategory;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\File;
 use App\Models\AppUpdate;
@@ -230,6 +232,76 @@ public function acceptDiscounts(Request $request)
     }
 
     return response()->json(['message' => 'Discounts accepted successfully']);
+}
+function manageRecords($action, $modelName, $data) {
+    switch ($modelName) {
+        case 'Region':
+            switch ($action) {
+                case 'add':
+                    $region = new Region();
+                    $region->fill($data);
+                    $region->save();
+                    return "Region added successfully.";
+                    break;
+                case 'delete':
+                    $region = Region::find($data['id']);
+                    if ($region) {
+                        $region->delete();
+                        return "Region deleted successfully.";
+                    } else {
+                        return "Region not found.";
+                    }
+                    break;
+                case 'edit':
+                    $region = Region::find($data['id']);
+                    if ($region) {
+                        $region->fill($data);
+                        $region->save();
+                        return "Region updated successfully.";
+                    } else {
+                        return "Region not found.";
+                    }
+                    break;
+                default:
+                    return "Invalid action.";
+            }
+            break;
+        
+        case 'StoreCategory':
+            switch ($action) {
+                case 'add':
+                    $storeCategory = new StoreCategory();
+                    $storeCategory->fill($data);
+                    $storeCategory->save();
+                    return "Store category added successfully.";
+                    break;
+                case 'delete':
+                    $storeCategory = StoreCategory::find($data['id']);
+                    if ($storeCategory) {
+                        $storeCategory->delete();
+                        return "Store category deleted successfully.";
+                    } else {
+                        return "Store category not found.";
+                    }
+                    break;
+                case 'edit':
+                    $storeCategory = StoreCategory::find($data['id']);
+                    if ($storeCategory) {
+                        $storeCategory->fill($data);
+                        $storeCategory->save();
+                        return "Store category updated successfully.";
+                    } else {
+                        return "Store category not found.";
+                    }
+                    break;
+                default:
+                    return "Invalid action.";
+            }
+            break;
+
+        default:
+            return "Invalid model name.";
+    }
 }
 
 }

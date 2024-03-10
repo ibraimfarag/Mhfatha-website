@@ -1024,6 +1024,8 @@ class UserController extends Controller
         // Retrieve all users, stores, and requests
         $users = User::all();
         $stores = Store::all();
+        $regions = Region::all();
+        $storeCategories = StoreCategory::all();
         // Fetch all requests with approved status as 0
         $requests = Requests::where('approved', 0)->get();
 
@@ -1252,7 +1254,7 @@ class UserController extends Controller
             'profits' => $profits,
         ];
 
-        return response()->json(['statistics' => $statistics, 'users' => $users, 'stores' => $stores, 'requests' => $formattedRequests, 'user_discounts' => $userDiscounts, 'websiteManager' => $websiteManager, 'storesDiscounts' => $storesWithUnobtainedDiscounts]);
+        return response()->json(['statistics' => $statistics, 'users' => $users, 'stores' => $stores, 'requests' => $formattedRequests, 'user_discounts' => $userDiscounts, 'websiteManager' => $websiteManager, 'storesDiscounts' => $storesWithUnobtainedDiscounts,'regions'=>$regions,'storeCategories'=>$storeCategories]);
     }
 
 
