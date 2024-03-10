@@ -233,7 +233,7 @@ public function acceptDiscounts(Request $request)
 
     return response()->json(['message' => 'Discounts accepted successfully']);
 }
-function manageRecords($action, $modelName, $data) {
+public function manageRecords($action, $modelName, $data) {
     switch ($modelName) {
         case 'Region':
             switch ($action) {
