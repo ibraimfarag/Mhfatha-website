@@ -327,7 +327,7 @@ class WebsiteManagerController extends Controller
                         ];
 
                         // Validate the data
-                        $validatedData = validator($data, $rules)->validate();
+                        $validatedData = validator($jsonData, $rules)->validate();
 
                         // Update the WebsiteManager record
                         $websiteManager->update($validatedData);
