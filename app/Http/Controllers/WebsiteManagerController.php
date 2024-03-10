@@ -239,7 +239,7 @@ public function manageRecords(Request $request) {
     
     $action = $request->input('action');
     $modelName = $request->input('modelName');
-    $data = $request->input('data');
+    $data = json_decode($request->input('data'), true); // Decode JSON data
 
 
     switch ($modelName) {
