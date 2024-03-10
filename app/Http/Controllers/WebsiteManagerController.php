@@ -235,12 +235,10 @@ public function acceptDiscounts(Request $request)
 }
 public function manageRecords(Request $request) {
 
-    // $jsonData = $request->json()->all();
     
     $action = $request->input('action');
     $modelName = $request->input('modelName');
-    $data = json_decode($request->input('data'), true); // Decode JSON data
-
+    $data = json_decode($request->input('data'), true); 
 
     switch ($modelName) {
         case 'Region':
