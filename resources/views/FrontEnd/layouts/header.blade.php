@@ -22,7 +22,7 @@
     <meta name="twitter:title" content="{{ app()->getLocale() === 'ar' ? $site_title_ar : $site_title_en }} @yield('title')">
     <meta name="twitter:description" content="{{ app()->getLocale() === 'ar' ? $site_description_ar : $site_description_en }}">
     <meta name="twitter:image" content="URL to your Twitter image">
-
+    <meta name="facebook-domain-verification" content="sbf1ell2jnnpgfnffrr5vbn3rq8vh1" />
     <link rel="icon" href="{{ $site_favicon }}" type="image/x-icon">
 
 
