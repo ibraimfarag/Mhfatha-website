@@ -826,13 +826,13 @@ class UserController extends Controller
 
         // Call the sendWhatsAppMessage function from the AuthController
         $code = AuthController::sendWhatsAppMessage($lang,$recipientNumber, $messageContent);
-
+        $code;
 
         if (empty($otp) || is_null($otp)) {
             // Invalid or missing OTP, return an error response
            
             $errorMessage = $lang === 'ar' ? "تم ارسال رمز التفعيل عبر الواتس اب الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to whatsapp number $mobilenumber. Please enter the code.";
-            return response()->json(['success' => true, 'step' => 2, 'message' => $errorMessage,'code'=> $code], 200);
+            return response()->json(['success' => true, 'step' => 2, 'message' => $errorMessage,], 200);
         }
 
         if ($otp != $storedOtp) {
