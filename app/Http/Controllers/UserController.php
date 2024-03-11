@@ -836,10 +836,11 @@ class UserController extends Controller
         }
 
         if ($otp != $storedOtp) {
-            // Invalid OTP, return an error response
+            // Incorrect OTP, return an error response
             $errorMessage = $lang === 'ar' ? ' كود  otp  غير صحيح' : 'incorrect OTP code, please check and try again ';
             return response()->json(['error' => $errorMessage, "OTP" => true, "Success" => true], 200);
         }
+        
 
         // Step 3: Check if new password is empty
         if (empty($newPassword)) {
