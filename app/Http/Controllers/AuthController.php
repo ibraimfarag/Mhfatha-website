@@ -431,8 +431,7 @@ class AuthController extends Controller
             'Authorization' => 'Bearer ' . $accessToken
         ])->post($graphApiUrl, $postData);
 
-        return $response->body();
-    
+        return $response->json();    
     }
 }
 
