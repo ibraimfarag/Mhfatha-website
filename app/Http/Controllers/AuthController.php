@@ -361,42 +361,42 @@ class AuthController extends Controller
      * @param string $token
      * @return bool
      */
-   
-     public function validateToken(Request $request)
-     {
-         $token = $request->bearerToken();
-         $currentLanguage = $request->input('lang');
-         $msg = '';
-     
-         if (!$token) {
-             if ($currentLanguage == 'ar') {
-                 $msg = 'أنت مسجل الدخول من جهاز آخر';
-             } else {
-                 $msg = 'You are logged in from another device';
-             }
-             return response()->json(['success' => false, 'message' => $msg], 200);
-         }
-     
-         // Check if the token is valid
-         if (Auth::guard('api')->check()) {
-             return response()->json(['success' => true], 200);
-         }
-     
-         if ($currentLanguage == 'ar') {
-             $msg = 'أنت مسجل الدخول من جهاز آخر';
-         } else {
-             $msg = 'You are logged in from another device';
-         }
-         return response()->json(['success' => false, 'message' => $msg], 200);
-     }
-       /**
+
+    public function validateToken(Request $request)
+    {
+        $token = $request->bearerToken();
+        $currentLanguage = $request->input('lang');
+        $msg = '';
+
+        if (!$token) {
+            if ($currentLanguage == 'ar') {
+                $msg = 'أنت مسجل الدخول من جهاز آخر';
+            } else {
+                $msg = 'You are logged in from another device';
+            }
+            return response()->json(['success' => false, 'message' => $msg], 200);
+        }
+
+        // Check if the token is valid
+        if (Auth::guard('api')->check()) {
+            return response()->json(['success' => true], 200);
+        }
+
+        if ($currentLanguage == 'ar') {
+            $msg = 'أنت مسجل الدخول من جهاز آخر';
+        } else {
+            $msg = 'You are logged in from another device';
+        }
+        return response()->json(['success' => false, 'message' => $msg], 200);
+    }
+    /**
      * Send a WhatsApp message using the Facebook Graph API.
      *
      * @param string $recipientNumber The WhatsApp number of the recipient.
      * @param string $messageContent The content of the message.
      * @return string The response from the Facebook Graph API.
      */
-    public static function sendWhatsAppMessage($lang,$recipientNumber, $messageContent)
+    public static function sendWhatsAppMessage($lang, $recipientNumber, $messageContent)
     {
         $accessToken = 'EAANDSztKdFQBOyD2vkZAKM5VIdz6JGeaMsZAqRxD6WShrKghUri8we90AmrktDEJRNJnZBNldhBOLpHTszvC2bZBRM72AGqfEi4LOyWCQKX6SboASzz4Cx82SpvLIjZAeXx21RtOcNnymON5DsC2ZAyj2ZBSit9EufQKm6s4nU5ReOLZALbCVo4sVDtdETvecZBBt';
         $graphApiUrl = 'https://graph.facebook.com/v18.0/183130461559224/messages';
@@ -421,7 +421,20 @@ class AuthController extends Controller
                                 "text" => $messageContent
                             ]
                         ]
+                    ],
+                    [
+                        "type" => "button",
+                        "sub_type" => "url",
+                        "index" => "0",
+                        "parameters" => [
+                            [
+                                "type" => "text",
+                                "text" => $messageContent
+                            ]
+                        ]
                     ]
+
+
                 ]
             ]
         ];
@@ -431,7 +444,6 @@ class AuthController extends Controller
             'Authorization' => 'Bearer ' . $accessToken
         ])->post($graphApiUrl, $postData);
 
-        return $response->json();    
+        return $response->json();
     }
 }
-
