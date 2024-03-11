@@ -830,13 +830,15 @@ class UserController extends Controller
 
         if (empty($otp) || is_null($otp)) {
             // Invalid or missing OTP, return an error response
-           
+        
             $errorMessage = $lang === 'ar' ? "تم ارسال رمز التفعيل عبر الواتس اب الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to whatsapp number $mobilenumber. Please enter the code.";
             return response()->json(['success' => true, 'step' => 2, 'message' => $errorMessage,], 200);
         }
-
+     
+        
         if ($otp != $storedOtp) {
             // Incorrect OTP, return an error response
+            dd($storedOtp,$otp);
             $errorMessage = $lang === 'ar' ? ' كود  otp  غير صحيح' : 'incorrect OTP code, please check and try again ';
             return response()->json(['error' => $errorMessage, "OTP" => true, "Success" => true], 200);
         }
