@@ -256,15 +256,17 @@ class WebsiteManagerController extends Controller
                         $region = new Region();
                         $region->fill($data);
                         $region->save();
-                        return "Region added successfully.";
+                        return response()->json(['message' =>'Region added successfully']);
+
                         break;
                     case 'delete':
                         $region = Region::find($data['id']);
                         if ($region) {
                             $region->delete();
-                            return "Region deleted successfully.";
+                            return response()->json(['message' =>'Region deleted successfully']);
                         } else {
-                            return "Region not found.";
+                            return response()->json(['message' =>'Region not found']);
+
                         }
                         break;
                     case 'edit':
@@ -272,13 +274,16 @@ class WebsiteManagerController extends Controller
                         if ($region) {
                             $region->fill($data);
                             $region->save();
-                            return "Region updated successfully.";
+                            return response()->json(['message' =>'Region updated successfully']);
+
                         } else {
-                            return "Region not found.";
+                            return response()->json(['message' =>'Region not found']);
+
                         }
                         break;
                     default:
-                        return "Invalid action.";
+                        return response()->json(['message' =>'Invalid action']);
+
                 }
                 break;
 
@@ -288,15 +293,18 @@ class WebsiteManagerController extends Controller
                         $storeCategory = new StoreCategory();
                         $storeCategory->fill($data);
                         $storeCategory->save();
-                        return "Store category added successfully.";
+                        return response()->json(['message' =>'Store category added successfully']);
+
                         break;
                     case 'delete':
                         $storeCategory = StoreCategory::find($data['id']);
                         if ($storeCategory) {
                             $storeCategory->delete();
-                            return "Store category deleted successfully.";
+                            return response()->json(['message' =>'Store category deleted successfully']);
+
                         } else {
-                            return "Store category not found.";
+                            return response()->json(['message' =>'Store category not found']);
+
                         }
                         break;
                     case 'edit':
@@ -304,9 +312,11 @@ class WebsiteManagerController extends Controller
                         if ($storeCategory) {
                             $storeCategory->fill($data);
                             $storeCategory->save();
-                            return "Store category updated successfully.";
+                            return response()->json(['message' =>'Store category updated successfully']);
+
                         } else {
-                            return "Store category not found.";
+                            return response()->json(['message' =>'Store category not found']);
+
                         }
                         break;
                     default:
