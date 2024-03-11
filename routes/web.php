@@ -24,6 +24,8 @@ use App\Http\Controllers\WebsiteManagerController;
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('main');
 Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::get('/privacy', [HomeController::class, 'index'])->name('home');
+Route::get('/terms', [HomeController::class, 'index'])->name('home');
 Route::get('/switch-language', [LanguageController::class, 'switchLanguage'])->name('switchLanguage');
 
 // Guest routes
