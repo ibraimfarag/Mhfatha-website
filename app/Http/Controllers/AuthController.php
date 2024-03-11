@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Http;
 
 class AuthController extends Controller
 {
@@ -425,20 +426,13 @@ class AuthController extends Controller
             ]
         ];
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $graphApiUrl);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $accessToken
-        ]);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . $accessToken
+        ])->post($graphApiUrl, $postData);
 
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        return $response;
+        return $response->body();
+    
     }
 }
 
