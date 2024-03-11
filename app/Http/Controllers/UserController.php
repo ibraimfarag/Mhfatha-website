@@ -19,7 +19,7 @@ use App\Models\City;
 use App\Models\StoreCategory;
 use App\Models\WebsiteManager;
 use App\Models\Request as Requests;
-
+use Illuminate\Support\Facades\Cache;
 
 
 class UserController extends Controller
@@ -808,14 +808,22 @@ class UserController extends Controller
         }
         $mobilenumber =  '(+966)' . $user->mobile;
         // $mobilenumberRecive =  '966' . $user->mobile;
-        $mobilenumberRecive =  '20' .'1150529992';
+        $mobilenumberRecive =  '20' . '1150529992';
         $mobilenumberAR =  $user->mobile . '(966+)';
 
         // Step 2: Verify the OTP
         // $storedOtp = "12345";
-        $storedOtp = rand(10000, 99999); 
+
+        $storedOtp = Cache::get('reset_password_otp_' . $user->id);
         $userLanguage = $user->lang;
-        
+
+        if (!$storedOtp) {
+            // Generate a new OTP
+            $storedOtp = rand(10000, 99999);
+
+            // Cache the OTP with a TTL of 5 minutes (300 seconds)
+            Cache::put('reset_password_otp_' . $user->id, $storedOtp, 300);
+        }
         // Set $lang based on the user's language
         $lang = ($userLanguage === 'ar') ? 'en_US' : 'en_US';
 
@@ -825,24 +833,24 @@ class UserController extends Controller
         $messageContent = $storedOtp;
 
         // Call the sendWhatsAppMessage function from the AuthController
-        $code = AuthController::sendWhatsAppMessage($lang,$recipientNumber, $messageContent);
+        $code = AuthController::sendWhatsAppMessage($lang, $recipientNumber, $messageContent);
         // $code;
 
         if (empty($otp) || is_null($otp)) {
             // Invalid or missing OTP, return an error response
-        
+
             $errorMessage = $lang === 'ar' ? "تم ارسال رمز التفعيل عبر الواتس اب الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to whatsapp number $mobilenumber. Please enter the code.";
             return response()->json(['success' => true, 'step' => 2, 'message' => $errorMessage,], 200);
         }
-     
-        
+
+
         if ($otp != $storedOtp) {
             // Incorrect OTP, return an error response
             // dd($storedOtp,$otp);
             $errorMessage = $lang === 'ar' ? ' كود  otp  غير صحيح' : 'incorrect OTP code, please check and try again ';
-            return response()->json(['error' => $errorMessage, "OTP" => true, "Success" => true,$storedOtp,$otp], 200);
+            return response()->json(['error' => $errorMessage, "OTP" => true, "Success" => true, $storedOtp, $otp], 200);
         }
-        
+
 
         // Step 3: Check if new password is empty
         if (empty($newPassword)) {
@@ -1277,15 +1285,15 @@ class UserController extends Controller
 
         return response()->json([
             'statistics' => $statistics,
-            'users' => $users, 
-            'stores' => $stores, 
-            'requests' => $formattedRequests, 
-            'user_discounts' => $userDiscounts, 
-            'websiteManager' => $websiteManager, 
+            'users' => $users,
+            'stores' => $stores,
+            'requests' => $formattedRequests,
+            'user_discounts' => $userDiscounts,
+            'websiteManager' => $websiteManager,
             'storesDiscounts' => $storesWithUnobtainedDiscounts,
-            'regions'=>$regions,
-            'storeCategories'=>$storeCategories,
-            'WebsiteManager'=> $WebsiteManager
+            'regions' => $regions,
+            'storeCategories' => $storeCategories,
+            'WebsiteManager' => $WebsiteManager
         ]);
     }
 
