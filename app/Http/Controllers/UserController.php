@@ -807,13 +807,30 @@ class UserController extends Controller
             return response()->json(['error' => $errorMessage], 404);
         }
         $mobilenumber =  '(+966)' . $user->mobile;
+        // $mobilenumberRecive =  '966' . $user->mobile;
+        $mobilenumberRecive =  '20' .'1150529992';
         $mobilenumberAR =  $user->mobile . '(966+)';
 
         // Step 2: Verify the OTP
-        $storedOtp = "12345";
+        // $storedOtp = "12345";
+        $storedOtp = rand(100000, 999999); 
+        $userLanguage = $user->lang;
+
+        // Set $lang based on the user's language
+        $lang = ($userLanguage === 'ar') ? 'en_US' : 'en_US';
+
+        $recipientNumber = $mobilenumberRecive;
+
+        // Message content to be sent
+        $messageContent = $storedOtp;
+
+        // Call the sendWhatsAppMessage function from the AuthController
+        $response = AuthController::sendWhatsAppMessage($lang,$recipientNumber, $messageContent);
+
 
         if (empty($otp) || is_null($otp)) {
             // Invalid or missing OTP, return an error response
+            $response;
             $errorMessage = $lang === 'ar' ? "تم ارسال رمز التفعيل عبر الواتس اب الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to whatsapp number $mobilenumber. Please enter the code.";
             return response()->json(['success' => true, 'step' => 2, 'message' => $errorMessage], 200);
         }

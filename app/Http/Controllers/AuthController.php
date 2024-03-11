@@ -388,5 +388,57 @@ class AuthController extends Controller
          }
          return response()->json(['success' => false, 'message' => $msg], 200);
      }
-     
+       /**
+     * Send a WhatsApp message using the Facebook Graph API.
+     *
+     * @param string $recipientNumber The WhatsApp number of the recipient.
+     * @param string $messageContent The content of the message.
+     * @return string The response from the Facebook Graph API.
+     */
+    public static function sendWhatsAppMessage($lang,$recipientNumber, $messageContent)
+    {
+        $accessToken = 'EAANDSztKdFQBOyD2vkZAKM5VIdz6JGeaMsZAqRxD6WShrKghUri8we90AmrktDEJRNJnZBNldhBOLpHTszvC2bZBRM72AGqfEi4LOyWCQKX6SboASzz4Cx82SpvLIjZAeXx21RtOcNnymON5DsC2ZAyj2ZBSit9EufQKm6s4nU5ReOLZALbCVo4sVDtdETvecZBBt';
+        $graphApiUrl = 'https://graph.facebook.com/v18.0/183130461559224/messages';
+
+        $postData = [
+            "messaging_product" => "whatsapp",
+            "recipient_type" => "individual",
+            "to" => $recipientNumber,
+            "type" => "template",
+            "template" => [
+                "name" => "otppassword",
+                "language" => [
+                    "code" => $lang
+                    // "code" => "en_US"
+                ],
+                "components" => [
+                    [
+                        "type" => "body",
+                        "parameters" => [
+                            [
+                                "type" => "text",
+                                "text" => $messageContent
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $graphApiUrl);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $accessToken
+        ]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
+    }
 }
+
