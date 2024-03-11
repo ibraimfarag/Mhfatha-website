@@ -812,8 +812,8 @@ class UserController extends Controller
         $mobilenumberAR =  $user->mobile . '(966+)';
 
         // Step 2: Verify the OTP
-        $storedOtp = "12345";
-        // $storedOtp = rand(10000, 99999); 
+        // $storedOtp = "12345";
+        $storedOtp = rand(10000, 99999); 
         $userLanguage = $user->lang;
         
         // Set $lang based on the user's language
