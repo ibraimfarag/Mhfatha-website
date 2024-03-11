@@ -812,10 +812,10 @@ class UserController extends Controller
         $mobilenumberAR =  $user->mobile . '(966+)';
 
         // Step 2: Verify the OTP
-        // $storedOtp = "12345";
+        $storedOtp = "12345";
         $storedOtp = rand(10000, 99999); 
         $userLanguage = $user->lang;
-
+        
         // Set $lang based on the user's language
         $lang = ($userLanguage === 'ar') ? 'en_US' : 'en_US';
 
@@ -826,7 +826,7 @@ class UserController extends Controller
 
         // Call the sendWhatsAppMessage function from the AuthController
         $code = AuthController::sendWhatsAppMessage($lang,$recipientNumber, $messageContent);
-        $code;
+        // $code;
 
         if (empty($otp) || is_null($otp)) {
             // Invalid or missing OTP, return an error response
