@@ -291,13 +291,13 @@ class WebsiteManagerController extends Controller
                 switch ($action) {
                     case 'add':
                         $storeCategory = new StoreCategory();
-                        $storeCategory->fill($data);
+                        $storeCategory->fill($jsonData);
                         $storeCategory->save();
                         return response()->json(['message' =>'Store category added successfully']);
 
                         break;
                     case 'delete':
-                        $storeCategory = StoreCategory::find($data['id']);
+                        $storeCategory = StoreCategory::find($jsonData['id']);
                         if ($storeCategory) {
                             $storeCategory->delete();
                             return response()->json(['message' =>'Store category deleted successfully']);
@@ -308,9 +308,9 @@ class WebsiteManagerController extends Controller
                         }
                         break;
                     case 'edit':
-                        $storeCategory = StoreCategory::find($data['id']);
+                        $storeCategory = StoreCategory::find($jsonData['id']);
                         if ($storeCategory) {
-                            $storeCategory->fill($data);
+                            $storeCategory->fill($jsonData);
                             $storeCategory->save();
                             return response()->json(['message' =>'Store category updated successfully']);
 
