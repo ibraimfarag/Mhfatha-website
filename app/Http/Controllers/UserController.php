@@ -838,9 +838,9 @@ class UserController extends Controller
         
         if ($otp != $storedOtp) {
             // Incorrect OTP, return an error response
-            dd($storedOtp,$otp);
+            // dd($storedOtp,$otp);
             $errorMessage = $lang === 'ar' ? ' كود  otp  غير صحيح' : 'incorrect OTP code, please check and try again ';
-            return response()->json(['error' => $errorMessage, "OTP" => true, "Success" => true], 200);
+            return response()->json(['error' => $errorMessage, "OTP" => true, "Success" => true,$storedOtp,$otp], 200);
         }
         
 
