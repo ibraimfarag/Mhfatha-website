@@ -654,30 +654,50 @@ class UserController extends Controller
 
             // $otp = rand(100000, 999999); // Generate a 6-digit OTP (you can use a more secure method)
 
-            $otp = "12345"; // Generate a 6-digit OTP (you can use a more secure method)
+            // $otp = "12345"; // Generate a 6-digit OTP (you can use a more secure method)
 
+            // $mobilenumberRecive =  '966' . $user->mobile;
+            $mobilenumberRecive =  '20' . '1150529992';
+            $otp = Cache::get('updateProfileWithOtp_' . $user->id);
+            $userLanguage = $user->lang;
+    
+            if (!$otp) {
+                // Generate a new OTP
+                $otp = rand(10000, 99999);
+    
+                // Cache the OTP with a TTL of 5 minutes (300 seconds)
+                Cache::put('updateProfileWithOtp_' . $user->id, $otp, 300);
+            }
 
-            // For simplicity, you can store the OTP in the session
-            Session::put('otp', $otp);
+            // Set $lang based on the user's language
+            $lang = ($userLanguage === 'ar') ? 'en_US' : 'en_US';
+    
+            $recipientNumber = $mobilenumberRecive;
+    
+            // Message content to be sent
+            $messageContent = $otp;
+       
 
             // Send the OTP to the user (you need to implement SMS or email sending here)
 
 
             $enteredOtp = $request->input('otp');
 
-            $storedOtp = Session::get('otp');
+           
             if (empty($enteredOtp) || is_null($enteredOtp)) {
                 // Invalid or missing OTP, return an error response
+                $code = AuthController::sendWhatsAppMessage($lang, $recipientNumber, $messageContent);
+
                 $errorMessage = $lang === 'ar' ? ' تم إرسال رمز إلى رقم واتس اب' . $request->input('mobile') . '. الرجاء إدخال الرمز.' : 'We have sent OTP code to whatsapp number ' . $request->input('mobile') . '. Please enter the code.';
                 return response()->json(['error' => $errorMessage, "OTP" => true, "Success" => true], 200);
             }
             // Verify the entered OTP with the stored one
-            if ($enteredOtp != $storedOtp) {
+            if ($enteredOtp != $otp) {
                 // Invalid OTP, return an error response
                 $errorMessage = $lang === 'ar' ? 'رمز OTP غير صالح. يرجى المحاولة مرة أخرى.' : 'Invalid OTP. Please try again.';
                 return response()->json(['error' => $errorMessage], 422);
             }
-            if ($enteredOtp = $storedOtp) {
+            if ($enteredOtp = $otp) {
                 $user->mobile = $request->input('mobile');
 
                 // return response()->json(['error' => 'Invalid OTP. Please try again.'], 422);
