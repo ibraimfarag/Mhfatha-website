@@ -254,13 +254,13 @@ class WebsiteManagerController extends Controller
                 switch ($action) {
                     case 'add':
                         $region = new Region();
-                        $region->fill($data);
+                        $region->fill($jsonData);
                         $region->save();
                         return response()->json(['message' =>'Region added successfully']);
 
                         break;
                     case 'delete':
-                        $region = Region::find($data['id']);
+                        $region = Region::find($jsonData['id']);
                         if ($region) {
                             $region->delete();
                             return response()->json(['message' =>'Region deleted successfully']);
@@ -270,9 +270,9 @@ class WebsiteManagerController extends Controller
                         }
                         break;
                     case 'edit':
-                        $region = Region::find($data['id']);
+                        $region = Region::find($jsonData['id']);
                         if ($region) {
-                            $region->fill($data);
+                            $region->fill($jsonData);
                             $region->save();
                             return response()->json(['message' =>'Region updated successfully']);
 
