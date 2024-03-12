@@ -845,7 +845,7 @@ class UserController extends Controller
             Cache::put('reset_password_otp_' . $user->id, $storedOtp, 300);
         }
         // Set $lang based on the user's language
-        $lang = ($userLanguage === 'ar') ? 'en_US' : 'en_US';
+        $langs = ($userLanguage === 'ar') ? 'en_US' : 'en_US';
 
         $recipientNumber = $mobilenumberRecive;
 
@@ -858,7 +858,7 @@ class UserController extends Controller
 
         if (empty($otp) || is_null($otp)) {
             // Invalid or missing OTP, return an error response
-            $code = AuthController::sendWhatsAppMessage($lang, $recipientNumber, $messageContent);
+            $code = AuthController::sendWhatsAppMessage($langs, $recipientNumber, $messageContent);
             $errorMessage = $lang === 'ar' ? "تم ارسال رمز التفعيل عبر الواتس اب الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to whatsapp number $mobilenumber. Please enter the code.";
             return response()->json(['success' => true, 'step' => 2, 'message' => $errorMessage,], 200);
         }
