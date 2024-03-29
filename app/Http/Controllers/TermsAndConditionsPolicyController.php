@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\TermsAndConditionsPolicy;
+use App\Models\Terms;
 
 class TermsAndConditionsPolicyController extends Controller
 {
@@ -30,7 +30,7 @@ class TermsAndConditionsPolicyController extends Controller
 
         // If policy type is not empty, fetch the corresponding terms and conditions
         if (!empty($policyType)) {
-            $termsAndConditionsPolicy = TermsAndConditionsPolicy::where('type', $policyType)->first();
+            $termsAndConditionsPolicy = Terms::where('type', $policyType)->first();
 
             // Check language and set the response accordingly
             if ($termsAndConditionsPolicy) {
@@ -74,7 +74,7 @@ class TermsAndConditionsPolicyController extends Controller
 
         // If policy type is not empty, update the terms and conditions
         if (!empty($policyType)) {
-            $termsAndConditionsPolicy = TermsAndConditionsPolicy::where('type', $policyType)->first();
+            $termsAndConditionsPolicy = Terms::where('type', $policyType)->first();
 
             // Check if the policy exists
             if ($termsAndConditionsPolicy) {
@@ -84,7 +84,7 @@ class TermsAndConditionsPolicyController extends Controller
                 $termsAndConditionsPolicy->save();
             } else {
                 // Create a new policy if it doesn't exist
-                TermsAndConditionsPolicy::create([
+                Terms::create([
                     'type' => $policyType,
                     'arabic_content' => $newArabicContent,
                     'english_content' => $newEnglishContent,

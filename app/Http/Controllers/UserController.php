@@ -18,7 +18,7 @@ use App\Models\Region; // Import the Region model
 use App\Models\City;
 use App\Models\StoreCategory;
 use App\Models\WebsiteManager;
-use App\TermsAndConditionsPolicy;
+use App\Models\terms;
 use App\Models\Request as Requests;
 use Illuminate\Support\Facades\Cache;
 
@@ -1075,7 +1075,7 @@ class UserController extends Controller
         $stores = Store::all();
         $regions = Region::all();
         $storeCategories = StoreCategory::all();
-        $Terms = TermsAndConditionsPolicy::all();
+        $Terms = Terms::all();
 
         // Fetch all requests with approved status as 0
         $requests = Requests::where('approved', 0)->get();
