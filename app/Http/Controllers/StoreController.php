@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use App\Models\StoreCategory;
 use App\Models\Region; // Import the Region model
 use App\Models\WebsiteManager;
+use App\Models\TermsAndConditionsPolicy;
 use App\Models\City;
 use Illuminate\Validation\ValidationException;
 use App\Models\Discount;
@@ -776,6 +777,7 @@ class StoreController extends Controller
         $userId = auth()->id();
         // Retrieve stores associated with the authenticated user
         $userStores = Store::where('user_id', $userId)->where('is_deleted', 0)->get();
+        $commission = WebsiteManager::first()->commission;
 
         // Count verified stores where verification = 1 and is_bann = 0 and is_deleted = 0
         $verifiedStoresCount = Store::where('user_id', auth()->id())
@@ -823,6 +825,7 @@ class StoreController extends Controller
             'pendingStoresCount' => $pendingStoresCount,
             'sumCountTimes' => $sumCountTimes,
             'sumTotalPayments' => $sumTotalPayments,
+            'commission' => $commission,
         ]);
     }
 

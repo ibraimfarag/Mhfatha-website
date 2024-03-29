@@ -10,6 +10,7 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WebsiteManagerController;
 use App\Http\Controllers\RequestsController;
+use App\Http\Controllers\TermsAndConditionsPolicyController;
 
 
 /*
@@ -56,6 +57,7 @@ Route::middleware('auth:api')->group(
         Route::get('/user', [UserController::class, 'getUserInfoApi']);
         Route::post('/auth/changepassword', [UserController::class, 'changePassword']);
         Route::post('/auth/update', [UserController::class, 'updateProfileWithOtp']);
+        Route::post('/auth/updateAuthUserStatus', [UserController::class, 'updateAuthUserStatus']);
         Route::post('/nearby', [StoreController::class, 'nearbyApi']);
         Route::post('/store', [StoreController::class, 'storeInfoApi']);
         Route::post('/stores/search-by-name', [StoreController::class, 'searchByNameApi']);
@@ -63,6 +65,7 @@ Route::middleware('auth:api')->group(
         Route::post('/discounts-post', [UserDiscountController::class, 'postUserDiscount']);
         Route::post('/user-discounts', [UserDiscountController::class, 'getAllUserDiscounts']);
         Route::post('/filter-stores', [StoreController::class, 'filterStoresApi']);
+        Route::post('/TermsAndConditions', [TermsAndConditionsPolicyController::class, 'getTermsAndConditions']);
 
         // /* --------------------------------- vendor --------------------------------- */
 
@@ -98,6 +101,8 @@ Route::middleware('auth:api')->group(
             Route::post('accounts', [WebsiteManagerController::class, 'acceptDiscounts']);
 
             Route::post('sets', [WebsiteManagerController::class, 'manageRecords']);
+
+            Route::post('/TermsAndConditions', [TermsAndConditionsPolicyController::class, 'updateTermsAndConditions']);
 
 
 

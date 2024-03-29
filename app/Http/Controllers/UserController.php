@@ -18,6 +18,7 @@ use App\Models\Region; // Import the Region model
 use App\Models\City;
 use App\Models\StoreCategory;
 use App\Models\WebsiteManager;
+use App\TermsAndConditionsPolicy;
 use App\Models\Request as Requests;
 use Illuminate\Support\Facades\Cache;
 
@@ -660,30 +661,30 @@ class UserController extends Controller
             $mobilenumberRecive =  '20' . '1150529992';
             $otp = Cache::get('updateProfileWithOtp_' . $user->id);
             $userLanguage = $user->lang;
-    
+
             if (!$otp) {
                 // Generate a new OTP
                 $otp = rand(10000, 99999);
-    
+
                 // Cache the OTP with a TTL of 5 minutes (300 seconds)
                 Cache::put('updateProfileWithOtp_' . $user->id, $otp, 300);
             }
 
             // Set $lang based on the user's language
             $lang = ($userLanguage === 'ar') ? 'en_US' : 'en_US';
-    
+
             $recipientNumber = $mobilenumberRecive;
-    
+
             // Message content to be sent
             $messageContent = $otp;
-       
+
 
             // Send the OTP to the user (you need to implement SMS or email sending here)
 
 
             $enteredOtp = $request->input('otp');
 
-           
+
             if (empty($enteredOtp) || is_null($enteredOtp)) {
                 // Invalid or missing OTP, return an error response
                 $code = AuthController::sendWhatsAppMessage($lang, $recipientNumber, $messageContent);
@@ -853,7 +854,7 @@ class UserController extends Controller
         $messageContent = $storedOtp;
 
         // Call the sendWhatsAppMessage function from the AuthController
-       
+
         // $code;
 
         if (empty($otp) || is_null($otp)) {
@@ -1074,7 +1075,8 @@ class UserController extends Controller
         $stores = Store::all();
         $regions = Region::all();
         $storeCategories = StoreCategory::all();
-        $WebsiteManager = WebsiteManager::all();
+        $Terms = TermsAndConditionsPolicy::all();
+
         // Fetch all requests with approved status as 0
         $requests = Requests::where('approved', 0)->get();
 
@@ -1313,7 +1315,7 @@ class UserController extends Controller
             'storesDiscounts' => $storesWithUnobtainedDiscounts,
             'regions' => $regions,
             'storeCategories' => $storeCategories,
-            'WebsiteManager' => $WebsiteManager
+            'Terms' => $Terms,
         ]);
     }
 
@@ -1392,5 +1394,68 @@ class UserController extends Controller
 
         // Return a success response
         return response()->json(['message' => $message]);
+    }
+    function updateAuthUserStatus(Request $request)
+    {
+        // Validate the incoming JSON data
+        $request->validate([
+            'lang' => 'nullable|string|in:en,ar', // Optional language input
+            'action' => 'required|string|in:go to user,go to vendor,go to delete',
+        ]);
+
+        // Retrieve the authenticated user
+        $use = Auth::user();
+        $user = User::find($use->id);
+
+        // Check if the user is authenticated
+        if (!$user) {
+            return response()->json(['error' => 'User not authenticated.'], 401);
+        }
+
+        // Retrieve the action from the JSON input
+        $action = $request->input('action');
+        // Retrieve the language from the JSON input or default to 'en'
+        $lang = $request->input('lang', 'en');
+
+        // Define response messages in English and Arabic
+        $messages = [
+            'en' => [
+                'go to user' => 'User status updated to regular user.',
+                'go to vendor' => 'User status updated to vendor.',
+                'go to delete' => 'User deleted successfully.',
+                'invalid action' => 'Invalid action.',
+            ],
+            'ar' => [
+                'go to user' => 'تم تحديث حالة المستخدم إلى مستخدم عادي.',
+                'go to vendor' => 'تم تحديث حالة المستخدم إلى بائع.',
+                'go to delete' => 'تم حذف المستخدم بنجاح.',
+                'invalid action' => 'إجراء غير صالح.',
+            ],
+        ];
+
+        // Check if the language is set to Arabic
+        $responseMsg = $lang === 'ar' ? $messages['ar'][$action] : $messages['en'][$action];
+
+        // Update user status based on the action
+        switch ($action) {
+            case 'go to user':
+                $user->is_vendor = 0;
+                $user->save();
+                break;
+            case 'go to vendor':
+                $user->is_vendor = 1;
+                $user->save();
+                break;
+            case 'go to delete':
+                $user->is_deleted = 1;
+                $user->save();
+                break;
+            default:
+                // Return error response for invalid action
+                return response()->json(['error' => $messages[$lang]['invalid action']], 422);
+        }
+
+        // Return success response
+        return response()->json(['message' => $responseMsg]);
     }
 }
