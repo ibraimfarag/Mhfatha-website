@@ -44,6 +44,7 @@ Route::get('/update-discounts', [UserDiscountController::class, 'checkDiscountsE
 Route::post('/checkversion', [WebsiteManagerController::class, 'getVersion']);
 
 
+Route::post('/TermsAndConditions', [TermsAndConditionsPolicyController::class, 'getTermsAndConditions']);
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
@@ -65,7 +66,6 @@ Route::middleware('auth:api')->group(
         Route::post('/discounts-post', [UserDiscountController::class, 'postUserDiscount']);
         Route::post('/user-discounts', [UserDiscountController::class, 'getAllUserDiscounts']);
         Route::post('/filter-stores', [StoreController::class, 'filterStoresApi']);
-        Route::post('/TermsAndConditions', [TermsAndConditionsPolicyController::class, 'getTermsAndConditions']);
 
         // /* --------------------------------- vendor --------------------------------- */
 
