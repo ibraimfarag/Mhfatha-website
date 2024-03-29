@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\TermsAndConditionsPolicy;
+use App\Models\TermsAndConditionsPolicy;
 
 class TermsAndConditionsPolicyController extends Controller
 {
