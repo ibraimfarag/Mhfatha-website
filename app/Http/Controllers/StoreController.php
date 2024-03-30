@@ -22,7 +22,7 @@ use Illuminate\Validation\ValidationException;
 use App\Models\Discount;
 use App\Models\Request as StoreRequest;
 use Carbon\Carbon;
-
+use Illuminate\Validation\Rule;
 class StoreController extends Controller
 {
     public function index(Request $request)
@@ -874,8 +874,19 @@ class StoreController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:191',
             'location' => 'required|max:191',
-            'phone' => 'required|max:10|min:10|unique:users,mobile|unique:stores,phone',
-            'region' => 'required|string|max:255',
+            'phone' => [
+                'required',
+                'max:10',
+                'min:10',
+                Rule::unique('users', 'mobile')->ignore(auth()->id()), // Ignore the current user's mobile number
+                function ($attribute, $value, $fail) use ($request) {
+                    // Custom validation rule to limit duplication to 5 times
+                    $duplicates = Store::where('phone', $value)->count();
+                    if ($duplicates >= 5) {
+                        $fail('The phone number has already been used 5 times.');
+                    }
+                },
+            ],            'region' => 'required|string|max:255',
             'photo' => 'nullable',
             'status' => 'required|boolean',
             'category_id' => 'required|integer',
