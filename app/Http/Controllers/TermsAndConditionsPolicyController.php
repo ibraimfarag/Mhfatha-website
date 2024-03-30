@@ -32,6 +32,9 @@ class TermsAndConditionsPolicyController extends Controller
         if (!empty($policyType)) {
             $termsAndConditionsPolicy = Terms::where('type', $policyType)->first();
     
+            // Debugging statement to check the value of $termsAndConditionsPolicy->content
+            dd($termsAndConditionsPolicy->content);
+    
             // Check language and set the response accordingly
             if ($termsAndConditionsPolicy) {
                 $response = json_decode($termsAndConditionsPolicy->content, true); // Decode JSON content
