@@ -18,7 +18,7 @@ use App\Models\Region; // Import the Region model
 use App\Models\City;
 use App\Models\StoreCategory;
 use App\Models\WebsiteManager;
-use App\Models\terms;
+use App\Models\Terms;
 use App\Models\Request as Requests;
 use Illuminate\Support\Facades\Cache;
 
