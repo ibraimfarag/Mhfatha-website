@@ -11,10 +11,10 @@ class TermsAndConditionsPolicyController extends Controller
     {
         $userType = $request->input('user_type'); // assuming 'user_type' is sent in the request
         $language = $request->input('lang'); // assuming 'lang' is sent in the request
-
+    
         // Define default response if no matching policy is found
         $response = "No terms and conditions found.";
-
+    
         // Switch case to handle different user types
         switch ($userType) {
             case 'user':
@@ -27,23 +27,20 @@ class TermsAndConditionsPolicyController extends Controller
                 $policyType = ''; // Handle default case if needed
                 break;
         }
-
+    
         // If policy type is not empty, fetch the corresponding terms and conditions
         if (!empty($policyType)) {
             $termsAndConditionsPolicy = Terms::where('type', $policyType)->first();
-
+    
             // Check language and set the response accordingly
             if ($termsAndConditionsPolicy) {
-                if ($language == 'ar') {
-                    $response = $termsAndConditionsPolicy->arabic_content;
-                } else {
-                    $response = $termsAndConditionsPolicy->english_content;
-                }
+                $response = json_decode($termsAndConditionsPolicy->content, true); // Decode JSON content
             }
         }
-
+    
         return response()->json(['terms_and_conditions' => $response]);
     }
+    
     public function updateTermsAndConditions(Request $request)
     {
         $userType = $request->input('user_type'); // assuming 'user_type' is sent in the request
