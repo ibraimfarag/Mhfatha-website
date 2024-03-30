@@ -22,6 +22,7 @@ use Illuminate\Validation\ValidationException;
 use App\Models\Discount;
 use App\Models\Request as StoreRequest;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 
 class StoreController extends Controller
 {
@@ -874,8 +875,12 @@ class StoreController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:191',
             'location' => 'required|max:191',
-            'phone' => 'required|max:10|min:10|unique:users,mobile|unique:stores,phone',
-            'region' => 'required|string|max:255',
+            'phone' => [
+                'required',
+                'max:10',
+                'min:10',
+                'max_duplicates:5,phone,stores', // Limit duplication to 5 times in the 'stores' table
+            ],        'region' => 'required|string|max:255',
             'photo' => 'nullable',
             'status' => 'required|boolean',
             'category_id' => 'required|integer',
