@@ -1248,7 +1248,7 @@ class UserController extends Controller
             'type' => $request->type,
             'type_name_en' => $typeNameEn,
             'type_name_ar' => $typeNameAr,
-            'store_info' => $request->store->toArray(), // Add store information
+            // 'store_info' => $request->store->toArray(), // Add store information
         ];
             }else {
                 // If the request type is not "update_store," add basic information without comparisons
