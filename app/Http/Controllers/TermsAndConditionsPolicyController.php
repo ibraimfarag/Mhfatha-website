@@ -34,7 +34,7 @@ class TermsAndConditionsPolicyController extends Controller
     
             // Check language and set the response accordingly
             if ($termsAndConditionsPolicy) {
-                $response = ($language == 'ar') ? $termsAndConditionsPolicy->arabic_content : $termsAndConditionsPolicy->english_content;
+                $response = ($language == 'ar') ? json_decode($termsAndConditionsPolicy->arabic_content ): json_decode($termsAndConditionsPolicy->english_content);
             }
         }
     
