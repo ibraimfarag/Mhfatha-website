@@ -1237,7 +1237,20 @@ class UserController extends Controller
                     'type_name_ar' => $typeNameAr,
                     'differences' => $differences,
                 ];
-            } else {
+            } else if ($request->type == 'create_store') {
+
+                 $formattedRequests[] = [
+            'id' => $request->id,
+            'user_id' => $request->user_id,
+            'user_name' => $userName,
+            'store_id' => $request->store_id,
+            'store_name' => $storeName,
+            'type' => $request->type,
+            'type_name_en' => $typeNameEn,
+            'type_name_ar' => $typeNameAr,
+            'store_info' => $request->store->toArray(), // Add store information
+        ];
+            }else {
                 // If the request type is not "update_store," add basic information without comparisons
                 $formattedRequests[] = [
                     'id' => $request->id,
