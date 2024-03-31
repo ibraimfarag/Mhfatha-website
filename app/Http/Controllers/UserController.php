@@ -1238,6 +1238,13 @@ class UserController extends Controller
                     'differences' => $differences,
                 ];
             } else if ($request->type == 'create_store') {
+                // Get the region name
+                $regionNameEn = $request->store->region ? $request->store->region->region_en : null;
+                $regionNameAr = $request->store->region ? $request->store->region->region_ar : null;
+
+                // Get the category name
+                $categoryNameEn = $request->store->category ? $request->store->category->category_name_en : null;
+                $categoryNameAr = $request->store->category ? $request->store->category->category_name_ar : null;
 
                 $formattedRequests[] = [
                     'id' => $request->id,
@@ -1248,7 +1255,27 @@ class UserController extends Controller
                     'type' => $request->type,
                     'type_name_en' => $typeNameEn,
                     'type_name_ar' => $typeNameAr,
-                    'store_info' => $request->store->toArray(), // Add store information
+                    'store_info' => [
+                
+                        'location' => $request->store->location,
+                        'phone' => $request->store->phone,
+                    
+                        'photo' => $request->store->photo,
+                       
+                      
+                        'region_id' => $request->store->region,
+                        'region_name_en' => $regionNameEn,
+                        'region_name_ar' => $regionNameAr,
+                     
+                     
+                        'latitude' => $request->store->latitude,
+                        'longitude' => $request->store->longitude,
+                        'category_id' => $request->store->category_id,
+                        'category_name_en' => $categoryNameEn,
+                        'category_name_ar' => $categoryNameAr,
+                        'tax_number' => $request->store->tax_number,
+                    ],
+                    
                 ];
             } else {
                 // If the request type is not "update_store," add basic information without comparisons
