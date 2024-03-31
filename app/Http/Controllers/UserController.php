@@ -1238,13 +1238,17 @@ class UserController extends Controller
                     'differences' => $differences,
                 ];
             } else if ($request->type == 'create_store') {
-                // Get the region name
-                $regionNameEn = $request->region ? $request->region->region_en : null;
-                $regionNameAr = $request->region ? $request->region->region_ar : null;
 
-                // Get the category name
-                $categoryNameEn = $request->category ? $request->store->category->category_name_en : null;
-                $categoryNameAr = $request->category ? $request->store->category->category_name_ar : null;
+                
+                // Get the region name
+                $region = Region::find($request->store->region);
+                $regionNameEn = $region ? $region->region_en : null;
+                $regionNameAr = $region ? $region->region_ar : null;
+            
+                // Retrieve category name from the Category model
+                $category = StoreCategory::find($request->store->category_id);
+                $categoryNameEn = $category ? $category->category_name_en : null;
+                $categoryNameAr = $category ? $category->category_name_ar : null;
 
                 $formattedRequests[] = [
                     'id' => $request->id,
