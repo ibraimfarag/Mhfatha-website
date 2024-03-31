@@ -48,10 +48,10 @@ class MaxUnique implements Rule
     public function message()
     {
         if ($this->lang === 'ar') {
-            return "الـ :attribute قد وصل إلى الحد الأقصى المسموح به من القيم المتميزة $this->maxCount.";
+            return "هذا الرقم قد وصل إلى الحد الأقصى المسموح به من الاستخدام $this->maxCount مرات، يرجى اختيار رقم آخر.";
         }
         
-        return "The :attribute has already reached the maximum allowed unique count of $this->maxCount.";
+        return "This number has already reached the maximum allowed $this->maxCount times, please choose another number.";
     }
 }
 
