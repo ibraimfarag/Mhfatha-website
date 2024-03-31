@@ -1256,18 +1256,18 @@ class UserController extends Controller
                     'type_name_en' => $typeNameEn,
                     'type_name_ar' => $typeNameAr,
                     'store_info' => [
-                
+
                         'location' => $request->store->location,
                         'phone' => $request->store->phone,
-                    
+
                         'photo' => $request->store->photo,
-                       
-                      
+
+
                         'region_id' => $request->store->region,
                         'region_name_en' => $regionNameEn,
                         'region_name_ar' => $regionNameAr,
-                     
-                     
+
+
                         'latitude' => $request->store->latitude,
                         'longitude' => $request->store->longitude,
                         'category_id' => $request->store->category_id,
@@ -1275,7 +1275,7 @@ class UserController extends Controller
                         'category_name_ar' => $categoryNameAr,
                         'tax_number' => $request->store->tax_number,
                     ],
-                    
+
                 ];
             } else {
                 // If the request type is not "update_store," add basic information without comparisons
