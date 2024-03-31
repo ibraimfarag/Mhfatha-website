@@ -314,7 +314,7 @@ class AuthController extends Controller
         // Generate and send OTP
       
         // Send the OTP to the user's mobile number (you need to implement SMS sending here)
-$testvar =Cache::get('register' .$request->input('mobile'));
+        $testvar = trim(Cache::get('register' . $request->input('mobile')));
         // Check if the entered OTP matches the generated OTP
         if ($enteredOtp !== $testvar) {
             // Invalid OTP, return an error response
