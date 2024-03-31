@@ -1239,12 +1239,12 @@ class UserController extends Controller
                 ];
             } else if ($request->type == 'create_store') {
                 // Get the region name
-                $regionNameEn = $request->store->region ? $request->store->region->region_en : null;
-                $regionNameAr = $request->store->region ? $request->store->region->region_ar : null;
+                $regionNameEn = $request->region ? $request->region->region_en : null;
+                $regionNameAr = $request->region ? $request->region->region_ar : null;
 
                 // Get the category name
-                $categoryNameEn = $request->store->category ? $request->store->category->category_name_en : null;
-                $categoryNameAr = $request->store->category ? $request->store->category->category_name_ar : null;
+                $categoryNameEn = $request->category ? $request->store->category->category_name_en : null;
+                $categoryNameAr = $request->category ? $request->store->category->category_name_ar : null;
 
                 $formattedRequests[] = [
                     'id' => $request->id,
