@@ -28,11 +28,14 @@ class MaxUnique implements Rule
 {
     protected $field;
     protected $maxCount;
+    protected $lang;
 
-    public function __construct($field, $maxCount)
+   
+    public function __construct($field, $maxCount, $lang)
     {
         $this->field = $field;
         $this->maxCount = $maxCount;
+        $this->lang = $lang;
     }
 
     public function passes($attribute, $value)
@@ -44,6 +47,10 @@ class MaxUnique implements Rule
 
     public function message()
     {
+        if ($this->lang === 'ar') {
+            return "الـ :attribute قد وصل إلى الحد الأقصى المسموح به من القيم المتميزة $this->maxCount.";
+        }
+        
         return "The :attribute has already reached the maximum allowed unique count of $this->maxCount.";
     }
 }
@@ -899,7 +906,7 @@ class StoreController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:191',
             'location' => 'required|max:191',
-            'phone' => ['required', 'max:10', 'min:10', new MaxUnique('phone', 5)], // Using custom validation rule
+            'phone' => ['required', 'max:10', 'min:10', new MaxUnique('phone', 5,$lang)], // Using custom validation rule
             'region' => 'required|string|max:255',
             'photo' => 'nullable',
             'status' => 'required|boolean',
