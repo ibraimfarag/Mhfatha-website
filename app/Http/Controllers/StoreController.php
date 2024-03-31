@@ -22,10 +22,9 @@ use Illuminate\Validation\ValidationException;
 use App\Models\Discount;
 use App\Models\Request as StoreRequest;
 use Carbon\Carbon;
-use Illuminate\Validation\Rule;
+use Illuminate\Contracts\Validation\Rule;
 
-
-class MaxUnique implements Rule
+class MaxUnique
 {
     protected $field;
     protected $maxCount;
@@ -41,11 +40,6 @@ class MaxUnique implements Rule
         $count = Store::where($this->field, $value)->count();
 
         return $count < $this->maxCount;
-    }
-
-    public function message()
-    {
-        return "The $this->field has already reached the maximum allowed unique count of $this->maxCount.";
     }
 }
 
