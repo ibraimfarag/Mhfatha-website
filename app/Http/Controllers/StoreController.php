@@ -24,7 +24,7 @@ use App\Models\Request as StoreRequest;
 use Carbon\Carbon;
 use Illuminate\Contracts\Validation\Rule;
 
-class MaxUnique
+class MaxUnique implements Rule
 {
     protected $field;
     protected $maxCount;
@@ -40,6 +40,11 @@ class MaxUnique
         $count = Store::where($this->field, $value)->count();
 
         return $count < $this->maxCount;
+    }
+
+    public function message()
+    {
+        return "The :attribute has already reached the maximum allowed unique count of $this->maxCount.";
     }
 }
 
