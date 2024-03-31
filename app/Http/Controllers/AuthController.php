@@ -13,6 +13,9 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
+
+
 
 class AuthController extends Controller
 {
@@ -271,7 +274,16 @@ class AuthController extends Controller
         $mobilenumberAR =  $request->input('mobile') . '(966+)';
         $mobilenumberRecive =  '966' . $request->input('mobile');
         $recipientNumber = $mobilenumberRecive;
-        
+        $otp = Cache::get('register' .$request->input('mobile'));
+   
+
+        if (!$otp) {
+            // Generate a new OTP
+            $otp = rand(10000, 99999);
+
+            // Cache the OTP with a TTL of 5 minutes (300 seconds)
+            Cache::put('register' . $request->input('mobile'), $otp, 300);
+        }
         // Check if a new photo was uploaded
         if ($request->hasFile('photo')) {
             $image = $request->file('photo');
@@ -283,11 +295,10 @@ class AuthController extends Controller
         }
 
 
-        $otp = rand(10000, 99999);
         // $otp = "12345"; // Generate a 6-digit OTP (you can use a more secure method)
 
 // For simplicity, you can store the OTP in the session
-Session::put('otp', $otp);
+
 
         $messageContent = $otp;
 
