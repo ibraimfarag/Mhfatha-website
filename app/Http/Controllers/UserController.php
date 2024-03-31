@@ -828,8 +828,8 @@ class UserController extends Controller
             return response()->json(['error' => $errorMessage], 404);
         }
         $mobilenumber =  '(+966)' . $user->mobile;
-        // $mobilenumberRecive =  '966' . $user->mobile;
-        $mobilenumberRecive =  '20' . '1150529992';
+        $mobilenumberRecive =  '966' . $user->mobile;
+        // $mobilenumberRecive =  '20' . '1150529992';
         $mobilenumberAR =  $user->mobile . '(966+)';
 
         // Step 2: Verify the OTP

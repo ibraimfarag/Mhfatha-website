@@ -245,7 +245,8 @@ class AuthController extends Controller
 
         ]);
 
-
+        $lang = $request->input('lang');
+        $langs = ($lang === 'ar') ? 'en_US' : 'en_US';
 
         // Check if validation fails
         if ($validator->fails()) {
@@ -268,7 +269,9 @@ class AuthController extends Controller
 
         $mobilenumber =  '(+966)' . $request->input('mobile');
         $mobilenumberAR =  $request->input('mobile') . '(966+)';
-
+        $mobilenumberRecive =  '966' . $request->input('mobile');
+        $recipientNumber = $mobilenumberRecive;
+        
         // Check if a new photo was uploaded
         if ($request->hasFile('photo')) {
             $image = $request->file('photo');
@@ -280,20 +283,25 @@ class AuthController extends Controller
         }
 
 
+        $otp = rand(10000, 99999);
+        // $otp = "12345"; // Generate a 6-digit OTP (you can use a more secure method)
+
+// For simplicity, you can store the OTP in the session
+Session::put('otp', $otp);
+
+        $messageContent = $otp;
+
         $enteredOtp = $request->input('otp');
         if (empty($enteredOtp) || is_null($enteredOtp)) {
             // OTP is required, return an error response
+            $code = AuthController::sendWhatsAppMessage($langs, $recipientNumber, $messageContent);
+
             $errorMessage = $currentLanguage === 'ar' ? "تم ارسال رمز التفعيل عبر الواتس اب الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to whatsapp number $mobilenumber. Please enter the code.";
             return response()->json(['success' => true, "OTP" => true, 'message' => $errorMessage], 200);
         }
 
         // Generate and send OTP
-        // $otp = rand(10000, 99999); // Generate a 6-digit OTP (you can use a more secure method)
-        $otp = "12345"; // Generate a 6-digit OTP (you can use a more secure method)
-
-        // For simplicity, you can store the OTP in the session
-        Session::put('otp', $otp);
-
+      
         // Send the OTP to the user's mobile number (you need to implement SMS sending here)
 
         // Check if the entered OTP matches the generated OTP
@@ -319,7 +327,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'photo' => $imageName,
         ]);
-        $lang = $request->input('lang');
+   
 
 
         $successMessage = ($currentLanguage === 'ar') ? 'تم التسجيل بنجاح.' : 'Registration successful!';
