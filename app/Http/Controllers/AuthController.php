@@ -314,12 +314,12 @@ class AuthController extends Controller
         // Generate and send OTP
       
         // Send the OTP to the user's mobile number (you need to implement SMS sending here)
-
+$testvar =Cache::get('register' .$request->input('mobile'));
         // Check if the entered OTP matches the generated OTP
         if ($enteredOtp !== Cache::get('register' .$request->input('mobile'))) {
             // Invalid OTP, return an error response
             $errorMessage = $currentLanguage === 'ar' ? 'رمز OTP غير صالح. يرجى المحاولة مرة أخرى.' : 'Invalid OTP. Please try again.';
-            return response()->json(['success' => false, 'message' => $errorMessage], 400);
+            return response()->json(['success' => false, 'message' => $errorMessage,'otp'=>$testvar], 400);
         }
 
 
