@@ -301,20 +301,20 @@ class AuthController extends Controller
 
 
         $messageContent = $otp;
-
+        
+        $testvar = trim(Cache::get('register' . $request->input('mobile')));
         $enteredOtp = $request->input('otp');
         if (empty($enteredOtp) || is_null($enteredOtp)) {
             // OTP is required, return an error response
             $code = AuthController::sendWhatsAppMessage($langs, $recipientNumber, $messageContent);
 
             $errorMessage = $currentLanguage === 'ar' ? "تم ارسال رمز التفعيل عبر الواتس اب الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to whatsapp number $mobilenumber. Please enter the code.";
-            return response()->json(['success' => true, "OTP" => true, 'message' => $errorMessage], 200);
+            return response()->json(['success' => true, "OTP" => true, 'message' => $errorMessage,'otp'=>$testvar], 200);
         }
 
         // Generate and send OTP
       
         // Send the OTP to the user's mobile number (you need to implement SMS sending here)
-        $testvar = trim(Cache::get('register' . $request->input('mobile')));
         // Check if the entered OTP matches the generated OTP
         if ($enteredOtp !== $testvar) {
             // Invalid OTP, return an error response
