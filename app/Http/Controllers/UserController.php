@@ -657,8 +657,8 @@ class UserController extends Controller
 
             // $otp = "12345"; // Generate a 6-digit OTP (you can use a more secure method)
 
-            // $mobilenumberRecive =  '966' . $user->mobile;
-            $mobilenumberRecive =  '20' . '1150529992';
+            $mobilenumberRecive =  '966' . $user->mobile;
+            // $mobilenumberRecive =  '20' . '1150529992';
             $otp = Cache::get('updateProfileWithOtp_' . $user->id);
             $userLanguage = $user->lang;
 
