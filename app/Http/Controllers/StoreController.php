@@ -30,7 +30,7 @@ class MaxUnique implements Rule
     protected $maxCount;
     protected $lang;
 
-   
+
     public function __construct($field, $maxCount, $lang)
     {
         $this->field = $field;
@@ -50,7 +50,7 @@ class MaxUnique implements Rule
         if ($this->lang === 'ar') {
             return "هذا الرقم قد وصل إلى الحد الأقصى المسموح به من الاستخدام $this->maxCount مرات، يرجى اختيار رقم آخر.";
         }
-        
+
         return "This number has already reached the maximum allowed $this->maxCount times, please choose another number.";
     }
 }
@@ -906,7 +906,7 @@ class StoreController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:191',
             'location' => 'required|max:191',
-            'phone' => ['required', 'max:10', 'min:10', new MaxUnique('phone', 5,$lang)], // Using custom validation rule
+            'phone' => ['required', 'max:10', 'min:10', new MaxUnique('phone', 5, $lang)], // Using custom validation rule
             'region' => 'required|string|max:255',
             'photo' => 'nullable',
             'status' => 'required|boolean',
@@ -949,12 +949,12 @@ class StoreController extends Controller
             $store->photo = 'null-market.png'; // Change 'null-market.png' to your default image filename
         }
         $regionId = $request->input('region');
-        $regionNameAR= Region::find($regionId)->region_ar;
-        $regionNameEn= Region::find($regionId)->region_en;
-        
+        $regionNameAR = Region::find($regionId)->region_ar;
+        $regionNameEn = Region::find($regionId)->region_en;
+
         $categoryId = $request->input('category_id');
-    $categoryNameAr = StoreCategory::find($categoryId)->category_name_ar;
-    $categoryNameEn = StoreCategory::find($categoryId)->category_name_en;
+        $categoryNameAr = StoreCategory::find($categoryId)->category_name_ar;
+        $categoryNameEn = StoreCategory::find($categoryId)->category_name_en;
 
         // Save the selected work days and their working hours
         $workDays = $request->input('work_days');
@@ -1207,12 +1207,18 @@ class StoreController extends Controller
 
     public function updateStore(Request $request)
     {
-        // Validate the incoming request data
+
+        $storeId = $request->input('store_id');
+        $lang = $request->input('lang');
+        $store = Store::find($storeId);
+
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
             'store_id' => 'required|exists:stores,id',
             'name' => 'required|max:191',
             'location' => 'required|max:191',
+            'phone' => ['required', 'max:10', 'min:10', new MaxUnique('phone', 5, $lang)], // Using custom validation rule
+
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust the file size and allowed types as needed
             'work_days' => 'required', // Assuming work_days is an array
             'latitude' => 'required|numeric',
@@ -1249,9 +1255,6 @@ class StoreController extends Controller
             return response()->json(['status' => 'error', 'errors' => $errors], 422);
         }
 
-        $storeId = $request->input('store_id');
-        $lang = $request->input('lang');
-        $store = Store::find($storeId);
 
         // Check if the store exists
         if (!$store) {
@@ -1265,18 +1268,20 @@ class StoreController extends Controller
         $nameChanged = $request->filled('name') && $store->name !== $request->input('name');
         $photoChanged = $request->hasFile('photo');
         $taxNumberChanged = $request->filled('tax_number') && $store->tax_number !== $request->input('tax_number');
+        $mobileNumberChanged = $request->filled('phone') && $store->tax_number !== $request->input('phone');
+
         $categoryIdChanged = $request->filled('category_id') && $store->category_id !== $request->input('category_id');
         $regionChanged = $request->filled('region') && $store->region !== $request->input('region');
         $regionId = $request->input('region');
-        $regionNameAR= Region::find($regionId)->region_ar;
-        $regionNameEn= Region::find($regionId)->region_en;
-        
+        $regionNameAR = Region::find($regionId)->region_ar;
+        $regionNameEn = Region::find($regionId)->region_en;
+
         $categoryId = $request->input('category_id');
-    $categoryNameAr = StoreCategory::find($categoryId)->category_name_ar;
-    $categoryNameEn = StoreCategory::find($categoryId)->category_name_en;
+        $categoryNameAr = StoreCategory::find($categoryId)->category_name_ar;
+        $categoryNameEn = StoreCategory::find($categoryId)->category_name_en;
 
         // If any relevant field has changed, create a request for approval
-        if ($nameChanged || $photoChanged || $taxNumberChanged || $categoryIdChanged || $regionChanged) {
+        if ($nameChanged || $photoChanged || $taxNumberChanged || $categoryIdChanged || $regionChanged || $mobileNumberChanged) {
             $requestData = [
                 'user_id' => auth()->id(),
                 'store_id' => $storeId,
@@ -1288,6 +1293,7 @@ class StoreController extends Controller
                     'latitude' => $request->input('latitude'),
                     'longitude' => $request->input('longitude'),
                     'tax_number' => $request->input('tax_number'),
+                    'phone' => $request->input('phone'),
                     'category_id' => $request->input('category_id'),
                     'region' => $request->input('region'),
 
@@ -1322,6 +1328,7 @@ class StoreController extends Controller
             'tax_number' => $request->input('tax_number', $store->tax_number),
             'category_id' => $request->input('category_id', $store->category_id),
             'region' => $request->input('region', $store->region),
+            'phone' => $request->input('region', $store->phone),
         ]);
 
         // Return a success response
