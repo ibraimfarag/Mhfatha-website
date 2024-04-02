@@ -308,17 +308,23 @@ class RequestsController extends Controller
                 case 'sendByFilters':
                     // Get users based on filters
                     $filteredUsersQuery = User::query();
-                
-        
-                
+                    
+                    // Add filters only if they are provided
+                    $filters = ['gender', 'birthday', 'region', 'is_vendor', 'is_admin', 'platform'];
+                    foreach ($filters as $filter) {
+                        if ($request->has($filter)) {
+                            $filteredUsersQuery->where($filter, $request->input($filter));
+                        }
+                    }
+                    
                     // Retrieve filtered users
                     $filteredUsers = $filteredUsersQuery->get();
-                
+                    
                     // Check if any users match the filters
                     if ($filteredUsers->isEmpty()) {
                         return response()->json(['message' => 'No users match the provided filters'], 404);
                     }
-                
+                    
                     // Send notifications to each filtered user
                     foreach ($filteredUsers as $user) {
                         // Determine language
@@ -330,7 +336,7 @@ class RequestsController extends Controller
                             $this->sendNotificationToUser($user, $accessToken, $apiUrl, $body, $title);
                         }
                     }
-                
+                    
                     // Return success message and list of filtered users
                     return response()->json(['message' => 'Notifications sent successfully', 'users' => $filteredUsers]);
                     break;
