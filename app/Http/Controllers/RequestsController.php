@@ -309,29 +309,7 @@ class RequestsController extends Controller
                     // Get users based on filters
                     $filteredUsersQuery = User::query();
                 
-                    if ($request->has('gender')) {
-                        $filteredUsersQuery->where('gender', $request->input('gender'));
-                    }
-                
-                    if ($request->has('birthday')) {
-                        $filteredUsersQuery->where('birthday', $request->input('birthday'));
-                    }
-                
-                    if ($request->has('region')) {
-                        $filteredUsersQuery->where('region', $request->input('region'));
-                    }
-                
-                    if ($request->has('is_vendor')) {
-                        $filteredUsersQuery->where('is_vendor', $request->input('is_vendor'));
-                    }
-                
-                    if ($request->has('is_admin')) {
-                        $filteredUsersQuery->where('is_admin', $request->input('is_admin'));
-                    }
-                
-                    if ($request->has('platform')) {
-                        $filteredUsersQuery->where('platform', $request->input('platform'));
-                    }
+        
                 
                     // Retrieve filtered users
                     $filteredUsers = $filteredUsersQuery->get();
