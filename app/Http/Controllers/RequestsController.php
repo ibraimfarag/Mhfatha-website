@@ -305,48 +305,58 @@ class RequestsController extends Controller
                 }
                 break;
 
-            case 'sendByFilters':
-                // Get users based on filters
-                $filteredUsersQuery = User::query();
-
-                if ($request->has('gender')) {
-                    $filteredUsersQuery->where('gender', $request->input('gender'));
-                }
-
-                if ($request->has('birthday')) {
-                    $filteredUsersQuery->where('birthday', $request->input('birthday'));
-                }
-
-                if ($request->has('region')) {
-                    $filteredUsersQuery->where('region', $request->input('region'));
-                }
-
-                if ($request->has('is_vendor')) {
-                    $filteredUsersQuery->where('is_vendor', $request->input('is_vendor'));
-                }
-
-                if ($request->has('is_admin')) {
-                    $filteredUsersQuery->where('is_admin', $request->input('is_admin'));
-                }
-
-                if ($request->has('platform')) {
-                    $filteredUsersQuery->where('platform', $request->input('platform'));
-                }
-                $filteredUsers = $filteredUsersQuery->get();
-
-                foreach ($filteredUsers as $user) {
-                    // Determine language
-                    $lang = $user->lang ?? 'en';
-
-                    if ($lang === 'ar') {
-                        $this->sendNotificationToUser($user, $accessToken, $apiUrl, $bodyAr, $titleAr);
-                    } else {
-                        $this->sendNotificationToUser($user, $accessToken, $apiUrl, $body, $title);
+                case 'sendByFilters':
+                    // Get users based on filters
+                    $filteredUsersQuery = User::query();
+                
+                    if ($request->has('gender')) {
+                        $filteredUsersQuery->where('gender', $request->input('gender'));
                     }
-                }
-                $response = response()->json(['message' => 'Notifications sent successfully','users'=>$filteredUsers]);
-                break;
-
+                
+                    if ($request->has('birthday')) {
+                        $filteredUsersQuery->where('birthday', $request->input('birthday'));
+                    }
+                
+                    if ($request->has('region')) {
+                        $filteredUsersQuery->where('region', $request->input('region'));
+                    }
+                
+                    if ($request->has('is_vendor')) {
+                        $filteredUsersQuery->where('is_vendor', $request->input('is_vendor'));
+                    }
+                
+                    if ($request->has('is_admin')) {
+                        $filteredUsersQuery->where('is_admin', $request->input('is_admin'));
+                    }
+                
+                    if ($request->has('platform')) {
+                        $filteredUsersQuery->where('platform', $request->input('platform'));
+                    }
+                
+                    // Retrieve filtered users
+                    $filteredUsers = $filteredUsersQuery->get();
+                
+                    // Check if any users match the filters
+                    if ($filteredUsers->isEmpty()) {
+                        return response()->json(['message' => 'No users match the provided filters'], 404);
+                    }
+                
+                    // Send notifications to each filtered user
+                    foreach ($filteredUsers as $user) {
+                        // Determine language
+                        $lang = $user->lang ?? 'en';
+                
+                        if ($lang === 'ar') {
+                            $this->sendNotificationToUser($user, $accessToken, $apiUrl, $bodyAr, $titleAr);
+                        } else {
+                            $this->sendNotificationToUser($user, $accessToken, $apiUrl, $body, $title);
+                        }
+                    }
+                
+                    // Return success message and list of filtered users
+                    return response()->json(['message' => 'Notifications sent successfully', 'users' => $filteredUsers]);
+                    break;
+                
 
             default:
                 return response()->json(['error' => 'Invalid action'], 400);
