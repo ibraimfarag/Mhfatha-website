@@ -306,42 +306,57 @@ class RequestsController extends Controller
                 break;
 
                 case 'sendByFilters':
-                    // Get users based on filters
+                    // Initialize query with base model
                     $filteredUsersQuery = User::query();
-                    
-                    // Add filters only if they are provided
-                    $filters = ['gender', 'birthday', 'region', 'is_vendor', 'is_admin', 'platform'];
-                    foreach ($filters as $filter) {
-                        if ($request->has($filter)) {
-                            $filteredUsersQuery->where($filter, $request->input($filter));
-                        }
+        
+                    // Apply filters if provided
+                    if ($request->filled('gender')) {
+                        $filteredUsersQuery->where('gender', $request->input('gender'));
                     }
-                    
+        
+                    if ($request->filled('birthday')) {
+                        $filteredUsersQuery->where('birthday', $request->input('birthday'));
+                    }
+        
+                    if ($request->filled('region')) {
+                        $filteredUsersQuery->where('region', $request->input('region'));
+                    }
+        
+                    if ($request->filled('is_vendor')) {
+                        $filteredUsersQuery->where('is_vendor', $request->input('is_vendor'));
+                    }
+        
+                    if ($request->filled('is_admin')) {
+                        $filteredUsersQuery->where('is_admin', $request->input('is_admin'));
+                    }
+        
+                    if ($request->filled('platform')) {
+                        $filteredUsersQuery->where('platform', $request->input('platform'));
+                    }
+        
                     // Retrieve filtered users
                     $filteredUsers = $filteredUsersQuery->get();
-                    
+        
                     // Check if any users match the filters
                     if ($filteredUsers->isEmpty()) {
                         return response()->json(['message' => 'No users match the provided filters'], 404);
                     }
-                    
+        
                     // Send notifications to each filtered user
                     foreach ($filteredUsers as $user) {
                         // Determine language
                         $lang = $user->lang ?? 'en';
-                
+        
                         if ($lang === 'ar') {
                             $this->sendNotificationToUser($user, $accessToken, $apiUrl, $bodyAr, $titleAr);
                         } else {
                             $this->sendNotificationToUser($user, $accessToken, $apiUrl, $body, $title);
                         }
                     }
-                    
+        
                     // Return success message and list of filtered users
                     return response()->json(['message' => 'Notifications sent successfully', 'users' => $filteredUsers]);
                     break;
-                
-
             default:
                 return response()->json(['error' => 'Invalid action'], 400);
         }
