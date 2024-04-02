@@ -254,116 +254,117 @@ class RequestsController extends Controller
         }
     }
     public function sendNotification(Request $request)
-    {
-        // Retrieve action, body, title, and recipient information from the request body
-        $action = $request->input('action');
-        $body = $request->input('body');
-        $title = $request->input('title');
-        $bodyAr = $request->input('body_ar');
-        $titleAr = $request->input('title_ar');
-        $recipientIdentifier = $request->input('recipient_identifier'); // This could be user ID, email, or mobile
+{
+    // Retrieve action, body, title, and recipient information from the request body
+    $action = $request->input('action');
+    $body = $request->input('body');
+    $title = $request->input('title');
+    $bodyAr = $request->input('body_ar');
+    $titleAr = $request->input('title_ar');
+    $recipientIdentifier = $request->input('recipient_identifier'); // This could be user ID, email, or mobile
+    $lang = $request->input('lang', 'en'); // Default language is English, or 'en'
 
-        // Initialize a new Google_Client
-        $client = new \Google\Client();
+    // Initialize a new Google_Client
+    $client = new \Google\Client();
 
-        // Set the authentication configuration using the provided JSON data
-        $client->setAuthConfig(public_path('firebase/mhfaata.json'));
+    // Set the authentication configuration using the provided JSON data
+    $client->setAuthConfig(public_path('firebase/mhfaata.json'));
 
-        // Add the necessary scope for Firebase Messaging
-        $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
+    // Add the necessary scope for Firebase Messaging
+    $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
 
-        // Use application default credentials
-        $client->useApplicationDefaultCredentials();
+    // Use application default credentials
+    $client->useApplicationDefaultCredentials();
 
-        // Get the URL for sending messages to FCM
-        $apiUrl = 'https://fcm.googleapis.com/v1/projects/mhfaata/messages:send';
+    // Get the URL for sending messages to FCM
+    $apiUrl = 'https://fcm.googleapis.com/v1/projects/mhfaata/messages:send';
 
-        // Obtain an access token
-        $client->fetchAccessTokenWithAssertion();
+    // Obtain an access token
+    $client->fetchAccessTokenWithAssertion();
 
-        // Get the access token
-        $accessToken = $client->getAccessToken()['access_token'];
+    // Get the access token
+    $accessToken = $client->getAccessToken()['access_token'];
 
-        // Initialize response variable
-        $response = null;
+    // Initialize response variable
+    $response = null;
 
-        // Select the case based on the provided action
-        switch ($action) {
-            case 'sendToUser':
-                // Find the user based on the provided identifier (ID, email, or mobile)
-                $user = $this->getUserByRecipientIdentifier($recipientIdentifier);
+    // Select the case based on the provided action
+    switch ($action) {
+        case 'sendToUser':
+            // Find the user based on the provided identifier (ID, email, or mobile)
+            $user = $this->getUserByRecipientIdentifier($recipientIdentifier);
 
-                if (!$user) {
-                    return response()->json(['error' => 'User not found'], 404);
-                }
-                $lang = $user->lang ?? 'en';
+            if (!$user) {
+                return response()->json(['error' => 'User not found'], 404);
+            }
 
+            if ($lang === 'ar') {
+                $response = $this->sendNotificationToUser($user, $accessToken, $apiUrl, $bodyAr, $titleAr);
+            } else {
+                $response = $this->sendNotificationToUser($user, $accessToken, $apiUrl, $body, $title);
+            }
+            break;
+
+        case 'sendByFilters':
+            // Initialize query with base model
+            $filteredUsersQuery = User::query();
+
+            // Apply filters if provided
+            if ($request->filled('gender')) {
+                $filteredUsersQuery->where('gender', $request->input('gender'));
+            }
+
+            if ($request->filled('birthday')) {
+                $filteredUsersQuery->where('birthday', $request->input('birthday'));
+            }
+
+            if ($request->filled('region')) {
+                $filteredUsersQuery->where('region', $request->input('region'));
+            }
+
+            if ($request->filled('is_vendor')) {
+                $filteredUsersQuery->where('is_vendor', $request->input('is_vendor'));
+            }
+
+            if ($request->filled('is_admin')) {
+                $filteredUsersQuery->where('is_admin', $request->input('is_admin'));
+            }
+
+            if ($request->filled('platform')) {
+                $filteredUsersQuery->where('platform', $request->input('platform'));
+            }
+
+            // Retrieve filtered users
+            $filteredUsers = $filteredUsersQuery->get();
+            $userCount = $filteredUsers->count();
+
+            // Check if any users match the filters
+            if ($filteredUsers->isEmpty()) {
+                return response()->json(['message' => ($lang === 'ar' ? 'لا يوجد مستخدمين يتطابقون مع الفلاتر المقدمة' : 'No users match the provided filters')], 404);
+            }
+
+            // Send notifications to each filtered user
+            foreach ($filteredUsers as $user) {
                 if ($lang === 'ar') {
-                    $response = $this->sendNotificationToUser($user, $accessToken, $apiUrl, $bodyAr, $titleAr);
+                    $this->sendNotificationToUser($user, $accessToken, $apiUrl, $bodyAr, $titleAr);
                 } else {
-                    $response = $this->sendNotificationToUser($user, $accessToken, $apiUrl, $body, $title);
+                    $this->sendNotificationToUser($user, $accessToken, $apiUrl, $body, $title);
                 }
-                break;
+            }
 
-                case 'sendByFilters':
-                    // Initialize query with base model
-                    $filteredUsersQuery = User::query();
-        
-                    // Apply filters if provided
-                    if ($request->filled('gender')) {
-                        $filteredUsersQuery->where('gender', $request->input('gender'));
-                    }
-        
-                    if ($request->filled('birthday')) {
-                        $filteredUsersQuery->where('birthday', $request->input('birthday'));
-                    }
-        
-                    if ($request->filled('region')) {
-                        $filteredUsersQuery->where('region', $request->input('region'));
-                    }
-        
-                    if ($request->filled('is_vendor')) {
-                        $filteredUsersQuery->where('is_vendor', $request->input('is_vendor'));
-                    }
-        
-                    if ($request->filled('is_admin')) {
-                        $filteredUsersQuery->where('is_admin', $request->input('is_admin'));
-                    }
-        
-                    if ($request->filled('platform')) {
-                        $filteredUsersQuery->where('platform', $request->input('platform'));
-                    }
-        
-                    // Retrieve filtered users
-                    $filteredUsers = $filteredUsersQuery->get();
-        
-                    // Check if any users match the filters
-                    if ($filteredUsers->isEmpty()) {
-                        return response()->json(['message' => 'No users match the provided filters'], 404);
-                    }
-        
-                    // Send notifications to each filtered user
-                    foreach ($filteredUsers as $user) {
-                        // Determine language
-                        $lang = $user->lang ?? 'en';
-        
-                        if ($lang === 'ar') {
-                            $this->sendNotificationToUser($user, $accessToken, $apiUrl, $bodyAr, $titleAr);
-                        } else {
-                            $this->sendNotificationToUser($user, $accessToken, $apiUrl, $body, $title);
-                        }
-                    }
-        
-                    // Return success message and list of filtered users
-                    return response()->json(['message' => 'Notifications sent successfully', 'users' => $filteredUsers]);
-                    break;
+            // Return success message and list of filtered users
+            return response()->json(['message' => ($lang === 'ar' ? 'تم إرسال الإشعارات بنجاح إلى ' . $userCount . ' مستخدم' : 'Notifications sent successfully to ' . $userCount . ' users'), 'user_count' => $userCount]);
+            break;
+
             default:
-                return response()->json(['error' => 'Invalid action'], 400);
-        }
-
-        // Return the response
-        return $response;
+            return response()->json(['message' => ($lang === 'ar' ? 'إجراء غير صالح' : 'Invalid action')], 400);
+        
     }
+
+    // Return the response
+    return $response;
+}
+
     private function getUserByRecipientIdentifier($identifier)
     {
         // Check if the identifier is numeric and has 10 digits (assuming it's a mobile number)
