@@ -344,7 +344,7 @@ class RequestsController extends Controller
                         $this->sendNotificationToUser($user, $accessToken, $apiUrl, $body, $title);
                     }
                 }
-                $response = response()->json(['message' => 'Notifications sent successfully','users'=>$filteredUsersQuery]);
+                $response = response()->json(['message' => 'Notifications sent successfully','users'=>$filteredUsers]);
                 break;
 
 
