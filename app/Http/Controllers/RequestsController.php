@@ -199,6 +199,7 @@ class RequestsController extends Controller
                         // Delete the store
                         // $store->delete();
                         $store->is_deleted = 1;
+                        $request->approved = 1;
                         $notificationParams = [
                             'action' => 'sendToUser',
                             'recipient_identifier' =>  $request->user_id, // Assuming user_id is the user associated with the store
@@ -285,7 +286,105 @@ class RequestsController extends Controller
                         return response()->json(['message' => 'Store not found'], 404);
                     }
                     break;
-        
+                   
+        case 'delete_store':
+            // Retrieve the store associated with the request
+            $store = Store::find($request->store_id);
+            $user = User::find($request->user_id);
+
+            // Check if the store exists
+            if ($store) {
+                // Delete the store
+                $store->delete();
+
+                $notificationParams = [
+                    'action' => 'sendToUser',
+                    'recipient_identifier' => $request->user_id,
+                ];
+
+                // Check if the user's language is Arabic
+                if ($user->lang === 'ar') {
+                    // If user's language is Arabic, set the title and body in Arabic
+                    $notificationParams['body'] = 'تم رفض حذف متجرك.';
+                    $notificationParams['title'] = 'حذف المتجر مرفوض';
+                } else {
+                    // If user's language is not Arabic, set the title and body in English or default language
+                    $notificationParams['body'] = 'Your store deletion has been rejected.';
+                    $notificationParams['title'] = 'Store Deletion Rejected';
+                }
+                // Call the sendNotification method
+                $this->sendNotification(new Request($notificationParams));
+
+                return response()->json(['message' => 'Store deletion rejected']);
+            } else {
+                return response()->json(['message' => 'Store not found'], 404);
+            }
+            break;
+
+        case 'delete_discount':
+            // Retrieve the discount associated with the request
+            $discount = Discount::find($request->discount_id);
+            $user = User::find($request->user_id);
+
+            // Check if the discount exists
+            if ($discount) {
+                // Delete the discount
+                $discount->delete();
+
+                $notificationParams = [
+                    'action' => 'sendToUser',
+                    'recipient_identifier' => $request->user_id,
+                ];
+
+                // Check if the user's language is Arabic
+                if ($user->lang === 'ar') {
+                    // If user's language is Arabic, set the title and body in Arabic
+                    $notificationParams['body'] = 'تم رفض حذف خصمك.';
+                    $notificationParams['title'] = 'حذف الخصم مرفوض';
+                } else {
+                    // If user's language is not Arabic, set the title and body in English or default language
+                    $notificationParams['body'] = 'Your discount deletion has been rejected.';
+                    $notificationParams['title'] = 'Discount Deletion Rejected';
+                }
+                // Call the sendNotification method
+                $this->sendNotification(new Request($notificationParams));
+
+                return response()->json(['message' => 'Discount deletion rejected']);
+            } else {
+                return response()->json(['message' => 'Discount not found'], 404);
+            }
+            break;
+
+        case 'update_store':
+            // Retrieve the store associated with the request
+            $store = Store::find($request->store_id);
+            $user = User::find($request->user_id);
+
+            // Check if the store exists
+            if ($store) {
+                $notificationParams = [
+                    'action' => 'sendToUser',
+                    'recipient_identifier' => $request->user_id,
+                ];
+
+                // Check if the user's language is Arabic
+                if ($user->lang === 'ar') {
+                    // If user's language is Arabic, set the title and body in Arabic
+                    $notificationParams['body'] = 'تم رفض تحديث متجرك.';
+                    $notificationParams['title'] = 'تحديث المتجر مرفوض';
+                } else {
+                    // If user's language is not Arabic, set the title and body in English or default language
+                    $notificationParams['body'] = 'Your store update has been rejected.';
+                    $notificationParams['title'] = 'Store Update Rejected';
+                }
+                // Call the sendNotification method
+                $this->sendNotification(new Request($notificationParams));
+
+                return response()->json(['message' => 'Store update rejected']);
+            } else {
+                return response()->json(['message' => 'Store not found'], 404);
+            }
+            break;
                 // Add more cases for other types if needed
                 default:
                     return response()->json(['message' => 'Unsupported request type'], 400);
