@@ -247,8 +247,53 @@ class RequestsController extends Controller
             // You can perform additional actions here if needed
             $request->approved = 2;
             $request->save();
+            
+            // Switch case for further actions based on the request type
+            switch ($request->type) {
+                case 'create_store':
+                    // Retrieve the store associated with the request
+                    $store = Store::find($request->store_id);
+                    $user = User::find($request->user_id);
+        
+                    // Check if the store exists
+                    if ($store) {
+                        // Set the verification column to 0 for the unapproved store
+                        $store->verification = 0;
+                        $store->is_deleted = 1;
+                        $store->save();
+        
+                        $notificationParams = [
+                            'action' => 'sendToUser',
+                            'recipient_identifier' => $request->user_id,
+                        ];
+        
+                        // Check if the user's language is Arabic
+                        if ($user->lang === 'ar') {
+                            // If user's language is Arabic, set the title and body in Arabic
+                            $notificationParams['body'] = 'تم رفض تحقق متجرك.';
+                            $notificationParams['title'] = 'تحقق المتجر مرفوض';
+                        } else {
+                            // If user's language is not Arabic, set the title and body in English or default language
+                            $notificationParams['body'] = 'Your store verification has been rejected.';
+                            $notificationParams['title'] = 'Store Verification Rejected';
+                        }
+                        // Call the sendNotification method
+                        $this->sendNotification(new Request($notificationParams));
+        
+                        return response()->json(['message' => 'Store verification set to 0']);
+                    } else {
+                        return response()->json(['message' => 'Store not found'], 404);
+                    }
+                    break;
+        
+                // Add more cases for other types if needed
+                default:
+                    return response()->json(['message' => 'Unsupported request type'], 400);
+            }
+        
             return response()->json(['message' => 'Request not approved']);
-        } else {
+        }
+         else {
             // Invalid action
             return response()->json(['message' => 'Invalid action'], 400);
         }
