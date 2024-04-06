@@ -1288,7 +1288,9 @@ class StoreController extends Controller
                 'type' => 'update_store',
                 'data' => json_encode([
                     'name' => $request->input('name'),
-                    'photo' => $request->hasFile('photo') ? $this->handleStoreImageUpload($store, $request->file('photo')) : $store->photo,
+                    // 'photo' => $request->hasFile('photo') ? $this->handleStoreImageUpload($store, $request->file('photo')) : $store->photo,
+                    'photo' => $request->hasFile('photo') ? $request->file('photo')->store('photos') : $store->photo,
+
                     'work_days' => $request->input('work_days'),
                     'latitude' => $request->input('latitude'),
                     'longitude' => $request->input('longitude'),
