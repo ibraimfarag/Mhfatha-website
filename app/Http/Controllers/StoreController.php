@@ -1282,15 +1282,26 @@ class StoreController extends Controller
 
         // If any relevant field has changed, create a request for approval
         if ($nameChanged || $photoChanged || $taxNumberChanged || $categoryIdChanged || $regionChanged || $mobileNumberChanged) {
+            // Delete the old image if it exists
+            if ($store->photo) {
+                $oldImagePath = public_path('store_images/' . $store->photo);
+                if (File::exists($oldImagePath)) {
+                    File::delete($oldImagePath);
+                }
+            }
+        
+            // Store the new store image
+            $imageName = time() . '.' . $request->file('photo')->getClientOriginalExtension();
+            $request->file('photo')->move(public_path('FrontEnd/assets/images/store_images'), $imageName);
+            $store->photo = $imageName;
+        
             $requestData = [
                 'user_id' => auth()->id(),
                 'store_id' => $storeId,
                 'type' => 'update_store',
                 'data' => json_encode([
                     'name' => $request->input('name'),
-                    // 'photo' => $request->hasFile('photo') ? $this->handleStoreImageUpload($store, $request->file('photo')) : $store->photo,
-                    'photo' => $request->hasFile('photo') ? $request->file('photo')->store('photos') : $store->photo,
-
+                    'photo' => $imageName, // Use the newly uploaded image name here
                     'work_days' => $request->input('work_days'),
                     'latitude' => $request->input('latitude'),
                     'longitude' => $request->input('longitude'),
@@ -1298,8 +1309,6 @@ class StoreController extends Controller
                     'phone' => $request->input('phone'),
                     'category_id' => $request->input('category_id'),
                     'region' => $request->input('region'),
-
-
                     'region_name_ar' => $regionNameAR,
                     'region_name_en' => $regionNameEn,
                     'category_name_ar' => $categoryNameAr,
@@ -1307,10 +1316,10 @@ class StoreController extends Controller
                 ]),
                 'approved' => false, // Set to false initially as it needs approval
             ];
-
+        
             // Add the request to the requests table
             $newRequest = StoreRequest::create($requestData);
-
+        
             // Return a response indicating that a request has been sent for approval
             return response()->json([
                 'status' => 'success',
@@ -1318,6 +1327,7 @@ class StoreController extends Controller
                 'request_id' => $newRequest->id,
             ]);
         }
+        
 
         // Update the store details if no request is needed or after the request is approved
         $store->update([
