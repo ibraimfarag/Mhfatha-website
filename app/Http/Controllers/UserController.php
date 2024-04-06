@@ -1213,10 +1213,10 @@ class UserController extends Controller
                                     'attribute_name_en' => $attributeTranslationEn,
                                     'attribute_name_ar' => $attributeTranslationAr,
                                     'attribute' => $key,
-                                    'old_value_en' => $oldStoreData[$key] !== null ? (int)$oldStoreData[$key] : null,
-                                    'old_value_ar' => $oldStoreData[$key] !== null ? (int)$oldStoreData[$key] : null,
-                                    'new_value_en' => (int)$value,
-                                    'new_value_ar' => (int)$value,
+                                    'old_value_en' => isset($oldStoreData[$key]) ? $oldStoreData[$key] : null,
+                                    'old_value_ar' => isset($oldStoreData[$key]) ? $oldStoreData[$key] : null,
+                                    'new_value_en' => $value,
+                                    'new_value_ar' => $value,
                                 ];
                             }
                         }
