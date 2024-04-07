@@ -1211,7 +1211,17 @@ class StoreController extends Controller
         $storeId = $request->input('store_id');
         $lang = $request->input('lang');
         $store = Store::find($storeId);
+          // Check if there are pending update requests for the store
+    $pendingRequests = StoreRequest::where('store_id', $storeId)
+        ->where('approved', '0')
+        ->exists();
 
+    if ($pendingRequests) {
+        return response()->json([
+            'status' => 'error',
+            'message' => ($lang === 'ar') ? 'آسف، لا يزال طلب التحديث السابق قيد الانتظار.' : 'Sorry, your last update request is still pending approval.',
+        ], 422);
+    }
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
             'store_id' => 'required|exists:stores,id',
