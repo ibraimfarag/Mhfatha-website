@@ -295,7 +295,7 @@ class RequestsController extends Controller
             // Check if the store exists
             if ($store) {
                 // Delete the store
-                $store->delete();
+                $store->is_deleted = 0;
 
                 $notificationParams = [
                     'action' => 'sendToUser',
