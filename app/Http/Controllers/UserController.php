@@ -1077,6 +1077,10 @@ class UserController extends Controller
         $storeCategories = StoreCategory::all();
         $Terms = Terms::all();
 
+        // Count of requests where approved = 0
+        $requestsCount = Requests::where('approved', 0)->count();
+
+
         // Fetch all requests with approved status as 0
         $requests = Requests::where('approved', 0)->get();
 
@@ -1239,12 +1243,12 @@ class UserController extends Controller
                 ];
             } else if ($request->type == 'create_store') {
 
-                
+
                 // Get the region name
                 $region = Region::find($request->store->region);
                 $regionNameEn = $region ? $region->region_en : null;
                 $regionNameAr = $region ? $region->region_ar : null;
-            
+
                 // Retrieve category name from the Category model
                 $category = StoreCategory::find($request->store->category_id);
                 $categoryNameEn = $category ? $category->category_name_en : null;
@@ -1335,7 +1339,7 @@ class UserController extends Controller
                 ];
             }
         }
-
+        $storesWithUnobtainedDiscountsCount = count($storesWithUnobtainedDiscounts);
         // Prepare the response
         $statistics = [
             'total_users' => $totalUsersCount,
@@ -1347,7 +1351,9 @@ class UserController extends Controller
             'user_discounts_count' => $userDiscountsCount,
             'total_payments_sum' => $totalPaymentsSum,
             'profits' => $profits,
-        ];
+            'requests_count' => $requestsCount, // Count of requests
+            'accounts_count'=> $storesWithUnobtainedDiscountsCount ,
+                ];
 
         return response()->json([
             'statistics' => $statistics,
