@@ -299,7 +299,10 @@ class RequestsController extends Controller
             if ($store) {
                 // Delete the store
                 $store->is_deleted = 0;
-
+                $request->approved = '2';
+             
+                $request->save();
+                $store->save();
                 $notificationParams = [
                     'action' => 'sendToUser',
                     'recipient_identifier' => $request->user_id,
@@ -333,7 +336,9 @@ class RequestsController extends Controller
             if ($discount) {
                 // Delete the discount
                 $discount->is_deleted = 0;
-
+                $request->approved = '2';
+                $request->save();
+                $discount->save();
                 $notificationParams = [
                     'action' => 'sendToUser',
                     'recipient_identifier' => $request->user_id,
@@ -362,9 +367,13 @@ class RequestsController extends Controller
             // Retrieve the store associated with the request
             $store = Store::find($request->store_id);
             $user = User::find($request->user_id);
-
+           
+            
             // Check if the store exists
             if ($store) {
+                $request->approved = '2';
+                $request->save();
+           
                 $notificationParams = [
                     'action' => 'sendToUser',
                     'recipient_identifier' => $request->user_id,
