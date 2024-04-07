@@ -1243,7 +1243,7 @@ class StoreController extends Controller
             'latitude.numeric' => ($request->input('lang') === 'ar') ? 'يجب أن يكون خط العرض رقمًا.' : 'The latitude must be a number.',
             'longitude.required' => ($request->input('lang') === 'ar') ? ' خط الطول مطلوب.' : 'The longitude field is required.',
             'longitude.numeric' => ($request->input('lang') === 'ar') ? 'يجب أن يكون خط الطول رقمًا.' : 'The longitude must be a number.',
-            'tax_number.max' => ($request->input('lang') === 'ar') ? 'يجب أن يكون رقم الضريبة أقل من :max حرف.' : 'The tax number must be less than :max characters.',
+            'tax_number.max' => ($request->input('lang') === 'ar') ? 'يجب أن يكون رقم السجل التجاري أقل من :max حرف.' : 'The tax number must be less than :max characters.',
             'category_id.exists' => ($request->input('lang') === 'ar') ? 'معرف التصنيف غير صالح.' : 'Invalid category ID.',
             'region.max' => ($request->input('lang') === 'ar') ? 'يجب أن يكون الإقليم أقل من :max حرف.' : 'The region must be less than :max characters.',
         ]);
