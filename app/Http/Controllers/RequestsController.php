@@ -226,7 +226,7 @@ class RequestsController extends Controller
 
                         // Call the sendNotification method
                         $this->sendNotification(new Request($notificationParams));
-                        return response()->json(['message' => 'Store deleted successfully']);
+                        return response()->json(['message' => 'Store deleted successfully','store'=>$store]);
                     } else {
                         return response()->json(['message' => 'Store not found'], 404);
                     }
