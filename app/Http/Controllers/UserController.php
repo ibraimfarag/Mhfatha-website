@@ -1353,6 +1353,7 @@ class UserController extends Controller
             'profits' => $profits,
             'requests_count' => $requestsCount, // Count of requests
             'accounts_count'=> $storesWithUnobtainedDiscountsCount ,
+            'padges_count'=>  $requestsCount + $storesWithUnobtainedDiscountsCount ,
                 ];
 
         return response()->json([
