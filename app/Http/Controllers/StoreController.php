@@ -882,7 +882,7 @@ class StoreController extends Controller
                 'url_map.required' => 'يجب تحديد المتجر على الخريطة.',
                 'work_days.required' => 'يجب تحديد أيام وأوقات العمل.',
                 'category_id.required' => 'يجب اختيار الفئة.',
-                'tax_number.required' => 'يجب إدخال رقم الضريبة.',
+                'tax_number.required' => 'يجب إدخال رقم السجل .',
                 'tax_number.max' => 'يجب أن يكون رقم الضريبة أقل من :max حرف.',
             ];
             $successMessage = '.تم ارسال طلب متجر جديد بنجاح, سوف يتم الموافقة عليه بعد المراجعة ';
