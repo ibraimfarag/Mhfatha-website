@@ -329,7 +329,7 @@ class RequestsController extends Controller
             // Check if the discount exists
             if ($discount) {
                 // Delete the discount
-                $discount->delete();
+                $discount->is_deleted = 0;
 
                 $notificationParams = [
                     'action' => 'sendToUser',
