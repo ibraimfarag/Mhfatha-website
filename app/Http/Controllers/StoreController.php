@@ -1297,12 +1297,12 @@ class StoreController extends Controller
 
         // If any relevant field has changed, create a request for approval
         if ($nameChanged || $photoChanged || $taxNumberChanged || $categoryIdChanged || $regionChanged || $mobileNumberChanged) {
-            if ($pendingRequests) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => ($lang === 'ar') ? 'نآسف، لا يزال طلبك السابق قيد الانتظار.' : 'Sorry, your last  request is still pending approval.',
-                ], 422);
-            }
+            // if ($pendingRequests) {
+            //     return response()->json([
+            //         'status' => 'error',
+            //         'message' => ($lang === 'ar') ? 'نآسف، لا يزال طلبك السابق قيد الانتظار.' : 'Sorry, your last  request is still pending approval.',
+            //     ], 422);
+            // }
             // Delete the old image if it exists
             if ($store->photo) {
                 $oldImagePath = public_path('store_images/' . $store->photo);
