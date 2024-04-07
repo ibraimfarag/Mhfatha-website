@@ -198,8 +198,8 @@ class RequestsController extends Controller
                     if ($store) {
                         // Delete the store
                         // $store->delete();
-                        $store->is_deleted = 1;
-                        $request->approved = 1;
+                        $delete=$store->is_deleted = 1;
+                        $approveed=$request->approved = 1;
                         $notificationParams = [
                             'action' => 'sendToUser',
                             'recipient_identifier' =>  $request->user_id, // Assuming user_id is the user associated with the store
@@ -226,7 +226,7 @@ class RequestsController extends Controller
 
                         // Call the sendNotification method
                         $this->sendNotification(new Request($notificationParams));
-                        return response()->json(['message' => 'Store deleted successfully','store'=>$store]);
+                        return response()->json(['message' => 'Store deleted successfully',$delete,$approveed]);
                     } else {
                         return response()->json(['message' => 'Store not found'], 404);
                     }
