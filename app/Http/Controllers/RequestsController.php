@@ -198,8 +198,8 @@ class RequestsController extends Controller
                     if ($store) {
                         // Delete the store
                         // $store->delete();
-                        $delete=$store->is_deleted = 1;
-                        $approveed=$request->approved = 1;
+                        $delete=$store->is_deleted = '1';
+                        $approveed=$request->approved = '1';
                         $notificationParams = [
                             'action' => 'sendToUser',
                             'recipient_identifier' =>  $request->user_id, // Assuming user_id is the user associated with the store
