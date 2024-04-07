@@ -1022,6 +1022,16 @@ class StoreController extends Controller
                 'error' => ($lang === 'ar' ? 'غير مصرح لك بحذف هذا المتجر' : 'You are not authorized to delete this store')
             ], 403);
         }
+        $pendingRequests = StoreRequest::where('store_id', $storeId)
+        ->where('approved', '0')
+        ->exists();
+
+    if ($pendingRequests) {
+        return response()->json([
+            'status' => 'error',
+            'message' => ($lang === 'ar') ? 'نآسف، لا يزال طلبك السابق قيد الانتظار.' : 'Sorry, your last  request is still pending approval.',
+        ], 422);
+    }
 
         // Set the 'is_deleted' field to 1
         // $store->is_deleted = 1;
@@ -1219,7 +1229,7 @@ class StoreController extends Controller
     if ($pendingRequests) {
         return response()->json([
             'status' => 'error',
-            'message' => ($lang === 'ar') ? 'آسف، لا يزال طلب التحديث السابق قيد الانتظار.' : 'Sorry, your last update request is still pending approval.',
+            'message' => ($lang === 'ar') ? 'نآسف، لا يزال طلبك السابق قيد الانتظار.' : 'Sorry, your last  request is still pending approval.',
         ], 422);
     }
         // Validate the incoming request data

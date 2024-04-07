@@ -212,6 +212,7 @@ class DiscountController extends Controller
 
     public function createDeleteDiscountRequest(Request $request)
     {
+
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
             'discount_id' => 'required|exists:discounts,id',
@@ -236,6 +237,16 @@ class DiscountController extends Controller
                 'message' => ($lang === 'ar') ? 'الخصم غير موجود.' : 'Discount not found.',
             ], 404);
         }
+        $pendingRequests = StoreRequest::where('store_id', $store)
+        ->where('approved', '0')
+        ->exists();
+
+    if ($pendingRequests) {
+        return response()->json([
+            'status' => 'error',
+            'message' => ($lang === 'ar') ? 'نآسف، لا يزال طلبك السابق قيد الانتظار.' : 'Sorry, your last  request is still pending approval.',
+        ], 422);
+    }
     
         // Create a request for deleting the discount
         $requestData = [
