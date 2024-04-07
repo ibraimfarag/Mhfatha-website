@@ -882,8 +882,8 @@ class StoreController extends Controller
                 'url_map.required' => 'يجب تحديد المتجر على الخريطة.',
                 'work_days.required' => 'يجب تحديد أيام وأوقات العمل.',
                 'category_id.required' => 'يجب اختيار الفئة.',
-                'tax_number.required' => 'يجب إدخال رقم السجل .',
-                'tax_number.max' => 'يجب أن يكون رقم الضريبة أقل من :max حرف.',
+                'tax_number.required' => ' يجب إدخال رقم السجل التجاري .',
+                'tax_number.max' => 'يجب أن يكون رقم السجل التجاري أقل من :max حرف.',
             ];
             $successMessage = '.تم ارسال طلب متجر جديد بنجاح, سوف يتم الموافقة عليه بعد المراجعة ';
         } else {
@@ -897,8 +897,8 @@ class StoreController extends Controller
                 'url_map.required' => 'Store map field is required.',
                 'work_days.required' => 'Works time and days are required.',
                 'category_id.required' => 'The category field is required.',
-                'tax_number.required' => 'The tax number field is required.',
-                'tax_number.max' => 'The tax number must be less than :max characters.',
+                'tax_number.required' => 'The commercial register field is required.',
+                'tax_number.max' => 'The commercial register must be less than :max characters.',
             ];
             $successMessage = 'new store request has been sent successfully. It will be approved after review.';
         }
