@@ -8,7 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\File;
+// use Illuminate\Support\Facades\File;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Response;
@@ -327,12 +327,12 @@ class StoreController extends Controller
     private function handleStoreImageUpload($store, $image)
     {
         // Delete the old store image (if it exists)
-        if ($store->photo) {
-            $oldImagePath = public_path('store_images/' . $store->photo);
-            if (File::exists($oldImagePath)) {
-                File::delete($oldImagePath);
-            }
-        }
+        // if ($store->photo) {
+        //     $oldImagePath = public_path('store_images/' . $store->photo);
+        //     if (File::exists($oldImagePath)) {
+        //         File::delete($oldImagePath);
+        //     }
+        // }
 
         // Store the new store image
         $imageName = time() . '.' . $image->getClientOriginalExtension();
@@ -398,12 +398,12 @@ class StoreController extends Controller
         // Update the store image
         if ($request->hasFile('store_image')) {
             // Delete the old profile image (if it exists)
-            if ($store->store_image) {
-                $oldImagePath = public_path('store_images/' . $store->store_image);
-                if (File::exists($oldImagePath)) {
-                    File::delete($oldImagePath);
-                }
-            }
+            // if ($store->store_image) {
+            //     $oldImagePath = public_path('store_images/' . $store->store_image);
+            //     if (File::exists($oldImagePath)) {
+            //         File::delete($oldImagePath);
+            //     }
+            // }
 
             // Store the new profile image
             $image = $request->file('store_image');
@@ -867,8 +867,7 @@ class StoreController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
-     * @param $file
-     * @return \Illuminate\Http\UploadedFile|string
+  
      */
     public function createStore(Request $request)
     {
@@ -1325,12 +1324,12 @@ class StoreController extends Controller
         if ($nameChanged || $photoChanged || $taxNumberChanged || $categoryIdChanged || $regionChanged || $mobileNumberChanged) {
 
             // Delete the old image if it exists
-            if ($store->photo) {
-                $oldImagePath = public_path('store_images/' . $store->photo);
-                if (File::exists($oldImagePath)) {
-                    File::delete($oldImagePath);
-                }
-            }
+            // if ($store->photo) {
+            //     $oldImagePath = public_path('store_images/' . $store->photo);
+            //     if (File::exists($oldImagePath)) {
+            //         File::delete($oldImagePath);
+            //     }
+            // }
 
             // Store the new store image
             $imageName = time() . '.' . $request->file('photo')->getClientOriginalExtension();
