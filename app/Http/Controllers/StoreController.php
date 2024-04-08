@@ -950,6 +950,11 @@ class StoreController extends Controller
 
 
 
+        // Store the new store image
+        // $imageName = time() . '.' . $request->file('photo')->getClientOriginalExtension();
+        // $request->file('photo')->move(public_path('FrontEnd/assets/images/store_images'), $imageName);
+        // $store->photo = $imageName;
+
 
 
 
@@ -991,7 +996,7 @@ class StoreController extends Controller
             'type' => 'create_store',
             'data' => json_encode([
                 'name' => $request->input('name'),
-                'photo' => $request->hasFile('photo') ? $this->handleStoreImageUpload($store, $request->file('photo')) : $store->photo,
+                'photo' =>$imageName,
                 'work_days' => $request->input('work_days'),
                 'latitude' => $request->input('latitude'),
                 'longitude' => $request->input('longitude'),
