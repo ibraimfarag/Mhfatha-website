@@ -938,7 +938,7 @@ class StoreController extends Controller
         $store->name = $request->input('name');
         $store->location = $request->input('location');
         $store->phone = $request->input('phone');
-        $store->photo = $request->input('photo');
+        // $store->photo = $request->input('photo');
         $store->status = $request->input('status');
         $store->region = $request->input('region');
         $store->latitude = $request->input('latitude');
