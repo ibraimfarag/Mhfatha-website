@@ -956,9 +956,9 @@ class StoreController extends Controller
         // Handle store image upload
         if ($request->hasFile('photo')) {
             // $this->handleStoreImageUpload($store, $request->file('photo'));
-
+            $destination_path = public_path('FrontEnd/assets/images/store_images');
             $imageName = time() . '.' . $request->file('photo')->getClientOriginalExtension();
-            $request->file('photo')->move(public_path('FrontEnd/assets/images/store_images'), $imageName);
+            $request->file('photo')->move($destination_path, $imageName);
             $store->photo = $imageName;
 
             
