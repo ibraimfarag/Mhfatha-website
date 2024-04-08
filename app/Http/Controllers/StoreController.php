@@ -333,10 +333,10 @@ class StoreController extends Controller
             }
         }
 
-        // Store the new store image
-        $imageName = time() . '.' . $image->getClientOriginalExtension();
-        $image->move(public_path('FrontEnd/assets/images/store_images'), $imageName);
-        $store->photo = $imageName;
+        // // Store the new store image
+        // $imageName = time() . '.' . $image->getClientOriginalExtension();
+        // $image->move(public_path('FrontEnd/assets/images/store_images'), $imageName);
+        // $store->photo = $imageName;
     }
     public function edit(Request $request)
     {
