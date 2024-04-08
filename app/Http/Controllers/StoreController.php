@@ -23,7 +23,7 @@ use App\Models\Discount;
 use App\Models\Request as StoreRequest;
 use Carbon\Carbon;
 use Illuminate\Contracts\Validation\Rule;
-// use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\File;
 
 class MaxUnique implements Rule
 {
