@@ -925,6 +925,12 @@ class StoreController extends Controller
             return response()->json(['status' => 'error', 'errors' => $errorResponse], 422);
         }
 
+
+
+
+
+     
+
         $user = auth()->user();
 
         // Create a new store record
@@ -941,9 +947,22 @@ class StoreController extends Controller
         $store->tax_number  = $request->input('tax_number');
         $store->user_id = $user->id;
 
+
+
+
+
+
+
         // Handle store image upload
         if ($request->hasFile('photo')) {
-            $this->handleStoreImageUpload($store, $request->file('photo'));
+            // $this->handleStoreImageUpload($store, $request->file('photo'));
+
+            $imageName = time() . '.' . $request->file('photo')->getClientOriginalExtension();
+            $request->file('photo')->move(public_path('FrontEnd/assets/images/store_images'), $imageName);
+            $store->photo = $imageName;
+
+            
+
         } else {
             // If no image is uploaded, set a default image
             $store->photo = 'null-market.png'; // Change 'null-market.png' to your default image filename
@@ -963,6 +982,7 @@ class StoreController extends Controller
 
         $store->save();
         $this->generateQrCode($store->id);
+
 
         // Insert a row into the requests table
         $requestData = [
@@ -1023,15 +1043,15 @@ class StoreController extends Controller
             ], 403);
         }
         $pendingRequests = StoreRequest::where('store_id', $storeId)
-        ->where('approved', '0')
-        ->exists();
+            ->where('approved', '0')
+            ->exists();
 
-    if ($pendingRequests) {
-        return response()->json([
-            'status' => 'error',
-            'message' => ($lang === 'ar') ? 'نآسف، لا يزال طلبك السابق قيد الانتظار.' : 'Sorry, your last  request is still pending approval.',
-        ], 422);
-    }
+        if ($pendingRequests) {
+            return response()->json([
+                'status' => 'error',
+                'message' => ($lang === 'ar') ? 'نآسف، لا يزال طلبك السابق قيد الانتظار.' : 'Sorry, your last  request is still pending approval.',
+            ], 422);
+        }
 
         // Set the 'is_deleted' field to 1
         // $store->is_deleted = 1;
@@ -1221,10 +1241,10 @@ class StoreController extends Controller
         $storeId = $request->input('store_id');
         $lang = $request->input('lang');
         $store = Store::find($storeId);
-          // Check if there are pending update requests for the store
-    $pendingRequests = StoreRequest::where('store_id', $storeId)
-        ->where('approved', '0')
-        ->exists();
+        // Check if there are pending update requests for the store
+        $pendingRequests = StoreRequest::where('store_id', $storeId)
+            ->where('approved', '0')
+            ->exists();
 
 
         // Validate the incoming request data
@@ -1297,7 +1317,7 @@ class StoreController extends Controller
 
         // If any relevant field has changed, create a request for approval
         if ($nameChanged || $photoChanged || $taxNumberChanged || $categoryIdChanged || $regionChanged || $mobileNumberChanged) {
- 
+
             // Delete the old image if it exists
             if ($store->photo) {
                 $oldImagePath = public_path('store_images/' . $store->photo);
@@ -1305,12 +1325,12 @@ class StoreController extends Controller
                     File::delete($oldImagePath);
                 }
             }
-        
+
             // Store the new store image
             $imageName = time() . '.' . $request->file('photo')->getClientOriginalExtension();
             $request->file('photo')->move(public_path('FrontEnd/assets/images/store_images'), $imageName);
             $store->photo = $imageName;
-        
+
             $requestData = [
                 'user_id' => auth()->id(),
                 'store_id' => $storeId,
@@ -1340,7 +1360,7 @@ class StoreController extends Controller
             }
             // Add the request to the requests table
             $newRequest = StoreRequest::create($requestData);
-        
+
             // Return a response indicating that a request has been sent for approval
             return response()->json([
                 'status' => 'success',
@@ -1348,7 +1368,7 @@ class StoreController extends Controller
                 'request_id' => $newRequest->id,
             ]);
         }
-        
+
 
         // Update the store details if no request is needed or after the request is approved
         $store->update([
