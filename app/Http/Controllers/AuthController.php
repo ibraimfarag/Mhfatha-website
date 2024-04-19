@@ -244,7 +244,9 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users', // Make sure the email is unique
             'is_vendor' => 'required|boolean',
             'password' => 'required|min:8|confirmed', // Adjust the minimum password length as needed
-            'photo' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the photo upload
+            // 'photo' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the photo upload
+            'photo_base64' => 'nullable|string', // Ensure it's a string
+
 
         ]);
 
@@ -269,13 +271,22 @@ class AuthController extends Controller
 
             return response()->json(['success' => false, 'messages' => $errorMessages], 400);
         }
+        // Check if photo_base64 field is provided and validate its format
+        if ($request->filled('photo_base64')) {
+            $photoBase64 = $request->input('photo_base64');
 
+            // Validate if the string is a valid base64 encoded image
+            if (!preg_match('/^data:image\/(\w+);base64,/', $photoBase64)) {
+                // If not a valid base64 encoded image, return an error response
+                return response()->json(['success' => false, 'message' => 'The photo_base64 field must contain a valid base64 encoded image.'], 400);
+            }
+        }
         $mobilenumber =  '(+966)' . $request->input('mobile');
         $mobilenumberAR =  $request->input('mobile') . '(966+)';
         $mobilenumberRecive =  '966' . $request->input('mobile');
         $recipientNumber = $mobilenumberRecive;
-        $otp = Cache::get('register' .$request->input('mobile'));
-   
+        $otp = Cache::get('register' . $request->input('mobile'));
+
 
         if (!$otp) {
             // Generate a new OTP
@@ -285,23 +296,44 @@ class AuthController extends Controller
             Cache::put('register' . $request->input('mobile'), $otp, 300);
         }
         // Check if a new photo was uploaded
-        if ($request->hasFile('photo')) {
-            $image = $request->file('photo');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('FrontEnd/assets/images/user_images'), $imageName);
-        } else {
-            // Use a default photo if no new photo is uploaded
-            $imageName = 'default_user.png';
-        }
+        // if ($request->hasFile('photo')) {
+        //     $image = $request->file('photo');
+        //     $imageName = time() . '.' . $image->getClientOriginalExtension();
+        //     $image->move(public_path('FrontEnd/assets/images/user_images'), $imageName);
+        // } else {
+        //     // Use a default photo if no new photo is uploaded
+        //     $imageName = 'default_user.png';
+        // }
 
+
+        // Check if base64 image data is provided
+        if ($request->has('photo_base64')) {
+            // Decode the base64 image data into bytes
+            $imageData = base64_decode($request->input('photo_base64'));
+
+            // Generate a unique file name for the image
+            $imageName = uniqid() . '.png'; // You can use a different file format if needed
+
+            // Define the directory where you want to save the image
+            $imagePath = public_path('FrontEnd/assets/images/user_images/') . $imageName;
+
+            // Save the image data to a file
+            file_put_contents($imagePath, $imageData);
+
+            // Set the image name to be saved in the database
+            $imageNameToSave = $imageName;
+        } else {
+            // Use a default photo if no base64 image data is provided
+            $imageNameToSave = 'default_user.png';
+        }
 
         // $otp = "12345"; // Generate a 6-digit OTP (you can use a more secure method)
 
-// For simplicity, you can store the OTP in the session
+        // For simplicity, you can store the OTP in the session
 
 
         $messageContent = $otp;
-        
+
         $testvar = trim(Cache::get('register' . $request->input('mobile')));
         $enteredOtp = $request->input('otp');
         if (empty($enteredOtp) || is_null($enteredOtp)) {
@@ -309,17 +341,17 @@ class AuthController extends Controller
             $code = AuthController::sendWhatsAppMessage($langs, $recipientNumber, $messageContent);
 
             $errorMessage = $currentLanguage === 'ar' ? "تم ارسال رمز التفعيل عبر الواتس اب الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to whatsapp number $mobilenumber. Please enter the code.";
-            return response()->json(['success' => true, "OTP" => true, 'message' => $errorMessage,'otp'=>$testvar], 200);
+            return response()->json(['success' => true, "OTP" => true, 'message' => $errorMessage, 'otp' => $testvar], 200);
         }
 
         // Generate and send OTP
-      
+
         // Send the OTP to the user's mobile number (you need to implement SMS sending here)
         // Check if the entered OTP matches the generated OTP
         if ($enteredOtp !== $testvar) {
             // Invalid OTP, return an error response
             $errorMessage = $currentLanguage === 'ar' ? 'رمز OTP غير صالح. يرجى المحاولة مرة أخرى.' : 'Invalid OTP. Please try again.';
-            return response()->json(['success' => false, 'message' => $errorMessage,'otp'=>$testvar], 400);
+            return response()->json(['success' => false, 'message' => $errorMessage, 'otp' => $testvar], 400);
         }
 
 
@@ -336,9 +368,10 @@ class AuthController extends Controller
             'email' => $request->email,
             'is_vendor' => $request->is_vendor,
             'password' => Hash::make($request->password),
-            'photo' => $imageName,
+            // 'photo' => $imageName,
+            'photo' => $imageNameToSave, // Use the image name to save in the database
         ]);
-   
+
 
 
         $successMessage = ($currentLanguage === 'ar') ? 'تم التسجيل بنجاح.' : 'Registration successful!';
