@@ -244,7 +244,7 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users', // Make sure the email is unique
             'is_vendor' => 'required|boolean',
             'password' => 'required|min:8|confirmed', // Adjust the minimum password length as needed
-            // 'photo' => 'max:2048', // Validate the photo upload
+            'photo' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the photo upload
 
         ]);
 
