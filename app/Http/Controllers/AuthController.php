@@ -272,15 +272,7 @@ class AuthController extends Controller
             return response()->json(['success' => false, 'messages' => $errorMessages], 400);
         }
         // Check if photo_base64 field is provided and validate its format
-        if ($request->filled('photo_base64')) {
-            $photoBase64 = $request->input('photo_base64');
-
-            // Validate if the string is a valid base64 encoded image
-            if (!preg_match('/^data:image\/(\w+);base64,/', $photoBase64)) {
-                // If not a valid base64 encoded image, return an error response
-                return response()->json(['success' => false, 'message' => 'The photo_base64 field must contain a valid base64 encoded image.'], 400);
-            }
-        }
+  
         $mobilenumber =  '(+966)' . $request->input('mobile');
         $mobilenumberAR =  $request->input('mobile') . '(966+)';
         $mobilenumberRecive =  '966' . $request->input('mobile');
