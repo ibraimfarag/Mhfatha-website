@@ -245,7 +245,7 @@ class AuthController extends Controller
             'is_vendor' => 'required|boolean',
             'password' => 'required|min:8|confirmed', // Adjust the minimum password length as needed
             // 'photo' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the photo upload
-            'photo_base64' => 'nullable|string', // Ensure it's a string
+            // 'photo_base64' => 'nullable|string', // Ensure it's a string
 
 
         ]);
@@ -299,25 +299,26 @@ class AuthController extends Controller
 
 
         // Check if base64 image data is provided
-        if ($request->has('photo_base64')) {
-            // Decode the base64 image data into bytes
-            $imageData = base64_decode($request->input('photo_base64'));
 
-            // Generate a unique file name for the image
-            $imageName = uniqid() . '.png'; // You can use a different file format if needed
+        // if ($request->has('photo_base64')) {
+        //     // Decode the base64 image data into bytes
+        //     $imageData = base64_decode($request->input('photo_base64'));
 
-            // Define the directory where you want to save the image
-            $imagePath = public_path('FrontEnd/assets/images/user_images/') . $imageName;
+        //     // Generate a unique file name for the image
+        //     $imageName = uniqid() . '.png'; // You can use a different file format if needed
 
-            // Save the image data to a file
-            file_put_contents($imagePath, $imageData);
+        //     // Define the directory where you want to save the image
+        //     $imagePath = public_path('FrontEnd/assets/images/user_images/') . $imageName;
 
-            // Set the image name to be saved in the database
-            $imageNameToSave = $imageName;
-        } else {
-            // Use a default photo if no base64 image data is provided
-            $imageNameToSave = 'default_user.png';
-        }
+        //     // Save the image data to a file
+        //     file_put_contents($imagePath, $imageData);
+
+        //     // Set the image name to be saved in the database
+        //     $imageNameToSave = $imageName;
+        // } else {
+        //     // Use a default photo if no base64 image data is provided
+        //     $imageNameToSave = 'default_user.png';
+        // }
 
         // $otp = "12345"; // Generate a 6-digit OTP (you can use a more secure method)
 
@@ -361,7 +362,7 @@ class AuthController extends Controller
             'is_vendor' => $request->is_vendor,
             'password' => Hash::make($request->password),
             // 'photo' => $imageName,
-            'photo' => $imageNameToSave, // Use the image name to save in the database
+            // 'photo' => $imageNameToSave, // Use the image name to save in the database
         ]);
 
 

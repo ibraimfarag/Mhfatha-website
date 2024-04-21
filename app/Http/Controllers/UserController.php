@@ -594,7 +594,7 @@ class UserController extends Controller
             'region' => 'required|max:255',
             'mobile' => 'required|string|max:20',
             'email' => 'required|string|email|max:255',
-            'photo' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust file type and size as needed
+            // 'photo' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust file type and size as needed
             'otp' => 'required_if:mobile,' . ',!=' . Auth::user()->mobile, // OTP is required only if mobile number is different from the current user's mobile
         ]);
 
@@ -611,28 +611,28 @@ class UserController extends Controller
         $user->birthday = $request->input('birthday');
         $user->region = $request->input('region');
         $user->email = $request->input('email');
-        $user->photo = $request->input('photo');
+        // $user->photo = $request->input('photo');
 
         // Check if a new profile image was uploaded
         // Check if a new profile image was uploaded
-        if ($request->hasFile('photo')) {
-            // Delete the old profile image (if it exists)
-            if ($user->photo) {
-                $oldImagePath = public_path('FrontEnd/assets/images/user_images/' . $user->photo);
-                if (File::exists($oldImagePath)) {
-                    File::delete($oldImagePath);
-                }
-            }
+        // if ($request->hasFile('photo')) {
+        //     // Delete the old profile image (if it exists)
+        //     if ($user->photo) {
+        //         $oldImagePath = public_path('FrontEnd/assets/images/user_images/' . $user->photo);
+        //         if (File::exists($oldImagePath)) {
+        //             File::delete($oldImagePath);
+        //         }
+        //     }
 
-            // Store the new profile image
-            $image = $request->file('photo');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('FrontEnd/assets/images/user_images'), $imageName);
-            $user->photo = $imageName;
-        } elseif ($request->input('photo') === null) {
-            // If input photo is null, retain the old photo
-            $user->photo = Auth::user()->photo;
-        }
+        //     // Store the new profile image
+        //     $image = $request->file('photo');
+        //     $imageName = time() . '.' . $image->getClientOriginalExtension();
+        //     $image->move(public_path('FrontEnd/assets/images/user_images'), $imageName);
+        //     $user->photo = $imageName;
+        // } elseif ($request->input('photo') === null) {
+        //     // If input photo is null, retain the old photo
+        //     $user->photo = Auth::user()->photo;
+        // }
 
 
 
