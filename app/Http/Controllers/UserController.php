@@ -21,6 +21,7 @@ use App\Models\WebsiteManager;
 use App\Models\Terms;
 use App\Models\Request as Requests;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 
 class UserController extends Controller
@@ -1119,10 +1120,24 @@ class UserController extends Controller
         ];
         // Loop through each request
         foreach ($requests as $request) {
-            // Get user and store names using relationships
-            $userName = $request->user->first_name . ' ' . $request->user->last_name;
-            $storeName = $request->store->name;
-
+            $userName = 'Unknown User';
+            $storeName = 'Unknown Store';
+        
+            // Check if the user relationship is loaded and is not null
+            if ($request->user) {
+                $userName = $request->user->first_name . ' ' . $request->user->last_name;
+            } else {
+                // Log or handle the case where the user is null
+                Log::error('User is null for request ID: ' . $request->id);
+            }
+        
+            // Check if the store relationship exists and is not null
+            if ($request->store) {
+                $storeName = $request->store->name;
+            } else {
+                // Log or handle the case where the store is null
+                Log::error('Store is null for request ID: ' . $request->id);
+            }
 
             // Get type name based on the type value and current language
             $typeNameEn = isset($typeNames[$request->type]['en']) ? $typeNames[$request->type]['en'] : $request->type;
