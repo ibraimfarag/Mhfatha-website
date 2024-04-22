@@ -236,7 +236,7 @@ public function register_api(Request $request)
         'last_name' => 'required|string',
         'gender' => 'required|in:male,female',
         'birthday' => 'required|date',
-        'region' => 'required|string',
+        'region' => 'required',
         'mobile' => 'required|numeric|unique:users',
         'email' => 'required|email|unique:users',
         'is_vendor' => 'required|boolean',
