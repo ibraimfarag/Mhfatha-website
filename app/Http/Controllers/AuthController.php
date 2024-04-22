@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 
 
@@ -219,116 +220,130 @@ class AuthController extends Controller
 
         return response()->json(['error' => $errorMessage], 401);
     }
-/**
- * register_api
- *
- * @return \Illuminate\Http\Response
- */
-public function register_api(Request $request)
-{
-    $requestData = $request->all();
+    /**
+     * register_api
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function register_api(Request $request)
+    {
+        try {
 
-    $currentLanguage = $requestData['lang'] ?? 'ar';
-    if (!in_array($currentLanguage, ['ar', 'en'])) {
-        $currentLanguage = 'ar';
-    }
+        $requestData = $request->all();
 
-    // Validate the incoming request data
-    $validator = Validator::make($requestData, [
-        'first_name' => 'required',
-        'last_name' => 'required',
-        'gender' => 'required',
-        'birthday' => 'required',
-        'region' => 'required',
-        'mobile' => 'required|unique:users',
-        'email' => 'required|email|unique:users',
-        'is_vendor' => 'required',
-        'password' => 'required|min:8|confirmed',
-      
-    ]);
-   $lang  = $requestData['lang'] ?? 'ar';
-    if (!in_array($lang , ['ar', 'en'])) {
-        $lang  = 'ar';
-    }
-
-    $langs = ($lang === 'ar') ? 'en_US' : 'en_US';
-
-    // Check if validation fails
-    if ($validator->fails()) {
-        $errorMessages = $validator->errors()->all();
-
-        // Translate error messages to Arabic if the current language is Arabic
-        if ($currentLanguage === 'ar') {
-            $translatedErrorMessages = [];
-
-            foreach ($errorMessages as $errorMessage) {
-                // Translate each error message here (you may replace this with your actual translations)
-                $translatedErrorMessages[] = $this->translateErrorMessage($errorMessage);
-            }
-
-            return response()->json(['success' => false, 'messages' => $translatedErrorMessages], 400);
+        $currentLanguage = $requestData['lang'] ?? 'ar';
+        if (!in_array($currentLanguage, ['ar', 'en'])) {
+            $currentLanguage = 'ar';
         }
 
-        return response()->json(['success' => false, 'messages' => $errorMessages], 400);
+        // Validate the incoming request data
+        $validator = Validator::make($requestData, [
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'gender' => 'required',
+            'birthday' => 'required',
+            'region' => 'required',
+            'mobile' => 'required|unique:users',
+            'email' => 'required|email|unique:users',
+            'is_vendor' => 'required',
+            'password' => 'required|min:8|confirmed',
+
+        ]);
+        $lang  = $requestData['lang'] ?? 'ar';
+        if (!in_array($lang, ['ar', 'en'])) {
+            $lang  = 'ar';
+        }
+
+        $langs = ($lang === 'ar') ? 'en_US' : 'en_US';
+
+        // Check if validation fails
+        if ($validator->fails()) {
+            $errorMessages = $validator->errors()->all();
+
+            // Translate error messages to Arabic if the current language is Arabic
+            if ($currentLanguage === 'ar') {
+                $translatedErrorMessages = [];
+
+                foreach ($errorMessages as $errorMessage) {
+                    // Translate each error message here (you may replace this with your actual translations)
+                    $translatedErrorMessages[] = $this->translateErrorMessage($errorMessage);
+                }
+
+                return response()->json(['success' => false, 'messages' => $translatedErrorMessages], 400);
+            }
+
+            return response()->json(['success' => false, 'messages' => $errorMessages], 400);
+        }
+
+        // Check if photo_base64 field is provided and validate its format
+        // (Code related to photo handling is commented out for brevity)
+
+        $mobilenumber = '(+966)' . $requestData['mobile'];
+        $mobilenumberAR = $requestData['mobile'] . '(966+)';
+        $mobilenumberRecive = '966' . $requestData['mobile'];
+        $recipientNumber = $mobilenumberRecive;
+        $otp = Cache::get('register' . $requestData['mobile']);
+
+        if (!$otp) {
+            // Generate a new OTP
+            $otp = rand(10000, 99999);
+
+            // Cache the OTP with a TTL of 5 minutes (300 seconds)
+            Cache::put('register' . $requestData['mobile'], $otp, 300);
+        }
+
+        // Check if a new photo was uploaded
+        // (Code related to photo handling is commented out for brevity)
+
+        $messageContent = $otp;
+
+        $testvar = trim(Cache::get('register' . $requestData['mobile']));
+        $enteredOtp = isset($requestData['otp']) ? $requestData['otp'] : null;
+        if (empty($enteredOtp) || is_null($enteredOtp)) {
+            // OTP is required, return an error response
+            $code = AuthController::sendWhatsAppMessage($langs, $recipientNumber, $messageContent);
+
+            $errorMessage = $currentLanguage === 'ar' ? "تم ارسال رمز التفعيل عبر الواتس اب الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to whatsapp number $mobilenumber. Please enter the code.";
+            return response()->json(['success' => true, "OTP" => true, 'message' => $errorMessage, 'otp' => $testvar], 200);
+        }
+
+        // Generate and send OTP
+        // Check if the entered OTP matches the generated OTP
+        if ($enteredOtp !== $testvar) {
+            // Invalid OTP, return an error response
+            $errorMessage = $currentLanguage === 'ar' ? 'رمز OTP غير صالح. يرجى المحاولة مرة أخرى.' : 'Invalid OTP. Please try again.';
+            return response()->json(['success' => false, 'message' => $errorMessage, 'otp' => $testvar], 400);
+        }
+
+        // Create a new user record
+        User::create([
+            'first_name' => $requestData['first_name'],
+            'last_name' => $requestData['last_name'],
+            'gender' => $requestData['gender'],
+            'birthday' => $requestData['birthday'],
+            'region' => $requestData['region'],
+            'mobile' => $requestData['mobile'],
+            'email' => $requestData['email'],
+            'is_vendor' => $requestData['is_vendor'],
+            'password' => Hash::make($requestData['password']),
+        ]);
+
+        $successMessage = ($currentLanguage === 'ar') ? 'تم التسجيل بنجاح.' : 'Registration successful!';
+
+        return response()->json(['success' => true, 'message' => $successMessage]);
+    }catch (\Exception $e) {
+        Log::error('Register API Error: ' . $e->getMessage());
+
+        // Optionally send the exception details in the response in a safe manner
+        return response()->json([
+            'success' => false, 
+            'message' => 'An unexpected error occurred. Please try again.'
+        ], 500);
     }
 
-    // Check if photo_base64 field is provided and validate its format
-    // (Code related to photo handling is commented out for brevity)
 
-    $mobilenumber = '(+966)' . $requestData['mobile'];
-    $mobilenumberAR = $requestData['mobile'] . '(966+)';
-    $mobilenumberRecive = '966' . $requestData['mobile'];
-    $recipientNumber = $mobilenumberRecive;
-    $otp = Cache::get('register' . $requestData['mobile']);
 
-    if (!$otp) {
-        // Generate a new OTP
-        $otp = rand(10000, 99999);
-
-        // Cache the OTP with a TTL of 5 minutes (300 seconds)
-        Cache::put('register' . $requestData['mobile'], $otp, 300);
     }
-
-    // Check if a new photo was uploaded
-    // (Code related to photo handling is commented out for brevity)
-
-    $messageContent = $otp;
-
-    $testvar = trim(Cache::get('register' . $requestData['mobile']));
-    $enteredOtp = isset($requestData['otp']) ? $requestData['otp'] : null;
-    if (empty($enteredOtp) || is_null($enteredOtp)) {
-        // OTP is required, return an error response
-        $code = AuthController::sendWhatsAppMessage($langs, $recipientNumber, $messageContent);
-
-        $errorMessage = $currentLanguage === 'ar' ? "تم ارسال رمز التفعيل عبر الواتس اب الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to whatsapp number $mobilenumber. Please enter the code.";
-        return response()->json(['success' => true, "OTP" => true, 'message' => $errorMessage, 'otp' => $testvar], 200);
-    }
-    
-    // Generate and send OTP
-    // Check if the entered OTP matches the generated OTP
-    if ($enteredOtp !== $testvar) {
-        // Invalid OTP, return an error response
-        $errorMessage = $currentLanguage === 'ar' ? 'رمز OTP غير صالح. يرجى المحاولة مرة أخرى.' : 'Invalid OTP. Please try again.';
-        return response()->json(['success' => false, 'message' => $errorMessage, 'otp' => $testvar], 400);
-    }
-
-    // Create a new user record
-    User::create([
-        'first_name' => $requestData['first_name'],
-        'last_name' => $requestData['last_name'],
-        'gender' => $requestData['gender'],
-        'birthday' => $requestData['birthday'],
-        'region' => $requestData['region'],
-        'mobile' => $requestData['mobile'],
-        'email' => $requestData['email'],
-        'is_vendor' => $requestData['is_vendor'],
-        'password' => Hash::make($requestData['password']),
-    ]);
-
-    $successMessage = ($currentLanguage === 'ar') ? 'تم التسجيل بنجاح.' : 'Registration successful!';
-
-    return response()->json(['success' => true, 'message' => $successMessage]);
-}
 
     private function translateErrorMessage($errorMessage)
     {
