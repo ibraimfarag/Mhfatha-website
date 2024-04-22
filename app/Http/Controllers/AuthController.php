@@ -288,7 +288,7 @@ public function register_api(Request $request)
     $messageContent = $otp;
 
     $testvar = trim(Cache::get('register' . $requestData['mobile']));
-    $enteredOtp = $requestData['otp'];
+    $enteredOtp = isset($requestData['otp']) ? $requestData['otp'] : null;
     if (empty($enteredOtp) || is_null($enteredOtp)) {
         // OTP is required, return an error response
         $code = AuthController::sendWhatsAppMessage($langs, $recipientNumber, $messageContent);
@@ -296,7 +296,7 @@ public function register_api(Request $request)
         $errorMessage = $currentLanguage === 'ar' ? "تم ارسال رمز التفعيل عبر الواتس اب الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to whatsapp number $mobilenumber. Please enter the code.";
         return response()->json(['success' => true, "OTP" => true, 'message' => $errorMessage, 'otp' => $testvar], 200);
     }
-
+    
     // Generate and send OTP
     // Check if the entered OTP matches the generated OTP
     if ($enteredOtp !== $testvar) {
