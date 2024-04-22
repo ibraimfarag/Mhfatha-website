@@ -228,7 +228,10 @@ public function register_api(Request $request)
 {
     $requestData = $request->all();
 
-    $currentLanguage = $requestData['lang'];
+    $currentLanguage = $requestData['lang'] ?? 'ar';
+    if (!in_array($currentLanguage, ['ar', 'en'])) {
+        $currentLanguage = 'ar';
+    }
 
     // Validate the incoming request data
     $validator = Validator::make($requestData, [
@@ -241,9 +244,13 @@ public function register_api(Request $request)
         'email' => 'required|email|unique:users',
         'is_vendor' => 'required|boolean',
         'password' => 'required|min:8|confirmed',
+        'lang' => 'sometimes|in:ar,en'
     ]);
+   $lang  = $requestData['lang'] ?? 'ar';
+    if (!in_array($lang , ['ar', 'en'])) {
+        $lang  = 'ar';
+    }
 
-    $lang = $requestData['lang'];
     $langs = ($lang === 'ar') ? 'en_US' : 'en_US';
 
     // Check if validation fails
