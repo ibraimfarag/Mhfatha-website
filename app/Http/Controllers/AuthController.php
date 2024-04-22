@@ -235,16 +235,16 @@ public function register_api(Request $request)
 
     // Validate the incoming request data
     $validator = Validator::make($requestData, [
-        'first_name' => 'required|string',
-        'last_name' => 'required|string',
-        'gender' => 'required|in:male,female',
-        'birthday' => 'required|date',
+        'first_name' => 'required',
+        'last_name' => 'required',
+        'gender' => 'required',
+        'birthday' => 'required',
         'region' => 'required',
-        'mobile' => 'required|numeric|unique:users',
+        'mobile' => 'required|unique:users',
         'email' => 'required|email|unique:users',
-        'is_vendor' => 'required|boolean',
+        'is_vendor' => 'required',
         'password' => 'required|min:8|confirmed',
-        'lang' => 'sometimes|in:ar,en'
+      
     ]);
    $lang  = $requestData['lang'] ?? 'ar';
     if (!in_array($lang , ['ar', 'en'])) {
