@@ -309,7 +309,7 @@ class AuthController extends Controller
 
         // Generate and send OTP
         // Check if the entered OTP matches the generated OTP
-        if ($enteredOtp !== $testvar || $enteredOtp != $otp_static  ) {
+        if ($enteredOtp !== $testvar  ) {
             // Invalid OTP, return an error response
             $errorMessage = $currentLanguage === 'ar' ? 'رمز OTP غير صالح. يرجى المحاولة مرة أخرى.' : 'Invalid OTP. Please try again.';
             return response()->json(['success' => false, 'message' => $errorMessage, 'otp' => $testvar], 400);
