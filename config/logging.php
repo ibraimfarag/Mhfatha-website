@@ -35,6 +35,12 @@ return [
     */
 
     'channels' => [
+        'per-error' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/error-' . now()->format('Y-m-d-H-i-s') . '.log'),
+            'level' => 'error',
+        ],
+
         'stack' => [
             'driver' => 'stack',
             'channels' => ['single'],

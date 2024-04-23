@@ -332,7 +332,7 @@ class AuthController extends Controller
 
         return response()->json(['success' => true, 'message' => $successMessage]);
     }catch (\Exception $e) {
-        Log::error('Register API Error: ' . $e->getMessage());
+        Log::channel('per-error')->error('Register API Error: ' . $e->getMessage());
 
         // Optionally send the exception details in the response in a safe manner
         return response()->json([
