@@ -23,28 +23,29 @@ use App\Http\Controllers\TermsAndConditionsPolicyController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::middleware('throttle:60,1')->group(function () {
+
+    Route::get('/discounts', [DiscountController::class, 'index_api']);
 
 
-Route::get('/discounts', [DiscountController::class, 'index_api']);
-
-
-Route::post('login-post', [AuthController::class, 'login_api']);
-Route::post('register-post', [AuthController::class, 'register_api']);
-Route::post('validateToken', [AuthController::class, 'validateToken']);
-Route::post('/registerregions', [UserController::class, 'getRegionsAndCitiesApi']);
-Route::post('/auth/resetPassword', [UserController::class, 'resetPassword']);
-
-
-Route::get('check-network', [AuthController::class, 'checkInternetConnection']);
-Route::post('/regions', [UserController::class, 'getRegionsAndCitiesApi']);
-Route::post('/categories', [UserController::class, 'getcategoryApi']);
-
-Route::get('/update-discounts', [UserDiscountController::class, 'checkDiscountsExpiration']);
-
-Route::post('/checkversion', [WebsiteManagerController::class, 'getVersion']);
-
-
-Route::post('/TermsAndConditions', [TermsAndConditionsPolicyController::class, 'getTermsAndConditions']);
+    Route::post('login-post', [AuthController::class, 'login_api']);
+    Route::post('register-post', [AuthController::class, 'register_api']);
+    Route::post('validateToken', [AuthController::class, 'validateToken']);
+    Route::post('/registerregions', [UserController::class, 'getRegionsAndCitiesApi']);
+    Route::post('/auth/resetPassword', [UserController::class, 'resetPassword']);
+    
+    
+    Route::get('check-network', [AuthController::class, 'checkInternetConnection']);
+    Route::post('/regions', [UserController::class, 'getRegionsAndCitiesApi']);
+    Route::post('/categories', [UserController::class, 'getcategoryApi']);
+    
+    Route::get('/update-discounts', [UserDiscountController::class, 'checkDiscountsExpiration']);
+    
+    Route::post('/checkversion', [WebsiteManagerController::class, 'getVersion']);
+    
+    
+    Route::post('/TermsAndConditions', [TermsAndConditionsPolicyController::class, 'getTermsAndConditions']);
+    });
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
