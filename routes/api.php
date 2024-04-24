@@ -28,7 +28,7 @@ use App\Http\Controllers\TermsAndConditionsPolicyController;
 Route::get('/discounts', [DiscountController::class, 'index_api']);
 
 
-Route::post('login-post', [AuthController::class, 'login_api'])->middleware('throttle:50,1');
+Route::post('login-post', [AuthController::class, 'login_api']);
 Route::post('register-post', [AuthController::class, 'register_api']);
 Route::post('validateToken', [AuthController::class, 'validateToken']);
 Route::post('/registerregions', [UserController::class, 'getRegionsAndCitiesApi']);
