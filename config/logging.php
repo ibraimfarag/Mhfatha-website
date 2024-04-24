@@ -35,6 +35,15 @@ return [
     */
 
     'channels' => [
+        'api' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/api.log'),
+            'level' => 'error',
+            'days' => 14,
+            'tap' => [App\Logging\JsonFormatter::class],
+        ],
+        
+        
         'per-error' => [
             'driver' => 'single',
             'path' => storage_path('logs/error-' . now()->format('Y-m-d-H-i-s') . '.log'),

@@ -333,7 +333,10 @@ class AuthController extends Controller
         return response()->json(['success' => true, 'message' => $successMessage]);
     }catch (\Exception $e) {
         Log::channel('per-error')->error('Register API Error: ' . $e->getMessage());
-
+        Log::channel('api')->error('Error in register_api', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()  // Optionally include stack trace
+        ]);
         // Optionally send the exception details in the response in a safe manner
         return response()->json([
             'success' => false, 
