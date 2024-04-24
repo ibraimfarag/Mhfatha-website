@@ -39,7 +39,7 @@ Route::get('check-network', [AuthController::class, 'checkInternetConnection']);
 Route::post('/regions', [UserController::class, 'getRegionsAndCitiesApi']);
 Route::post('/categories', [UserController::class, 'getcategoryApi']);
 
-Route::get('/update-discounts', [UserDiscountController::class, 'checkDiscountsExpiration']);
+// Route::get('/update-discounts', [UserDiscountController::class, 'checkDiscountsExpiration']);
 
 Route::post('/checkversion', [WebsiteManagerController::class, 'getVersion']);
 
