@@ -56,10 +56,10 @@ class Handler extends ExceptionHandler
     {
         // Check if the request wants a JSON response or is an API request
         if ($request->wantsJson() || $request->is('api/*')) {
-            if (app()->runningInConsole() && app()->environment('local')) {
+         
                 $logger = Log::channel('api');
                 $logger->error($exception->getMessage(), ['exception' => $exception]);
-            }
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Server Error', // Customize the message or use $exception->getMessage() for detail
