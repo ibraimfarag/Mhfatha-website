@@ -55,13 +55,13 @@ class Handler extends ExceptionHandler
     public function render($request, Throwable $exception)
     {
         // Check if the request wants a JSON response or is an API request
-        if ($request->wantsJson() || $request->is('api/*')) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Server Error', // Customize the message or use $exception->getMessage() for detail
-                'error' => $exception->getMessage() . ' - Test Word',
-            ], 500);
-        }
+        // if ($request->wantsJson() || $request->is('api/*')) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Server Error', // Customize the message or use $exception->getMessage() for detail
+        //         'error' => $exception->getMessage() . ' - Test Word',
+        //     ], 500);
+        // }
 
         // Default to the parent method's handling, which renders HTML for web routes
         return parent::render($request, $exception);
