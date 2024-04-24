@@ -35,13 +35,13 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        // $this->reportable(function (Throwable $e) {
-        //     // Optional: Log or handle specific exceptions here
-        // });
+        $this->reportable(function (Throwable $e) {
+            // Optional: Log or handle specific exceptions here
+        });
 
-        // $this->renderable(function (Throwable $e, $request) {
-        //     return $this->render($request, $e);
-        // });
+        $this->renderable(function (Throwable $e, $request) {
+            return $this->render($request, $e);
+        });
     }
 
     /**
@@ -55,24 +55,28 @@ class Handler extends ExceptionHandler
     public function render($request, Throwable $exception)
     {
         // Check if the request wants a JSON response or is an API request
-        // if ($request->wantsJson() || $request->is('api/*')) {
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'Server Error', // Customize the message or use $exception->getMessage() for detail
-        //         'error' => $exception->getMessage() . ' - Test Word',
-        //     ], 500);
-        // }
+        if ($request->wantsJson() || $request->is('api/*')) {
+            if (app()->runningInConsole() && app()->environment('local')) {
+                $logger = Log::channel('api');
+                $logger->error($exception->getMessage(), ['exception' => $exception]);
+            }
+            return response()->json([
+                'success' => false,
+                'message' => 'Server Error', // Customize the message or use $exception->getMessage() for detail
+                'error' => $exception->getMessage() . ' - Test Word',
+            ], 500);
+        }
 
         // Default to the parent method's handling, which renders HTML for web routes
-        // return parent::render($request, $exception);
+        return parent::render($request, $exception);
     }
     public function report(Throwable $exception)
     {
-        // if (app()->runningInConsole() && app()->environment('production')) {
-        //     $logger = Log::channel('api');
-        //     $logger->error($exception->getMessage(), ['exception' => $exception]);
-        // }
+        if (app()->runningInConsole() && app()->environment('local')) {
+            $logger = Log::channel('api');
+            $logger->error($exception->getMessage(), ['exception' => $exception]);
+        }
 
-        // parent::report($exception);
+        parent::report($exception);
     }
 }
