@@ -64,6 +64,8 @@ class Handler extends ExceptionHandler
                 'success' => false,
                 'message' => 'Server Error', // Customize the message or use $exception->getMessage() for detail
                 'error' => $exception->getMessage() . ' - Test Word',
+                $logger
+
             ], 500);
         }
 
