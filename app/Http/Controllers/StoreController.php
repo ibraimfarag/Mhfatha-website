@@ -1333,9 +1333,14 @@ class StoreController extends Controller
             }
 
             // Store the new store image
-            $imageName = time() . '.' . $request->file('photo')->getClientOriginalExtension();
-            $request->file('photo')->move(public_path('FrontEnd/assets/images/store_images'), $imageName);
-            $store->photo = $imageName;
+            if ($request->hasFile('photo')) {
+                $imageName = time() . '.' . $request->file('photo')->getClientOriginalExtension();
+                $request->file('photo')->move(public_path('FrontEnd/assets/images/store_images'), $imageName);
+                $store->photo = $imageName;
+            } else {
+                $imageName = $store->photo; // Keep the old image if no new one is uploaded
+            }
+            
 
             $requestData = [
                 'user_id' => auth()->id(),
