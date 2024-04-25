@@ -10,7 +10,8 @@ use App\Http\Controllers\UserDiscountController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\WebsiteManagerController;
-
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TestEmail;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -20,6 +21,15 @@ use App\Http\Controllers\WebsiteManagerController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+
+
+Route::get('/send-test-email', function () {
+    Mail::to('your_email@example.com')->send(new TestEmail());
+    return 'Email has been sent!';
+});
+
+
 
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('main');
