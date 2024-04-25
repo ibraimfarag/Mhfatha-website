@@ -971,6 +971,7 @@ class StoreController extends Controller
         } else {
             // If no image is uploaded, set a default image
             $store->photo = 'null-market.png'; // Change 'null-market.png' to your default image filename
+            $imageName = 'null-market.png';
         }
         $regionId = $request->input('region');
         $regionNameAR = Region::find($regionId)->region_ar;
