@@ -25,7 +25,7 @@ use App\Mail\TestEmail;
 
 
 Route::get('/send-test-email', function () {
-    Mail::to('your_email@example.com')->send(new TestEmail());
+    Mail::to('ib.farag@gmail.com')->send(new TestEmail());
     return 'Email has been sent!';
 });
 
