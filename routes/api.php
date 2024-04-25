@@ -11,7 +11,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\WebsiteManagerController;
 use App\Http\Controllers\RequestsController;
 use App\Http\Controllers\TermsAndConditionsPolicyController;
-
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TestEmail;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +24,11 @@ use App\Http\Controllers\TermsAndConditionsPolicyController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::get('/send-test-email', function () {
+    Mail::to('ib.farag@gmail.com')->send(new TestEmail());
+    return 'Email has been sent!';
+});
 
 
 Route::get('/discounts', [DiscountController::class, 'index_api']);
