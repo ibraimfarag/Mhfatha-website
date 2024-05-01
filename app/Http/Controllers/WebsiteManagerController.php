@@ -13,7 +13,7 @@ use App\Models\StoreCategory;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\File;
 use App\Models\AppUpdate;
-
+use Carbon\Carbon;
 
 class WebsiteManagerController extends Controller
 {
@@ -355,5 +355,19 @@ class WebsiteManagerController extends Controller
             default:
                 return "Invalid model name.";
         }
+ 
+ 
     }
+
+    public function getTimeAndDate()
+    {
+        // Set timezone to Riyadh (KSA)
+        $currentTimeAndDate = Carbon::now('Asia/Riyadh');
+
+        // Return the time and date in JSON format
+        return response()->json([
+            'time_and_date' => $currentTimeAndDate->toDateTimeString()  // Format as Date Time string
+        ]);
+    }
+
 }

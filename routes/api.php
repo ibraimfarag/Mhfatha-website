@@ -48,7 +48,7 @@ Route::post('/categories', [UserController::class, 'getcategoryApi']);
 Route::get('/update-discounts', [UserDiscountController::class, 'checkDiscountsExpiration']);
 
 Route::post('/checkversion', [WebsiteManagerController::class, 'getVersion']);
-
+Route::get('/time-and-date', [WebsiteManagerController::class, 'getTimeAndDate']);
 
 Route::post('/TermsAndConditions', [TermsAndConditionsPolicyController::class, 'getTermsAndConditions']);
 
