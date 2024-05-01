@@ -243,7 +243,7 @@ class AuthController extends Controller
             'gender' => 'required',
             'birthday' => 'required',
             'region' => 'required',
-            'mobile' => 'required|unique:users',
+            'mobile' => 'required|min:10| mmax:10| unique:users',
             'email' => 'required|email|unique:users',
             'is_vendor' => 'required',
             'password' => 'required|min:8|confirmed',
