@@ -364,9 +364,12 @@ class WebsiteManagerController extends Controller
         // Set timezone to Riyadh (KSA)
         $currentTimeAndDate = Carbon::now('Asia/Riyadh');
 
-        // Return the time and date in JSON format
+        // Format the date and time to use a 12-hour clock with AM/PM
+        $formattedTimeAndDate = $currentTimeAndDate->format('Y-m-d h:i:s A');
+
+        // Return the formatted time and date in JSON format
         return response()->json([
-            'time_and_date' => $currentTimeAndDate->toDateTimeString()  // Format as Date Time string
+            'time_and_date' => $formattedTimeAndDate
         ]);
     }
 
