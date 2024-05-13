@@ -32,6 +32,7 @@ Route::get('/send-test-email', function () {
 
 
 Route::get('/discounts', [DiscountController::class, 'index_api']);
+Route::get('/contact-us', [WebsiteManagerController::class, 'manageContacts']);
 
 
 Route::post('login-post', [AuthController::class, 'login_api']);
