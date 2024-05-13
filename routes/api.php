@@ -32,7 +32,6 @@ Route::get('/send-test-email', function () {
 
 
 Route::get('/discounts', [DiscountController::class, 'index_api']);
-Route::get('/contact-us', [WebsiteManagerController::class, 'manageContacts']);
 
 
 Route::post('login-post', [AuthController::class, 'login_api']);
@@ -59,6 +58,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::middleware('auth:api')->group(
     function () {
+        Route::get('/contact-us', [WebsiteManagerController::class, 'manageContacts']);
 
 
         Route::post('/update-device-info', [UserController::class, 'updateDeviceInfo']);
