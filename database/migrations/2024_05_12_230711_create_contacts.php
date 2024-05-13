@@ -13,15 +13,12 @@ class CreateContacts extends Migration
      */
     public function up()
     {
-        Schema::table('contacts', function (Blueprint $table) {
-            // Add whatsapp column
+        Schema::create('contacts', function (Blueprint $table) {
+            $table->id();
             $table->string('whatsapp')->nullable();
-
-            // Add email column
             $table->string('email')->nullable();
-
-            // Add type column
             $table->string('type')->nullable();
+            $table->timestamps();
         });
     }
 
