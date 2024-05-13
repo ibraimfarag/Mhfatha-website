@@ -258,17 +258,16 @@ class WebsiteManagerController extends Controller
                         $region = new Region();
                         $region->fill($jsonData);
                         $region->save();
-                        return response()->json(['message' =>'Region added successfully']);
+                        return response()->json(['message' => 'Region added successfully']);
 
                         break;
                     case 'delete':
                         $region = Region::find($jsonData['id']);
                         if ($region) {
                             $region->delete();
-                            return response()->json(['message' =>'Region deleted successfully']);
+                            return response()->json(['message' => 'Region deleted successfully']);
                         } else {
-                            return response()->json(['message' =>'Region not found']);
-
+                            return response()->json(['message' => 'Region not found']);
                         }
                         break;
                     case 'edit':
@@ -276,16 +275,13 @@ class WebsiteManagerController extends Controller
                         if ($region) {
                             $region->fill($jsonData);
                             $region->save();
-                            return response()->json(['message' =>'Region updated successfully']);
-
+                            return response()->json(['message' => 'Region updated successfully']);
                         } else {
-                            return response()->json(['message' =>'Region not found']);
-
+                            return response()->json(['message' => 'Region not found']);
                         }
                         break;
                     default:
-                        return response()->json(['message' =>'Invalid action']);
-
+                        return response()->json(['message' => 'Invalid action']);
                 }
                 break;
 
@@ -295,18 +291,16 @@ class WebsiteManagerController extends Controller
                         $storeCategory = new StoreCategory();
                         $storeCategory->fill($jsonData);
                         $storeCategory->save();
-                        return response()->json(['message' =>'Store category added successfully']);
+                        return response()->json(['message' => 'Store category added successfully']);
 
                         break;
                     case 'delete':
                         $storeCategory = StoreCategory::find($jsonData['id']);
                         if ($storeCategory) {
                             $storeCategory->delete();
-                            return response()->json(['message' =>'Store category deleted successfully']);
-
+                            return response()->json(['message' => 'Store category deleted successfully']);
                         } else {
-                            return response()->json(['message' =>'Store category not found']);
-
+                            return response()->json(['message' => 'Store category not found']);
                         }
                         break;
                     case 'edit':
@@ -314,11 +308,9 @@ class WebsiteManagerController extends Controller
                         if ($storeCategory) {
                             $storeCategory->fill($jsonData);
                             $storeCategory->save();
-                            return response()->json(['message' =>'Store category updated successfully']);
-
+                            return response()->json(['message' => 'Store category updated successfully']);
                         } else {
-                            return response()->json(['message' =>'Store category not found']);
-
+                            return response()->json(['message' => 'Store category not found']);
                         }
                         break;
                     default:
@@ -345,7 +337,7 @@ class WebsiteManagerController extends Controller
                         $websiteManager->update($validatedData);
 
                         // return "Website Manager information updated successfully.";
-                        return response()->json(['message' =>'Website Manager information updated successfully']);
+                        return response()->json(['message' => 'Website Manager information updated successfully']);
 
                         break;
 
@@ -357,8 +349,6 @@ class WebsiteManagerController extends Controller
             default:
                 return "Invalid model name.";
         }
- 
- 
     }
 
     public function getTimeAndDate()
@@ -373,18 +363,25 @@ class WebsiteManagerController extends Controller
 
         return response()->json([
             'time_and_date' => $currentTimeAndDate->toDateTimeString()  // Format as Date Time string
-        ,  'time_and_date_am' => $formattedTimeAndDate]);
+            ,  'time_and_date_am' => $formattedTimeAndDate
+        ]);
     }
     public function manageContacts()
     {
-        // Get the authenticated user's ID
-        $userId = Auth::user()->id;
+        // Check if the user is authenticated
+        if (Auth::check()) {
+            // Get the authenticated user's ID
+            $userId = Auth::user()->id;
 
-        // Find the user by their ID
-        $user = User::find($userId);
+            // Find the user by their ID
+            $user = User::find($userId);
 
-        // Determine user type based on is_vendor
-        $userType = $user->is_vendor ? 'vendor' : 'user';
+            // Determine user type based on is_vendor
+            $userType = $user->is_vendor ? 'vendor' : 'user';
+        } else {
+            // If user is not authenticated, set userType to 'guest'
+            $userType = 'guest';
+        }
 
         // Retrieve contacts based on user type
         $contacts = Contacts::where('type', $userType)->first();
@@ -397,5 +394,4 @@ class WebsiteManagerController extends Controller
         // Return JSON response
         return response()->json($response);
     }
-
 }
