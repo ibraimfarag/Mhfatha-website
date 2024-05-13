@@ -593,7 +593,8 @@ class UserController extends Controller
             'last_name' => 'required|string|max:255',
             'birthday' => 'required|date',
             'region' => 'required|max:255',
-            'mobile' => 'required|string|max:20',
+            // 'mobile' => 'required|digits:10|',
+            'mobile' => 'required|digits:10| unique:users',
             'email' => 'required|string|email|max:255',
             // 'photo' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust file type and size as needed
             'otp' => 'required_if:mobile,' . ',!=' . Auth::user()->mobile, // OTP is required only if mobile number is different from the current user's mobile

@@ -9,11 +9,13 @@ use App\Models\User;
 use App\Models\Store;
 use App\Models\UserDiscount;
 use App\Models\Region;
+use App\Models\Contacts;
 use App\Models\StoreCategory;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\File;
 use App\Models\AppUpdate;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class WebsiteManagerController extends Controller
 {
@@ -372,6 +374,28 @@ class WebsiteManagerController extends Controller
         return response()->json([
             'time_and_date' => $currentTimeAndDate->toDateTimeString()  // Format as Date Time string
         ,  'time_and_date_am' => $formattedTimeAndDate]);
+    }
+    public function manageContacts()
+    {
+        // Get the authenticated user's ID
+        $userId = Auth::user()->id;
+
+        // Find the user by their ID
+        $user = User::find($userId);
+
+        // Determine user type based on is_vendor
+        $userType = $user->is_vendor ? 'vendor' : 'user';
+
+        // Retrieve contacts based on user type
+        $contacts = Contacts::where('type', $userType)->first();
+
+        // Prepare JSON response
+        $response = [
+            'contacts' => $contacts,
+        ];
+
+        // Return JSON response
+        return response()->json($response);
     }
 
 }
