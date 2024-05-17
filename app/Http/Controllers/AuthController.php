@@ -240,8 +240,8 @@ class AuthController extends Controller
         $validator = Validator::make($requestData, [
             'first_name' => 'required',
             'last_name' => 'required',
-            'gender' => 'required',
-            'birthday' => 'required',
+            'gender' => 'nullable',
+            'birthday' => 'nullable',
             'region' => 'required',
             'mobile' => 'required|digits:10| unique:users',
             'email' => 'required|email|unique:users',

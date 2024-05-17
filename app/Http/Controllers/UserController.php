@@ -591,7 +591,7 @@ class UserController extends Controller
         $this->validate($request, [
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'birthday' => 'required|date',
+            'birthday' => 'nullable|date',
             'region' => 'required|max:255',
             // 'mobile' => 'required|digits:10|',
             'mobile' => 'required|digits:10| unique:users',
