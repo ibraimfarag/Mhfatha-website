@@ -851,10 +851,8 @@ class StoreController extends Controller
             $discounts = UserDiscount::where('store_id', $store->id)->get();
             $storeDetails = [
                 'months' => [],
-                'sum_of_all_discounts' => 0,
-                'count_of_all_discounts' => 0,
-                'store' => $store,
-                'depit' => $depit
+                'total_after_discount' => 0,
+                'discount_count' => 0
             ];
     
             foreach ($discounts as $discount) {
@@ -869,8 +867,10 @@ class StoreController extends Controller
                 $storeDetails['months'][$monthYear]['discounts'][] = $discount;
                 $storeDetails['months'][$monthYear]['total_after_discount'] += $discount->after_discount;
                 $storeDetails['months'][$monthYear]['discount_count'] += 1;
-                $storeDetails['sum_of_all_discounts'] += $discount->after_discount;
-                $storeDetails['count_of_all_discounts'] += 1;
+    
+                // Sum the overall total_after_discount and count
+                $storeDetails['total_after_discount'] += $discount->after_discount;
+                $storeDetails['discount_count'] += 1;
             }
 
             $store->category_name_en = optional($category)->category_name_en;
