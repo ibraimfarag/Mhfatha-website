@@ -848,9 +848,18 @@ class StoreController extends Controller
                 ->where('obtained_status', 0)
                 ->sum('obtained');
 
+            $discounts = UserDiscount::where('store_id', $store->id)->get();
+            $storeDetails = [];
 
-           
-                $store->category_name_en = optional($category)->category_name_en;
+            foreach ($discounts as $discount) {
+                $monthYear = $discount->created_at->format('F Y');
+                if (!isset($storeDetails[$monthYear])) {
+                    $storeDetails[$monthYear] = [];
+                }
+                $storeDetails[$monthYear][] = $discount;
+            }
+
+            $store->category_name_en = optional($category)->category_name_en;
             $store->category_name_ar = optional($category)->category_name_ar;
             $store->region_name_ar = optional($region)->region_ar;
             $store->region_name_en = optional($region)->region_en;
