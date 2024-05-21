@@ -227,8 +227,7 @@ class AuthController extends Controller
      */
     public function register_api(Request $request)
     {
-        try {
-
+       
         $requestData = $request->all();
 
         $currentLanguage = $requestData['lang'] ?? 'ar';
@@ -268,7 +267,7 @@ class AuthController extends Controller
                     // Translate each error message here (you may replace this with your actual translations)
                     $translatedErrorMessages[] = $this->translateErrorMessage($errorMessage);
                 }
-
+                
                 return response()->json(['success' => false, 'messages' => $translatedErrorMessages], 400);
             }
 
@@ -331,18 +330,7 @@ class AuthController extends Controller
         $successMessage = ($currentLanguage === 'ar') ? 'تم التسجيل بنجاح.' : 'Registration successful!';
 
         return response()->json(['success' => true, 'message' => $successMessage]);
-    }catch (\Exception $e) {
-        Log::channel('per-error')->error('Register API Error: ' . $e->getMessage());
-        Log::channel('api')->error('Error in register_api', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()  // Optionally include stack trace
-        ]);
-        // Optionally send the exception details in the response in a safe manner
-        return response()->json([
-            'success' => false, 
-            'message' => 'An unexpected error occurred. Please try again.'
-        ], 500);
-    }
+    
 
 
 

@@ -92,7 +92,7 @@ class Handler extends ExceptionHandler
                  return response()->json([
                      'success' => false,
                      'message' => 'Server Error', // Customize the message or use $exception->getMessage() for detail
-                     'error' => $exception->getMessage() . ' - Test Word',
+                     'error' => $exception->getMessage() ,
                  ], 500);
              }
          }
