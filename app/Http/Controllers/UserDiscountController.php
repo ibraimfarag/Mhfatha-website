@@ -207,11 +207,11 @@ class UserDiscountController extends Controller
             // You can set other fields like date, status, reason, etc. here
             $storeId = $requestData['store_id'];
             $store = Store::find($storeId)->first();
-            if ($store) {
+            
                 $store->count_times += 1;
                 $store->total_payments += $afterDiscount;
                 $store->save();
-            }
+           
             $userDiscount->save();
 
             // Increment count_times in the store table
