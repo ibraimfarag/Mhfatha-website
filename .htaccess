@@ -1,12 +1,15 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Redirect all traffic to HTTPS
-    RewriteCond %{HTTPS} off
+    # Redirect all HTTP traffic to HTTPS
+    RewriteCond %{HTTPS} !=on
     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-    # Direct all requests to the /public folder
+    # Handle Laravel's index.php
     RewriteCond %{REQUEST_URI} !^/public
     RewriteRule ^(.*)$ /public/$1 [L]
 
+    # If the request is already in the /public folder, proceed normally
+    RewriteCond %{REQUEST_URI} ^/public
+    RewriteRule ^ /public/index.php [L]
 </IfModule>
