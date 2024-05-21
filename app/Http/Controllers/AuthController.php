@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
+use Illuminate\Support\Facades\Artisan;
 
 
 class AuthController extends Controller
@@ -455,5 +456,20 @@ class AuthController extends Controller
         ])->post($graphApiUrl, $postData);
 
         return $response->json();
+    }
+
+     /**
+     * Clear all caches.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function clearCache()
+    {
+        Artisan::call('cache:clear');
+        Artisan::call('config:clear');
+        Artisan::call('route:clear');
+        Artisan::call('view:clear');
+
+        return response()->json(['success' => true, 'message' => 'All caches have been cleared.']);
     }
 }
