@@ -66,6 +66,13 @@ class AuthController extends Controller
         }
         return view('FrontEnd.Auth.register', ['lang' => $lang]); // Pass the 'lang' variable to the view
     }
+
+    /**
+     * API endpoint to get regions and their associated cities.
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function register_post(Request $request)
     {
         // Retrieve all input data as JSON
