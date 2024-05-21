@@ -211,7 +211,7 @@ class UserDiscountController extends Controller
             // Increment count_times in the store table
 
             $storeId = $requestData['store_id'];
-            $store = Store::find($storeId)->first();
+            $store = Store::find($storeId);
             
             if ($store) {
                 // Update the store's count_times and total_payments fields
