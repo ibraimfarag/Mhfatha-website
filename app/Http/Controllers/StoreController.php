@@ -864,6 +864,7 @@ class StoreController extends Controller
             $store->region_name_ar = optional($region)->region_ar;
             $store->region_name_en = optional($region)->region_en;
             $store->depit = $depit;
+            $store->storeDetails = $storeDetails;
 
             return $store;
         });
