@@ -41,9 +41,9 @@ class Handler extends ExceptionHandler
             // Optional: Log or handle specific exceptions here
         });
 
-        $this->renderable(function (Throwable $e, $request) {
-            return $this->render($request, $e);
-        });
+        // $this->renderable(function (Throwable $e, $request) {
+        //     return $this->render($request, $e);
+        // });
     }
 
     /**
