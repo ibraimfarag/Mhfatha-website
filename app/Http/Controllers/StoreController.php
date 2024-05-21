@@ -843,7 +843,17 @@ class StoreController extends Controller
         $userStoresWithDetails = $userStores->map(function ($store) {
             $category = StoreCategory::find($store->category_id);
             $region = Region::find($store->region);
+            $sumTotalPaymentss = Store::where('user_id', auth()->id())
+            ->where('verifcation', 1)
+            ->where('is_bann', 0)
+            ->where('is_deleted', 0)
+            ->sum('total_payments');
 
+            $sumCountTimess = Store::where('user_id', auth()->id())
+            ->where('verifcation', 1)
+            ->where('is_bann', 0)
+            ->where('is_deleted', 0)
+            ->sum('count_times');
             $depit = UserDiscount::where('store_id', $store->id)
                 ->where('obtained_status', 0)
                 ->sum('obtained');
@@ -871,6 +881,9 @@ class StoreController extends Controller
                 // Sum the overall total_after_discount and count
                 $storeDetails['total_after_discount'] += $discount->after_discount;
                 $storeDetails['discount_count'] += 1;
+                $storeDetails['discount_count'] += 1;
+                $storeDetails['sumTotalPayments'] = $sumTotalPaymentss;
+                $storeDetails['sumCountTimes'] = $sumCountTimess;
             }
 
             $store->category_name_en = optional($category)->category_name_en;
