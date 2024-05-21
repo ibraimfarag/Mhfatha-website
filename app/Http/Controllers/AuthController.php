@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
+use Illuminate\Support\Facades\Artisan;
 
 
 class AuthController extends Controller
@@ -65,15 +66,23 @@ class AuthController extends Controller
         }
         return view('FrontEnd.Auth.register', ['lang' => $lang]); // Pass the 'lang' variable to the view
     }
+
+    /**
+     * API endpoint to get regions and their associated cities.
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function register_post(Request $request)
     {
-        $lang = $request->input('lang'); // Get the 'lang' parameter from the request
-
-        $currentLanguage = $request->input('lang');
-
-
-
+        // Retrieve all input data as JSON
+        $requestData = $request->json()->all();
+        $lang = $requestData['lang'] ?? 'en'; // Default to 'en' if 'lang' is not provided
+    
+        $currentLanguage = $lang;
+    
         // Check the language and set the appropriate error message
+        $errorMessages = [];
         if ($currentLanguage === 'ar') {
             $errorMessages = [
                 'first_name.required' => 'حقل الاسم الأول مطلوب.',
@@ -87,8 +96,7 @@ class AuthController extends Controller
                 'password.min' => 'يجب أن تحتوي كلمة المرور على ما لا يقل عن 8 أحرف.',
                 'password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
             ];
-        }
-        if ($currentLanguage === 'en') {
+        } elseif ($currentLanguage === 'en') {
             $errorMessages = [
                 'first_name.required' => 'The first name field is required.',
                 'last_name.required' => 'The last name field is required.',
@@ -102,11 +110,11 @@ class AuthController extends Controller
                 'password.confirmed' => 'The password confirmation does not match.',
             ];
         }
-
-
+    
         $customMessages = $errorMessages;
-
-        $request->validate([
+    
+        // Validate the incoming request data
+        $validator = Validator::make($requestData, [
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -118,37 +126,41 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8|confirmed', // Ensure password matches password_confirmation
         ], $customMessages);
-
-        $mobileExists = User::where('mobile', $request->mobile)->exists();
-
-        if ($mobileExists) {
-            return redirect()->back()
-                ->with('error', $customMessages)
-                ->withInput();
+    
+        // Check if validation fails
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+    
+            return response()->json([
+                'success' => false,
+                'messages' => $errors
+            ], 400);
         }
-        // $mobile = str_replace('-', '', $request->mobile);
-
+    
         // Create a new user record
         User::create([
-            'first_name' => $request->first_name,
-            'middle_name' => $request->middle_name,
-            'last_name' => $request->last_name,
-            'gender' => $request->gender,
-            'birthday' => $request->birthday,
-            'city' => $request->city,
-            'region' => $request->region,
-            'mobile' => $request->mobile,
-            'email' => $request->email,
-            'is_vendor' => $request->is_vendor,
-            'password' => Hash::make($request->password),
+            'first_name' => $requestData['first_name'],
+            'middle_name' => $requestData['middle_name'] ?? null,
+            'last_name' => $requestData['last_name'],
+            'gender' => $requestData['gender'],
+            'birthday' => $requestData['birthday'],
+            'city' => $requestData['city'],
+            'region' => $requestData['region'],
+            'mobile' => $requestData['mobile'],
+            'email' => $requestData['email'],
+            'is_vendor' => $requestData['is_vendor'] ?? 0,
+            'password' => Hash::make($requestData['password']),
             'photo' => 'default_user.png', // Set the default image path here
-
         ]);
-        $successMessage = ($currentLanguage === 'ar') ? 'تم التسجيل بنجاح.' : ' Registration successful!';
-
-        return redirect()->route('register', ['lang' => $lang])->with('success',  $successMessage);
+    
+        $successMessage = ($currentLanguage === 'ar') ? 'تم التسجيل بنجاح.' : 'Registration successful!';
+    
+        return response()->json([
+            'success' => true,
+            'message' => $successMessage
+        ], 201);
     }
-    public function logout()
+        public function logout()
     {
         Auth::logout(); // Log the user out
         Session::forget('user_id'); // Clear the user's session data
@@ -227,8 +239,7 @@ class AuthController extends Controller
      */
     public function register_api(Request $request)
     {
-        try {
-
+       
         $requestData = $request->all();
 
         $currentLanguage = $requestData['lang'] ?? 'ar';
@@ -268,7 +279,7 @@ class AuthController extends Controller
                     // Translate each error message here (you may replace this with your actual translations)
                     $translatedErrorMessages[] = $this->translateErrorMessage($errorMessage);
                 }
-
+                
                 return response()->json(['success' => false, 'messages' => $translatedErrorMessages], 400);
             }
 
@@ -331,18 +342,7 @@ class AuthController extends Controller
         $successMessage = ($currentLanguage === 'ar') ? 'تم التسجيل بنجاح.' : 'Registration successful!';
 
         return response()->json(['success' => true, 'message' => $successMessage]);
-    }catch (\Exception $e) {
-        Log::channel('per-error')->error('Register API Error: ' . $e->getMessage());
-        Log::channel('api')->error('Error in register_api', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()  // Optionally include stack trace
-        ]);
-        // Optionally send the exception details in the response in a safe manner
-        return response()->json([
-            'success' => false, 
-            'message' => 'An unexpected error occurred. Please try again.'
-        ], 500);
-    }
+    
 
 
 
@@ -467,5 +467,20 @@ class AuthController extends Controller
         ])->post($graphApiUrl, $postData);
 
         return $response->json();
+    }
+
+     /**
+     * Clear all caches.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function clearCache()
+    {
+        Artisan::call('cache:clear');
+        Artisan::call('config:clear');
+        Artisan::call('route:clear');
+        Artisan::call('view:clear');
+
+        return response()->json(['success' => true, 'message' => 'All caches have been cleared.']);
     }
 }
