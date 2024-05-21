@@ -851,13 +851,21 @@ class StoreController extends Controller
             $discounts = UserDiscount::where('store_id', $store->id)->get();
             $storeDetails = [];
 
+       
             foreach ($discounts as $discount) {
                 $monthYear = $discount->created_at->format('F Y');
-                if (!isset($storeDetails[$monthYear])) {
-                    $storeDetails[$monthYear] = [];
+                if (!isset($storeDetails['months'][$monthYear])) {
+                    $storeDetails['months'][$monthYear] = [
+                        'discounts' => [],
+                        'total_after_discount' => 0,
+                        'discount_count' => 0
+                    ];
                 }
-                $storeDetails[$monthYear][] = $discount;
+                $storeDetails['months'][$monthYear]['discounts'][] = $discount;
+                $storeDetails['months'][$monthYear]['total_after_discount'] += $discount->after_discount;
+                $storeDetails['months'][$monthYear]['discount_count'] += 1;
             }
+    
 
             $store->category_name_en = optional($category)->category_name_en;
             $store->category_name_ar = optional($category)->category_name_ar;
