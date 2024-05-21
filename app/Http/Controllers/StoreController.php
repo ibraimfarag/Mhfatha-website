@@ -23,6 +23,7 @@ use App\Models\Discount;
 use App\Models\Request as StoreRequest;
 use Carbon\Carbon;
 use Illuminate\Contracts\Validation\Rule;
+use  App\Models\UserDiscount;
 
 class MaxUnique implements Rule
 {
@@ -843,10 +844,17 @@ class StoreController extends Controller
             $category = StoreCategory::find($store->category_id);
             $region = Region::find($store->region);
 
-            $store->category_name_en = optional($category)->category_name_en;
+            $depit = UserDiscount::where('store_id', $store->id)
+                ->where('obtained_status', 0)
+                ->sum('obtained');
+
+
+           
+                $store->category_name_en = optional($category)->category_name_en;
             $store->category_name_ar = optional($category)->category_name_ar;
             $store->region_name_ar = optional($region)->region_ar;
             $store->region_name_en = optional($region)->region_en;
+            $store->depit = $depit;
 
             return $store;
         });
@@ -929,7 +937,7 @@ class StoreController extends Controller
 
 
 
-     
+
 
         $user = auth()->user();
 
@@ -965,9 +973,6 @@ class StoreController extends Controller
             $imageName = time() . '.' . $request->file('photo')->getClientOriginalExtension();
             $request->file('photo')->move(public_path('FrontEnd/assets/images/store_images'), $imageName);
             $store->photo = $imageName;
-
-            
-
         } else {
             // If no image is uploaded, set a default image
             $store->photo = 'null-market.png'; // Change 'null-market.png' to your default image filename
@@ -997,7 +1002,7 @@ class StoreController extends Controller
             'type' => 'create_store',
             'data' => json_encode([
                 'name' => $request->input('name'),
-                'photo' =>$imageName,
+                'photo' => $imageName,
                 'work_days' => $request->input('work_days'),
                 'latitude' => $request->input('latitude'),
                 'longitude' => $request->input('longitude'),
@@ -1340,7 +1345,7 @@ class StoreController extends Controller
             } else {
                 $imageName = $store->photo; // Keep the old image if no new one is uploaded
             }
-            
+
 
             $requestData = [
                 'user_id' => auth()->id(),
