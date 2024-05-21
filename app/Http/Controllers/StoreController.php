@@ -881,9 +881,7 @@ class StoreController extends Controller
                 // Sum the overall total_after_discount and count
                 $storeDetails['total_after_discount'] += $discount->after_discount;
                 $storeDetails['discount_count'] += 1;
-                $storeDetails['discount_count'] += 1;
-                $storeDetails['sumTotalPayments'] = $sumTotalPaymentss;
-                $storeDetails['sumCountTimes'] = $sumCountTimess;
+    
             }
 
             $store->category_name_en = optional($category)->category_name_en;
@@ -892,6 +890,8 @@ class StoreController extends Controller
             $store->region_name_en = optional($region)->region_en;
             $store->depit = $depit;
             $store->storeDetails = $storeDetails;
+            $store->sumTotalPayments = $sumTotalPaymentss;
+            $store->sumCountTimes = $sumCountTimess;
 
             return $store;
         });
