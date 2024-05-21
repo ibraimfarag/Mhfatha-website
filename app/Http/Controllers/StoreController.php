@@ -843,17 +843,20 @@ class StoreController extends Controller
         $userStoresWithDetails = $userStores->map(function ($store) {
             $category = StoreCategory::find($store->category_id);
             $region = Region::find($store->region);
-            $sumTotalPaymentss = Store::where('user_id', auth()->id())
+
+            $sumTotalPaymentss = Store::where('store_id', $store->id)
             ->where('verifcation', 1)
             ->where('is_bann', 0)
             ->where('is_deleted', 0)
             ->sum('total_payments');
 
-            $sumCountTimess = Store::where('user_id', auth()->id())
+            $sumCountTimess = Store::where('store_id', $store->id)
             ->where('verifcation', 1)
             ->where('is_bann', 0)
             ->where('is_deleted', 0)
             ->sum('count_times');
+
+
             $depit = UserDiscount::where('store_id', $store->id)
                 ->where('obtained_status', 0)
                 ->sum('obtained');
