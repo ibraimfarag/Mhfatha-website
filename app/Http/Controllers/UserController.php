@@ -580,148 +580,94 @@ class UserController extends Controller
     }
 
 
-
-
-    public function updateProfileWithOtp(Request $request)
+    public function register_post(Request $request)
     {
-
-        $lang = $request->input('lang', 'en'); // Default to English if not provided
-
-        // Validate the incoming request data
-        $this->validate($request, [
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'birthday' => 'nullable|date',
-            'region' => 'required|max:255',
-            // 'mobile' => 'required|digits:10|',
-            'mobile' => 'required|digits:10| unique:users',
-            'email' => 'required|string|email|max:255',
-            // 'photo' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust file type and size as needed
-            'otp' => 'required_if:mobile,' . ',!=' . Auth::user()->mobile, // OTP is required only if mobile number is different from the current user's mobile
-        ]);
-
-        // Check if the provided mobile number is different from the current one
-
-
-        // Continue with the existing update logic for other fields
-
-        // Update the user's profile information
-        $userId = Auth::user()->id;
-        $user = User::find($userId);
-        $user->first_name = $request->input('first_name');
-        $user->last_name = $request->input('last_name');
-        $user->birthday = $request->input('birthday');
-        $user->region = $request->input('region');
-        $user->email = $request->input('email');
-        // $user->photo = $request->input('photo');
-
-        // Check if a new profile image was uploaded
-        // Check if a new profile image was uploaded
-        // if ($request->hasFile('photo')) {
-        //     // Delete the old profile image (if it exists)
-        //     if ($user->photo) {
-        //         $oldImagePath = public_path('FrontEnd/assets/images/user_images/' . $user->photo);
-        //         if (File::exists($oldImagePath)) {
-        //             File::delete($oldImagePath);
-        //         }
-        //     }
-
-        //     // Store the new profile image
-        //     $image = $request->file('photo');
-        //     $imageName = time() . '.' . $image->getClientOriginalExtension();
-        //     $image->move(public_path('FrontEnd/assets/images/user_images'), $imageName);
-        //     $user->photo = $imageName;
-        // } elseif ($request->input('photo') === null) {
-        //     // If input photo is null, retain the old photo
-        //     $user->photo = Auth::user()->photo;
-        // }
-
-
-
-
-
-
-
-
-        if ($request->input('mobile') !== Auth::user()->mobile) {
-
-            $existingUserWithMobile = User::where('mobile', $request->input('mobile'))->first();
-
-            if ($existingUserWithMobile) {
-                // Mobile number is already in use, return an error response
-                $errorMessage = $lang === 'ar' ? 'تم استخدام رقم الجوال المقدم بالفعل من قبل مستخدم آخر. يرجى اختيار رقم جوال مختلف.' : 'The provided mobile number is already in use by another user. Please choose a different mobile number.';
-                return response()->json(['error' => $errorMessage], 422);
-            }
-
-            // Generate and send OTP
-
-            // $otp = rand(100000, 999999); // Generate a 6-digit OTP (you can use a more secure method)
-
-            // $otp = "12345"; // Generate a 6-digit OTP (you can use a more secure method)
-
-            $mobilenumberRecive =  '966' . $user->mobile;
-            // $mobilenumberRecive =  '20' . '1150529992';
-            $otp = Cache::get('updateProfileWithOtp_' . $user->id);
-            $userLanguage = $user->lang;
-
-            if (!$otp) {
-                // Generate a new OTP
-                $otp = rand(10000, 99999);
-
-                // Cache the OTP with a TTL of 5 minutes (300 seconds)
-                Cache::put('updateProfileWithOtp_' . $user->id, $otp, 300);
-            }
-
-            // Set $lang based on the user's language
-            $lang = ($userLanguage === 'ar') ? 'en_US' : 'en_US';
-
-            $recipientNumber = $mobilenumberRecive;
-
-            // Message content to be sent
-            $messageContent = $otp;
-
-
-            // Send the OTP to the user (you need to implement SMS or email sending here)
-
-
-            $enteredOtp = $request->input('otp');
-
-
-            if (empty($enteredOtp) || is_null($enteredOtp)) {
-                // Invalid or missing OTP, return an error response
-                $code = AuthController::sendWhatsAppMessage($lang, $recipientNumber, $messageContent);
-
-                $errorMessage = $lang === 'ar' ? ' تم إرسال رمز إلى رقم واتس اب' . $request->input('mobile') . '. الرجاء إدخال الرمز.' : 'We have sent OTP code to whatsapp number ' . $request->input('mobile') . '. Please enter the code.';
-                return response()->json(['error' => $errorMessage, "OTP" => true, "Success" => true], 200);
-            }
-            // Verify the entered OTP with the stored one
-            if ($enteredOtp != $otp) {
-                // Invalid OTP, return an error response
-                $errorMessage = $lang === 'ar' ? 'رمز OTP غير صالح. يرجى المحاولة مرة أخرى.' : 'Invalid OTP. Please try again.';
-                return response()->json(['error' => $errorMessage], 422);
-            }
-            if ($enteredOtp = $otp) {
-                $user->mobile = $request->input('mobile');
-
-                // return response()->json(['error' => 'Invalid OTP. Please try again.'], 422);
-            }
+        // Retrieve all input data as JSON
+        $requestData = $request->json()->all();
+        $lang = $requestData['lang'] ?? 'en'; // Default to 'en' if 'lang' is not provided
+    
+        $currentLanguage = $lang;
+    
+        // Check the language and set the appropriate error message
+        $errorMessages = [];
+        if ($currentLanguage === 'ar') {
+            $errorMessages = [
+                'first_name.required' => 'حقل الاسم الأول مطلوب.',
+                'last_name.required' => 'حقل الاسم الأخير مطلوب.',
+                'gender.required' => 'حقل الجنس مطلوب.',
+                'birthday.required' => 'حقل تاريخ الميلاد مطلوب.',
+                'mobile.unique' => 'رقم الجوال مستخدم بالفعل. يرجى اختيار رقم آخر.',
+                'mobile.required' => 'حقل رقم الجوال مطلوب.',
+                'email.required' => 'حقل البريد الإلكتروني مطلوب.',
+                'password.required' => 'حقل كلمة المرور مطلوب.',
+                'password.min' => 'يجب أن تحتوي كلمة المرور على ما لا يقل عن 8 أحرف.',
+                'password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
+            ];
+        } elseif ($currentLanguage === 'en') {
+            $errorMessages = [
+                'first_name.required' => 'The first name field is required.',
+                'last_name.required' => 'The last name field is required.',
+                'gender.required' => 'The gender field is required.',
+                'birthday.required' => 'The birthday field is required.',
+                'mobile.unique' => 'The mobile number is already in use. Please choose a different one.',
+                'mobile.required' => 'The mobile field is required.',
+                'email.required' => 'The email field is required.',
+                'password.required' => 'The password field is required.',
+                'password.min' => 'The password must be at least 8 characters.',
+                'password.confirmed' => 'The password confirmation does not match.',
+            ];
         }
-
-        // Continue with the existing update logic for other fields
-
-        // Verify OTP
-
-        // Save the updated user data
-        $user->save();
-
-        // Clear the stored OTP from the session
-        Session::forget('otp');
-
-        // Return a success response
-        $successMessage = $lang === 'ar' ? 'تم تحديث الملف الشخصي بنجاح.' : 'Profile updated successfully.';
-        return response()->json(['message' => $successMessage]);
+    
+        $customMessages = $errorMessages;
+    
+        // Validate the incoming request data
+        $validator = Validator::make($requestData, [
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'gender' => 'required|string', // Add gender field
+            'birthday' => 'required|date',
+            'city' => 'required|string|max:255',
+            'region' => 'required|string|max:255',
+            'mobile' => 'required|string|max:255|unique:users', // Ensure 'mobile' is unique
+            'email' => 'required|email|unique:users',
+            'password' => 'required|string|min:8|confirmed', // Ensure password matches password_confirmation
+        ], $customMessages);
+    
+        // Check if validation fails
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+    
+            return response()->json([
+                'success' => false,
+                'messages' => $errors
+            ], 400);
+        }
+    
+        // Create a new user record
+        User::create([
+            'first_name' => $requestData['first_name'],
+            'middle_name' => $requestData['middle_name'] ?? null,
+            'last_name' => $requestData['last_name'],
+            'gender' => $requestData['gender'],
+            'birthday' => $requestData['birthday'],
+            'city' => $requestData['city'],
+            'region' => $requestData['region'],
+            'mobile' => $requestData['mobile'],
+            'email' => $requestData['email'],
+            'is_vendor' => $requestData['is_vendor'] ?? 0,
+            'password' => Hash::make($requestData['password']),
+            'photo' => 'default_user.png', // Set the default image path here
+        ]);
+    
+        $successMessage = ($currentLanguage === 'ar') ? 'تم التسجيل بنجاح.' : 'Registration successful!';
+    
+        return response()->json([
+            'success' => true,
+            'message' => $successMessage
+        ], 201);
     }
-
+    
 
     public function changePassword(Request $request)
     {
