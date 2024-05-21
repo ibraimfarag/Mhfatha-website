@@ -409,4 +409,21 @@ class AuthController extends Controller
 
         return response()->json(['success' => true, 'message' => 'All caches have been cleared.']);
     }
+
+
+    public function registerPostJson(Request $request)
+{
+    // Retrieve all input data as JSON
+    $requestData = $request->json()->all();
+    $lang = $requestData['lang'] ?? 'en'; // Default to 'en' if 'lang' is not provided
+
+    $currentLanguage = $lang;
+
+
+    return response()->json([
+        'success' => true,
+        'message' => $requestData
+    ], 201);
+}
+
 }

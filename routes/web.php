@@ -43,7 +43,7 @@ Route::group(['middleware' => 'guest'], function () {
     Route::get('/login', [AuthController::class, 'login_index'])->name('login');
     Route::post('/login-post', [AuthController::class, 'login_post'])->name('login_post');
     Route::get('/register', [AuthController::class, 'register_index'])->name('register');
-    Route::post('/register-posta', [AuthController::class, 'register_post'])->name('register_post');
+    Route::post('/register-post', [AuthController::class, 'register_post'])->name('register_post');
 });
 
 // Authenticated user routes
