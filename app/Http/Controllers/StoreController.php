@@ -844,17 +844,11 @@ class StoreController extends Controller
             $category = StoreCategory::find($store->category_id);
             $region = Region::find($store->region);
 
-            $sumTotalPaymentss = Store::where('id', $store->id)
-            ->where('verifcation', 1)
-            ->where('is_bann', 0)
-            ->where('is_deleted', 0)
-            ->sum('total_payments');
+            $sumTotalPaymentss = UserDiscount::where('store_id', $store->id)
 
-            $sumCountTimess = Store::where('id', $store->id)
-            ->where('verifcation', 1)
-            ->where('is_bann', 0)
-            ->where('is_deleted', 0)
-            ->sum('count_times');
+            ->sum('after_discount');
+
+            $sumCountTimess = UserDiscount::where('store_id', $store->id)->count();
 
 
             $depit = UserDiscount::where('store_id', $store->id)
