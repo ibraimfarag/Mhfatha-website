@@ -41,9 +41,9 @@ class Handler extends ExceptionHandler
             // Optional: Log or handle specific exceptions here
         });
 
-        // $this->renderable(function (Throwable $e, $request) {
-        //     return $this->render($request, $e);
-        // });
+        $this->renderable(function (Throwable $e, $request) {
+            return $this->render($request, $e);
+        });
     }
 
     /**
@@ -54,12 +54,52 @@ class Handler extends ExceptionHandler
      * @return \Illuminate\Http\Response
      */
 
-     public function render($request, Throwable $exception)
-     {
-         // Check if the request is targeting an API route
-      
-     }
-     
+  public function render($request, Throwable $exception)
+{
+    // Check if the request is targeting an API route
+    if ($request->is('api/*')) {
+        // Get the route information if available
+        $routeName = null;
+        $routeAction = null;
+        if ($request->route()) {
+            $routeName = $request->route()->getName();
+            $routeAction = $request->route()->getAction();
+        }
+
+        // Prepare basic log data
+        $logData = [
+            'exception' => $exception,
+            'retryAfter' => null,  // Default to null if no Retry-After is available
+            'route' => [
+                'name' => $routeName,
+                'action' => $routeAction
+            ],
+            'file' => $exception->getFile()
+        ];
+
+        // Log all exceptions with detailed information
+        $logger = Log::channel('api');
+        $logger->error($exception->getMessage(), $logData);
+        try {
+            Mail::to('ib.farag@gmail.com')->send(new \App\Mail\ExceptionOccurred($exception));
+        } catch (\Exception $mailException) {
+            // Handle mail sending error
+            $logger->error('Failed to send exception email', ['error' => $mailException->getMessage()]);
+        }
+
+        if ($exception instanceof \Illuminate\Http\Exceptions\ThrottleRequestsException) {
+            // Add Retry-After info to log if available
+            $logData['retryAfter'] = $exception->getHeaders()['Retry-After'] ?? 60; // seconds
+
+            // Update log entry with Retry-After data
+            $logger->error($exception->getMessage(), $logData);
+        }
+    }
+
+    // Default to the parent method's handling, which renders HTML for web routes
+    return parent::render($request, $exception);
+}
+
          public function report(Throwable $exception)
     {
         if (app()->runningInConsole() && app()->environment('local')) {

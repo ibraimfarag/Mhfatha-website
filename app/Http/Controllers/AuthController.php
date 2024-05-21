@@ -79,85 +79,11 @@ class AuthController extends Controller
         $requestData = $request->json()->all();
         $lang = $requestData['lang'] ?? 'en'; // Default to 'en' if 'lang' is not provided
     
-        $currentLanguage = $lang;
     
-        // Check the language and set the appropriate error message
-        $errorMessages = [];
-        if ($currentLanguage === 'ar') {
-            $errorMessages = [
-                'first_name.required' => 'حقل الاسم الأول مطلوب.',
-                'last_name.required' => 'حقل الاسم الأخير مطلوب.',
-                'gender.required' => 'حقل الجنس مطلوب.',
-                'birthday.required' => 'حقل تاريخ الميلاد مطلوب.',
-                'mobile.unique' => 'رقم الجوال مستخدم بالفعل. يرجى اختيار رقم آخر.',
-                'mobile.required' => 'حقل رقم الجوال مطلوب.',
-                'email.required' => 'حقل البريد الإلكتروني مطلوب.',
-                'password.required' => 'حقل كلمة المرور مطلوب.',
-                'password.min' => 'يجب أن تحتوي كلمة المرور على ما لا يقل عن 8 أحرف.',
-                'password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
-            ];
-        } elseif ($currentLanguage === 'en') {
-            $errorMessages = [
-                'first_name.required' => 'The first name field is required.',
-                'last_name.required' => 'The last name field is required.',
-                'gender.required' => 'The gender field is required.',
-                'birthday.required' => 'The birthday field is required.',
-                'mobile.unique' => 'The mobile number is already in use. Please choose a different one.',
-                'mobile.required' => 'The mobile field is required.',
-                'email.required' => 'The email field is required.',
-                'password.required' => 'The password field is required.',
-                'password.min' => 'The password must be at least 8 characters.',
-                'password.confirmed' => 'The password confirmation does not match.',
-            ];
-        }
-    
-        $customMessages = $errorMessages;
-    
-        // Validate the incoming request data
-        $validator = Validator::make($requestData, [
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'gender' => 'required|string', // Add gender field
-            'birthday' => 'required|date',
-            'city' => 'required|string|max:255',
-            'region' => 'required|string|max:255',
-            'mobile' => 'required|string|max:255|unique:users', // Ensure 'mobile' is unique
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:8|confirmed', // Ensure password matches password_confirmation
-        ], $customMessages);
-    
-        // Check if validation fails
-        if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-    
-            return response()->json([
-                'success' => false,
-                'messages' => $errors
-            ], 400);
-        }
-    
-        // Create a new user record
-        User::create([
-            'first_name' => $requestData['first_name'],
-            'middle_name' => $requestData['middle_name'] ?? null,
-            'last_name' => $requestData['last_name'],
-            'gender' => $requestData['gender'],
-            'birthday' => $requestData['birthday'],
-            'city' => $requestData['city'],
-            'region' => $requestData['region'],
-            'mobile' => $requestData['mobile'],
-            'email' => $requestData['email'],
-            'is_vendor' => $requestData['is_vendor'] ?? 0,
-            'password' => Hash::make($requestData['password']),
-            'photo' => 'default_user.png', // Set the default image path here
-        ]);
-    
-        $successMessage = ($currentLanguage === 'ar') ? 'تم التسجيل بنجاح.' : 'Registration successful!';
     
         return response()->json([
             'success' => true,
-            'message' => $successMessage
+            'message' => $requestData
         ], 201);
     }
         public function logout()
