@@ -64,28 +64,23 @@ class ComplaintsSuggestionsParentController extends Controller
             return response()->json(['errors' => $validator->errors()], 400);
         }
         $description = $request->description;
-        if (!isset($description['message_type'])) {
-            $description['message_type'] = 'client';
-        }
-        if (!isset($description['date'])) {
-            $description['date'] = now()->toDateTimeString();
-        }
-        // Set the default read value if not provided
-        if (!isset($description['read'])) {
-            $description['read'] = false;
-        }
+  // Set default values if not provided
+  $description['message_type'] = $description['message_type'] ?? 'client';
+  $description['date'] = $description['date'] ?? now()->toDateTimeString();
+  $description['read'] = $description['read'] ?? '0'  ;
+
 
         // Handle file upload for description.attached
         if ($request->hasFile('description.attached')) {
             $file = $request->file('description.attached');
-            $folderPath = public_path('frontend/assets/' . $ticketNumber);
+            $folderPath = public_path('FrontEnd/assets/images/supporting/' . $ticketNumber);
             // Create directory if it doesn't exist
             if (!File::exists($folderPath)) {
                 File::makeDirectory($folderPath, 0777, true, true);
             }
             $imageName = $ticketNumber . '-' . now()->format('YmdHis') . '.' . $file->getClientOriginalExtension();
             $file->move($folderPath, $imageName);
-            $description['attached'] = 'frontend/assets/' . $ticketNumber . '/' . $imageName;
+            $description['attached'] = 'FrontEnd/assets/images/supporting/' . $ticketNumber . '/' . $imageName;
         } else {
             $description['attached'] = null;
         }
