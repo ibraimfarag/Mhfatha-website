@@ -53,7 +53,7 @@ class ComplaintsSuggestionsParentController extends Controller
             'description.message' => 'nullable|string',
             'description.read' => 'nullable|boolean', // Add read as a boolean
             'description.date' => 'nullable|string',
-            'description.attached.*' => 'nullable|file|max:2048',
+            'description.attached' => 'nullable|array',
             'status' => 'nullable|in:read,unread,under processer,closed',
             'attachments' => 'nullable|string',
             'additional_phone' => 'nullable|string',
@@ -75,22 +75,21 @@ class ComplaintsSuggestionsParentController extends Controller
   $description['read'] = $description['read'] ?? 0; // Set 'read' to 0 if null
 
   // Handle file upload for description.attached
-  if ($request->hasFile('description.attached')) {
+    // Handle file upload for description.attached
     $attachedFiles = [];
-    foreach ($request->file('description.attached') as $file) {
-        $folderPath = public_path('FrontEnd/assets/images/supporting/' . $ticketNumber);
-        // Create directory if it doesn't exist
-        if (!File::exists($folderPath)) {
-            File::makeDirectory($folderPath, 0777, true, true);
+    if ($request->hasFile('description.attached')) {
+        foreach ($request->file('description.attached') as $file) {
+            $folderPath = public_path('FrontEnd/assets/images/supporting/' . $ticketNumber);
+            // Create directory if it doesn't exist
+            if (!File::exists($folderPath)) {
+                File::makeDirectory($folderPath, 0777, true, true);
+            }
+            $imageName = $ticketNumber . '-' . now()->format('YmdHis') . '-' . $file->getClientOriginalName();
+            $file->move($folderPath, $imageName);
+            $attachedFiles[] = 'FrontEnd/assets/images/supporting/' . $ticketNumber . '/' . $imageName;
         }
-        $imageName = $ticketNumber . '-' . now()->format('YmdHis') . '.' . $file->getClientOriginalExtension();
-        $file->move($folderPath, $imageName);
-        $attachedFiles[] = 'FrontEnd/assets/images/supporting/' . $ticketNumber . '/' . $imageName;
     }
     $description['attached'] = $attachedFiles;
-} else {
-    $description['attached'] = [];
-}
 
         // Encode the description as JSON
         $descriptionJson = json_encode($description, JSON_UNESCAPED_UNICODE);
