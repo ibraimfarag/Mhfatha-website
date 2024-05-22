@@ -116,7 +116,7 @@ class ComplaintsSuggestionsParentController extends Controller
     public function getComplaintsSuggestionsOptions(Request $request)
     {
         $criteria = $request->get('criteria', 'all');
-        $inputLang = $request->get('lang', 'en');
+
 
         switch ($criteria) {
             case 'vendor':
