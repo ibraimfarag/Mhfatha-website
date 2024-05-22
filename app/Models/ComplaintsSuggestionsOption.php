@@ -8,14 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class ComplaintsSuggestionsOption extends Model
 {
     use HasFactory;
-    protected $fillable = ['parent_ar', 'parent_en'];
+    protected $fillable = [
+        'option_ar',
+        'option_en',
+        'parent_id',
+    ];
 
-    public function options()
-    {
-        return $this->hasMany(ComplaintsSuggestionsOption::class, 'parent_id');
-    }
-
-    public function option()
+    public function parent()
     {
         return $this->belongsTo(ComplaintsSuggestionsParent::class, 'parent_id');
     }

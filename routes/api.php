@@ -11,6 +11,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\WebsiteManagerController;
 use App\Http\Controllers\RequestsController;
 use App\Http\Controllers\TermsAndConditionsPolicyController;
+use App\Http\Controllers\ComplaintsSuggestionsParentController;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TestEmail;
 
@@ -61,6 +62,8 @@ Route::middleware('auth:api')->group(
     function () {
         Route::get('/contact-us', [WebsiteManagerController::class, 'manageContacts']);
 
+        Route::post('/supporting', [ComplaintsSuggestionsParentController::class, 'getComplaintsSuggestionsOptions']);
+
 
         Route::post('/update-device-info', [UserController::class, 'updateDeviceInfo']);
         Route::get('/user', [UserController::class, 'getUserInfoApi']);
@@ -74,6 +77,7 @@ Route::middleware('auth:api')->group(
         Route::post('/discounts-post', [UserDiscountController::class, 'postUserDiscount']);
         Route::post('/user-discounts', [UserDiscountController::class, 'getAllUserDiscounts']);
         Route::post('/filter-stores', [StoreController::class, 'filterStoresApi']);
+
 
         // /* --------------------------------- vendor --------------------------------- */
 
