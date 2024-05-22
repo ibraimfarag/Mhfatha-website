@@ -18,11 +18,11 @@ class CreateComplaintsSuggestionsTable extends Migration
             $table->unsignedBigInteger('option_id'); // Add option_id foreign key
             $table->unsignedBigInteger('parent_id'); // Add parent_id foreign key
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('store_id')->nullable;
-            $table->unsignedBigInteger('discount_id')->nullable;
+            $table->unsignedBigInteger('store_id')->nullable();
+            $table->unsignedBigInteger('discount_id')->nullable();
             $table->boolean('is_vendor');
             $table->longText('description');
-            $table->enum('status', ['read', 'unread', 'under processer', 'closed'])->nullable;
+            $table->enum('status', ['read', 'unread', 'under processer', 'closed'])->nullable();
             $table->string('ticket_number')->unique();
             $table->text('attachments')->nullable();
             $table->string('additional_phone')->nullable();
