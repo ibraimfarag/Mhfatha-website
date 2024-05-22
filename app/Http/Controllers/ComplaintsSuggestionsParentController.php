@@ -35,8 +35,8 @@ class ComplaintsSuggestionsParentController extends Controller
     public function store(Request $request)
     {
         // Fetch the authenticated user's ID
-        $userId = Auth::id();
-        $isVendor = Auth::is_vendor();
+        $userId = Auth::user()->id;
+        $isVendor = Auth::user()->is_vendor;
 
         // Generate a random ticket number
         $ticketNumber = 'MH-' . str_pad(mt_rand(0, 99999), 5, '0', STR_PAD_LEFT);
