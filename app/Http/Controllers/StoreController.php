@@ -863,6 +863,8 @@ class StoreController extends Controller
             ];
     
             foreach ($discounts as $discount) {
+                $discountCategory = Discount::find($discount->discount_id);
+
                 $monthYear = $discount->created_at->format('F Y');
                 if (!isset($storeDetails['months'][$monthYear])) {
                     $storeDetails['months'][$monthYear] = [
@@ -871,6 +873,13 @@ class StoreController extends Controller
                         'discount_count' => 0
                     ];
                 }
+
+                $discountDetail = $discount->toArray();
+                $discountDetail['discount_category_name'] = optional($discountCategory)->category;
+                $discountDetail['discount_percent'] = optional($discountCategory)->percent;
+                $discountDetail['discount_start_date'] = optional($discountCategory)->start_date;
+                $discountDetail['discount_end_date'] = optional($discountCategory)->end_date;
+    
                 $storeDetails['months'][$monthYear]['discounts'][] = $discount;
                 $storeDetails['months'][$monthYear]['total_after_discount'] += $discount->after_discount;
                 $storeDetails['months'][$monthYear]['discount_count'] += 1;
