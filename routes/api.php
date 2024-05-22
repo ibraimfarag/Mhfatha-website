@@ -62,8 +62,10 @@ Route::middleware('auth:api')->group(
     function () {
         Route::get('/contact-us', [WebsiteManagerController::class, 'manageContacts']);
 
-        Route::post('/supporting', [ComplaintsSuggestionsParentController::class, 'getComplaintsSuggestionsOptions']);
-
+        Route::prefix('supporting/')->group(function () {
+            Route::post('/get-resons', [ComplaintsSuggestionsParentController::class, 'getComplaintsSuggestionsOptions']);
+            Route::post('/create', [ComplaintsSuggestionsParentController::class, 'store']);
+        });
 
         Route::post('/update-device-info', [UserController::class, 'updateDeviceInfo']);
         Route::get('/user', [UserController::class, 'getUserInfoApi']);
@@ -115,9 +117,6 @@ Route::middleware('auth:api')->group(
             Route::post('sets', [WebsiteManagerController::class, 'manageRecords']);
 
             Route::post('/TermsAndConditions', [TermsAndConditionsPolicyController::class, 'updateTermsAndConditions']);
-
-
-
         });
     }
 

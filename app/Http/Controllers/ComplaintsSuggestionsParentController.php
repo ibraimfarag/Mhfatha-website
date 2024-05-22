@@ -139,4 +139,6 @@ class ComplaintsSuggestionsParentController extends Controller
 
         return response()->json($options, 200);
     }
+
+    
 }
