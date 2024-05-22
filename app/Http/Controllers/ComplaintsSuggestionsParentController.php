@@ -135,12 +135,7 @@ class ComplaintsSuggestionsParentController extends Controller
                 break;
         }
 
-        // Translate options if inputLang is not English
-        if ($inputLang !== 'en') {
-            foreach ($options as $option) {
-                $option->option_en = $this->translate($option->option_en, 'en', $inputLang);
-            }
-        }
+
 
         return response()->json($options, 200);
     }
