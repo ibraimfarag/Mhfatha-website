@@ -63,30 +63,33 @@ class ComplaintsSuggestionsParentController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
-        $description = $request->description;
-  // Set default values if not provided
+        $description = $request->input('description', []);
+        // Set default values if not provided
   $description['message_type'] = $description['message_type'] ?? 'client';
   $description['date'] = now()->toDateTimeString();
   $description['read'] =  0;
 
+  $description['message_type'] = $description['message_type'] ?? 'client';
+  $description['date'] = $description['date'] ?? now()->toDateTimeString();
+  $description['read'] = $description['read'] ?? 0; // Set 'read' to 0 if null
 
-        // Handle file upload for description.attached
-        if ($request->hasFile('description.attached')) {
-            $file = $request->file('description.attached');
-            $folderPath = public_path('FrontEnd/assets/images/supporting/' . $ticketNumber);
-            // Create directory if it doesn't exist
-            if (!File::exists($folderPath)) {
-                File::makeDirectory($folderPath, 0777, true, true);
-            }
-            $imageName = $ticketNumber . '-' . now()->format('YmdHis') . '.' . $file->getClientOriginalExtension();
-            $file->move($folderPath, $imageName);
-            $description['attached'] = 'FrontEnd/assets/images/supporting/' . $ticketNumber . '/' . $imageName;
-        } else {
-            $description['attached'] = null;
-        }
+  // Handle file upload for description.attached
+  if ($request->hasFile('description.attached')) {
+      $file = $request->file('description.attached');
+      $folderPath = public_path('FrontEnd/assets/images/supporting/' . $ticketNumber);
+      // Create directory if it doesn't exist
+      if (!File::exists($folderPath)) {
+          File::makeDirectory($folderPath, 0777, true, true);
+      }
+      $imageName = $ticketNumber . '-' . now()->format('YmdHis') . '.' . $file->getClientOriginalExtension();
+      $file->move($folderPath, $imageName);
+      $description['attached'] = 'FrontEnd/assets/images/supporting/' . $ticketNumber . '/' . $imageName;
+  } else {
+      $description['attached'] = null;
+  }
 
         // Encode the description as JSON
-        $descriptionJson = json_encode($request->description);
+        $descriptionJson = json_encode($description);
 
         // Create a new ComplaintsSuggestions instance and save it
         $complaintsSuggestions = new ComplaintSuggestion([
