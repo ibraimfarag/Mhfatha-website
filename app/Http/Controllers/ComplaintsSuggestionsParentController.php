@@ -36,6 +36,7 @@ class ComplaintsSuggestionsParentController extends Controller
     {
         // Fetch the authenticated user's ID
         $userId = Auth::id();
+        $isVendor = Auth::is_vendor();
 
         // Generate a random ticket number
         $ticketNumber = 'MH-' . str_pad(mt_rand(0, 99999), 5, '0', STR_PAD_LEFT);
@@ -98,7 +99,7 @@ class ComplaintsSuggestionsParentController extends Controller
             'user_id' => $userId, // Assign the user ID
             'store_id' => $request->store_id,
             'discount_id' => $request->discount_id,
-            'is_vendor' => $request->is_vendor,
+            'is_vendor' => $isVendor,
             'description' => $descriptionJson, // Save the description as JSON
             'status' => $request->status,
             'ticket_number' => $ticketNumber, // Assign the generated ticket number
