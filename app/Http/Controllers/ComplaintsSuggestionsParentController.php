@@ -56,6 +56,7 @@ class ComplaintsSuggestionsParentController extends Controller
             'status' => 'nullable|in:read,unread,under processer,closed',
             'attachments' => 'nullable|string',
             'additional_phone' => 'nullable|string',
+            'lang' => 'nullable|in:en,ar', // Validate lang input
         ]);
 
         // If validation fails, return the errors
@@ -109,8 +110,12 @@ class ComplaintsSuggestionsParentController extends Controller
 
         $complaintsSuggestions->save();
 
-        // Return a success response
-        return response()->json(['message' => 'Complaints/Suggestions created successfully'], 201);
+      // Return the response based on the lang input
+    if ($request->lang === 'ar') {
+        return response()->json(['message' => 'لقد تم تسجيل الطلب بنجاح برقم ' ,'ticketNumber' => $ticketNumber], 201);
+    } else {
+        return response()->json(['message' => 'Complaints/Suggestions created successfully with ticket number ' ,'ticketNumber' => $ticketNumber], 201);
+    }
     }
 
     public function getComplaintsSuggestionsOptions(Request $request)
@@ -140,5 +145,5 @@ class ComplaintsSuggestionsParentController extends Controller
         return response()->json($options, 200);
     }
 
-    
+
 }
