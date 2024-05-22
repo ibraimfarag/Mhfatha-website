@@ -42,16 +42,16 @@ class ComplaintsSuggestionsParentController extends Controller
 
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
-            'option_id' => 'exists:complaints_suggestions_option,id',
-            'parent_id' => 'exists:complaints_suggestions_parent,id',
+            'option_id' => 'nullable|exists:complaints_suggestions_option,id',
+            'parent_id' => 'nullable|exists:complaints_suggestions_parent,id',
             'store_id' => 'nullable|exists:stores,id',
             'discount_id' => 'nullable|exists:discounts,id',
-            'is_vendor' => 'boolean',
-            'description' => 'array', // Ensure description is an array
-            'description.message_type' => 'string',
-            'description.message' => 'string',
+            'is_vendor' => 'nullable|boolean',
+            'description' => 'nullable|array', // Ensure description is an array
+            'description.message_type' => 'nullable|string',
+            'description.message' => 'nullable|string',
             'description.read' => 'nullable|boolean', // Add read as a boolean
-            'description.date' => 'string',
+            'description.date' => 'nullable|string',
             'description.attached' => 'nullable',
             'status' => 'nullable|in:read,unread,under processer,closed',
             'attachments' => 'nullable|string',
