@@ -53,7 +53,7 @@ class ComplaintsSuggestionsParentController extends Controller
             'description.message' => 'nullable|string',
             'description.read' => 'nullable|boolean', // Add read as a boolean
             'description.date' => 'nullable|string',
-            'description.attached' => 'nullable',
+            'description.attached.*' => 'nullable|file|max:2048',
             'status' => 'nullable|in:read,unread,under processer,closed',
             'attachments' => 'nullable|string',
             'additional_phone' => 'nullable|string',
@@ -76,19 +76,21 @@ class ComplaintsSuggestionsParentController extends Controller
 
   // Handle file upload for description.attached
   if ($request->hasFile('description.attached')) {
-      $file = $request->file('description.attached');
-      $folderPath = public_path('FrontEnd/assets/images/supporting/' . $ticketNumber);
-      // Create directory if it doesn't exist
-      if (!File::exists($folderPath)) {
-          File::makeDirectory($folderPath, 0777, true, true);
-      }
-      $imageName = $ticketNumber . '-' . now()->format('YmdHis') . '.' . $file->getClientOriginalExtension();
-      $file->move($folderPath, $imageName);
-      $description['attached'] = 'FrontEnd/assets/images/supporting/' . $ticketNumber . '/' . $imageName;
-  } else {
-      $description['attached'] = null;
-  }
-
+    $attachedFiles = [];
+    foreach ($request->file('description.attached') as $file) {
+        $folderPath = public_path('FrontEnd/assets/images/supporting/' . $ticketNumber);
+        // Create directory if it doesn't exist
+        if (!File::exists($folderPath)) {
+            File::makeDirectory($folderPath, 0777, true, true);
+        }
+        $imageName = $ticketNumber . '-' . now()->format('YmdHis') . '.' . $file->getClientOriginalExtension();
+        $file->move($folderPath, $imageName);
+        $attachedFiles[] = 'FrontEnd/assets/images/supporting/' . $ticketNumber . '/' . $imageName;
+    }
+    $description['attached'] = $attachedFiles;
+} else {
+    $description['attached'] = [];
+}
         // Encode the description as JSON
         $descriptionJson = json_encode($description, JSON_UNESCAPED_UNICODE);
         // Create a new ComplaintsSuggestions instance and save it
