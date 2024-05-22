@@ -52,7 +52,7 @@ class ComplaintsSuggestionsParentController extends Controller
             'description.message' => 'required|string',
             'description.read' => 'nullable|boolean', // Add read as a boolean
             'description.date' => 'required|date',
-            'description.attached' => 'nullable|string',
+            'description.attached' => 'nullable',
             'status' => 'nullable|in:read,unread,under processer,closed',
             'attachments' => 'nullable|string',
             'additional_phone' => 'nullable|string',
