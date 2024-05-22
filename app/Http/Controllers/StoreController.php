@@ -873,14 +873,14 @@ class StoreController extends Controller
                         'discount_count' => 0
                     ];
                 }
-
-                $discountDetail = $discount->toArray();
-                $discountDetail['discount_category_name'] = optional($discountCategory)->category;
-                $discountDetail['discount_percent'] = optional($discountCategory)->percent;
-                $discountDetail['discount_start_date'] = optional($discountCategory)->start_date;
-                $discountDetail['discount_end_date'] = optional($discountCategory)->end_date;
-    
-                $storeDetails['months'][$monthYear]['discounts'][] = $discount;
+                
+                $discountDetail = array_merge($discount->toArray(), [
+                    'discount_category_name' => optional($discountCategory)->category,
+                    'discount_percent' => optional($discountCategory)->percent,
+                    'discount_start_date' => optional($discountCategory)->start_date,
+                    'discount_end_date' => optional($discountCategory)->end_date
+                ]);
+                $storeDetails['months'][$monthYear]['discounts'][] = $discountDetail;
                 $storeDetails['months'][$monthYear]['total_after_discount'] += $discount->after_discount;
                 $storeDetails['months'][$monthYear]['discount_count'] += 1;
     
