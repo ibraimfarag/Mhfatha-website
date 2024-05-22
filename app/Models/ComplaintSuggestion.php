@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class ComplaintSuggestion extends Model
 {
     use HasFactory;
+    
+    protected $table = 'complaints_suggestions'; // Explicitly specify the table name
 
     protected $fillable = [
         'option_id',
