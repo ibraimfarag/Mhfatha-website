@@ -206,7 +206,7 @@ class ComplaintsSuggestionsParentController extends Controller
         }
 
         // Fetch the ComplaintSuggestion to update
-        $complaintSuggestion = ComplaintSuggestion::findOrFail($id);
+        $complaintSuggestion = ComplaintSuggestion::Where('id',$id)->first();
         $ticketNumber = $complaintSuggestion->ticketNumber;
 
         // Ensure that the authenticated user owns the ComplaintSuggestion
@@ -265,7 +265,7 @@ class ComplaintsSuggestionsParentController extends Controller
         $complaintSuggestion->save();
 
         // Return a success message
-        return response()->json(['message' => 'ComplaintSuggestion updated successfully','ticketNumber'=> $ticketNumber], 200);
+        return response()->json(['message' => 'ComplaintSuggestion updated successfully','ticketNumber'=> $ticketNumber,'complaintSuggestion'=>$complaintSuggestion], 200);
     }
 }
 
