@@ -28,6 +28,7 @@ use App\Models\Request as StoreRequest;
 use Carbon\Carbon;
 use Illuminate\Contracts\Validation\Rule;
 use  App\Models\UserDiscount;
+use Illuminate\Support\Arr;
 
 
 class ComplaintsSuggestionsParentController extends Controller
@@ -170,5 +171,91 @@ class ComplaintsSuggestionsParentController extends Controller
 
         // Return the response
         return response()->json($complaintSuggestions, 200);
+    }
+
+    /**
+     * Update a ComplaintSuggestion entry using JSON data.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $id The ID of the ComplaintSuggestion to update
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request)
+    {
+        // Fetch the authenticated user's ID
+        $userId = Auth::user()->id;
+
+        // Extract the ID from the request data
+        $id = $request->input('id');
+
+        // Validate the incoming request data
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|exists:complaint_suggestions,id',
+            'description.message_type' => 'nullable|string',
+            'description.message' => 'nullable|string',
+            'description.read' => 'nullable|boolean',
+            'description.date' => 'nullable|string',
+            'description.attached' => 'nullable|array',
+            'status' => 'nullable|in:read,unread,under processer,closed',
+            'attachments' => 'nullable|string',
+            'additional_phone' => 'nullable|string',
+        ]);
+
+        // If validation fails, return the errors
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        // Fetch the ComplaintSuggestion to update
+        $complaintSuggestion = ComplaintSuggestion::findOrFail($id);
+        $ticketNumber = $complaintSuggestion->ticketNumber;
+
+        // Ensure that the authenticated user owns the ComplaintSuggestion
+        // if ($complaintSuggestion->user_id != $userId) {
+        //     return response()->json(['error' => 'Unauthorized'], 401);
+        // }
+
+        // Get the current description from the database
+        $currentDescription = json_decode($complaintSuggestion->description, true);
+
+        // Merge the new values with the current description
+        $newDescription = Arr::merge($currentDescription, $request->input('description', []));
+
+        // Apply specific updates based on message_type
+        switch ($newDescription['message_type'] ?? null) {
+            case 'client':
+                default:
+
+                // Update message_type to 'support'
+                $newDescription['message_type'] = 'client';
+                break;
+            case 'support':
+                // Update message_type to 'support'
+                $newDescription['message_type'] = 'support';
+                break;
+            
+        }
+        $attachedFiles = [];
+        if ($request->hasFile('description.attached')) {
+            foreach ($request->file('description.attached') as $file) {
+                $folderPath = public_path('FrontEnd/assets/images/supporting/' . $ticketNumber);
+                // Create directory if it doesn't exist
+                if (!File::exists($folderPath)) {
+                    File::makeDirectory($folderPath, 0777, true, true);
+                }
+                $imageName = $ticketNumber . '-' . now()->format('YmdHis') . '-' . $file->getClientOriginalName();
+                $file->move($folderPath, $imageName);
+                $attachedFiles[] = 'FrontEnd/assets/images/supporting/' . $ticketNumber . '/' . $imageName;
+            }
+        }
+        $newDescription['attached'] = $attachedFiles;
+
+        // Update the ComplaintSuggestion fields
+        $complaintSuggestion->description = json_encode($newDescription);
+        $complaintSuggestion->fill($request->except(['id', 'description']));
+        $complaintSuggestion->save();
+
+        // Return a success message
+        return response()->json(['message' => 'ComplaintSuggestion updated successfully'], 200);
     }
 }
