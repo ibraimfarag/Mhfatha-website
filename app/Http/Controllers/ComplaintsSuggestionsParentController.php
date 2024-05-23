@@ -125,7 +125,6 @@ class ComplaintsSuggestionsParentController extends Controller
 
         switch ($criteria) {
             case 'vendor':
-            default:
 
                 $options = ComplaintsSuggestionsOption::where('parent_id', '2')->get();
 
@@ -137,6 +136,11 @@ class ComplaintsSuggestionsParentController extends Controller
 
                 $options = ComplaintsSuggestionsOption::where('parent_id', '3')->get();
 
+                break;
+
+
+                default:
+                $options = ComplaintsSuggestionsOption::all();
                 break;
         }
 
