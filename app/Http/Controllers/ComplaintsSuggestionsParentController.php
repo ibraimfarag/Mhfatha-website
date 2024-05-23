@@ -218,8 +218,6 @@ class ComplaintsSuggestionsParentController extends Controller
         // Get the current description from the database
         $currentDescription = json_decode($complaintSuggestion->description, true);
 
-        // Merge the new values with the current description
-        $newDescription = array_replace_recursive($currentDescription, $request->input('description', []));
 
         // Apply specific updates based on message_type
         switch ($newDescription['message_type'] ?? null) {
@@ -249,13 +247,15 @@ class ComplaintsSuggestionsParentController extends Controller
             }
         }
         $newDescription['attached'] = $attachedFiles;
+ // Append the new description to the existing array of descriptions
+ $currentDescription[] = $newDescription;
 
-        // Update the ComplaintSuggestion fields
-        $complaintSuggestion->description = json_encode($newDescription);
-        $complaintSuggestion->fill($request->except(['id', 'description']));
-        $complaintSuggestion->save();
+ // Update the ComplaintSuggestion fields
+ $complaintSuggestion->description = json_encode($currentDescription, JSON_UNESCAPED_UNICODE);
+ $complaintSuggestion->fill($request->except(['id', 'description']));
+ $complaintSuggestion->save();
 
-        // Return a success message
-        return response()->json(['message' => 'ComplaintSuggestion updated successfully'], 200);
-    }
+ // Return a success message
+ return response()->json(['message' => 'ComplaintSuggestion updated successfully'], 200);
+}
 }
