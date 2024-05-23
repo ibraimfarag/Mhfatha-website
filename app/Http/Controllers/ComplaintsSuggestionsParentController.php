@@ -207,7 +207,7 @@ class ComplaintsSuggestionsParentController extends Controller
 
         // Fetch the ComplaintSuggestion to update
         $complaintSuggestion = ComplaintSuggestion::Where('id',$id)->first();
-        $ticketNumber = $complaintSuggestion->ticketNumber;
+        $ticketNumber = $complaintSuggestion->ticket_Number;
 
         // Ensure that the authenticated user owns the ComplaintSuggestion
         // if ($complaintSuggestion->user_id != $userId) {
