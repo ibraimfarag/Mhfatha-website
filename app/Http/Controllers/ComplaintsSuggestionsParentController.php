@@ -65,7 +65,7 @@ class ComplaintsSuggestionsParentController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
-
+        $status = 'under processer';
         $parent_id = null;
         if ($request->has('option_id')) {
             $parent_id = ComplaintsSuggestionsOption::where('id', $request->option_id)
@@ -108,7 +108,7 @@ class ComplaintsSuggestionsParentController extends Controller
             'discount_id' => $request->discount_id,
             'is_vendor' => $isVendor,
             'description' => $descriptionJson, // Save the description as JSON
-            'status' => $request->status,
+            'status' => $status,
             'ticket_number' => $ticketNumber, // Assign the generated ticket number
             'attachments' => $request->attachments,
             'additional_phone' => $request->additional_phone,
@@ -206,9 +206,9 @@ class ComplaintsSuggestionsParentController extends Controller
         }
 
         // Fetch the ComplaintSuggestion to update
-        $complaintSuggestion = ComplaintSuggestion::Where('id',$id)->first();
+        $complaintSuggestion = ComplaintSuggestion::Where('id', $id)->first();
         $ticketNumber = $complaintSuggestion->ticket_number;
-        
+
         // Ensure that the authenticated user owns the ComplaintSuggestion
         // if ($complaintSuggestion->user_id != $userId) {
         //     return response()->json(['error' => 'Unauthorized'], 401);
@@ -265,8 +265,6 @@ class ComplaintsSuggestionsParentController extends Controller
         $complaintSuggestion->save();
 
         // Return a success message
-        return response()->json(['message' => 'ComplaintSuggestion updated successfully','ticketNumber'=> $ticketNumber,'complaintSuggestion'=>$complaintSuggestion], 200);
+        return response()->json(['message' => 'ComplaintSuggestion updated successfully', 'ticketNumber' => $ticketNumber, 'complaintSuggestion' => $complaintSuggestion], 200);
     }
 }
-
-
