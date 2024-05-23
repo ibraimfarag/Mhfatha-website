@@ -82,7 +82,6 @@ class ComplaintsSuggestionsParentController extends Controller
         $description['read'] = $description['read'] ?? 0; // Set 'read' to 0 if null
 
         // Handle file upload for description.attached
-        // Handle file upload for description.attached
         $attachedFiles = [];
         if ($request->hasFile('description.attached')) {
             foreach ($request->file('description.attached') as $file) {
@@ -242,6 +241,7 @@ class ComplaintsSuggestionsParentController extends Controller
 
 
         $attachedFiles = [];
+
         if ($request->hasFile('description.attached')) {
             foreach ($request->file('description.attached') as $file) {
                 $folderPath = public_path('FrontEnd/assets/images/supporting/' . $ticketNumber);
@@ -254,6 +254,7 @@ class ComplaintsSuggestionsParentController extends Controller
                 $attachedFiles[] = 'FrontEnd/assets/images/supporting/' . $ticketNumber . '/' . $imageName;
             }
         }
+
         $newDescription['attached'] = $attachedFiles;
         // Append the new description to the existing array of descriptions
         $currentDescription[] = $newDescription;
@@ -264,6 +265,8 @@ class ComplaintsSuggestionsParentController extends Controller
         $complaintSuggestion->save();
 
         // Return a success message
-        return response()->json(['message' => 'ComplaintSuggestion updated successfully'], 200);
+        return response()->json(['message' => 'ComplaintSuggestion updated successfully','ticketNumber'=> $ticketNumber], 200);
     }
 }
+
+
