@@ -222,7 +222,7 @@ class ComplaintsSuggestionsParentController extends Controller
         // Apply specific updates based on message_type
         switch ($newDescription['message_type'] ?? null) {
             case 'client':
-                default:
+            default:
 
                 // Update message_type to 'support'
                 $newDescription['message_type'] = 'client';
@@ -231,8 +231,16 @@ class ComplaintsSuggestionsParentController extends Controller
                 // Update message_type to 'support'
                 $newDescription['message_type'] = 'support';
                 break;
-            
         }
+
+        // Merge the new values with the current description
+        $newDescription = $request->input('description', []);
+        $newDescription['message_type'] = $newDescription['message_type'] ?? 'client';
+        $newDescription['message'] = $newDescription['message'] ?? ''; // Ensure message is included
+        $newDescription['date'] = $newDescription['date'] ?? now()->toDateTimeString();
+        $newDescription['read'] = $newDescription['read'] ?? 0;
+
+
         $attachedFiles = [];
         if ($request->hasFile('description.attached')) {
             foreach ($request->file('description.attached') as $file) {
@@ -247,15 +255,15 @@ class ComplaintsSuggestionsParentController extends Controller
             }
         }
         $newDescription['attached'] = $attachedFiles;
- // Append the new description to the existing array of descriptions
- $currentDescription[] = $newDescription;
+        // Append the new description to the existing array of descriptions
+        $currentDescription[] = $newDescription;
 
- // Update the ComplaintSuggestion fields
- $complaintSuggestion->description = json_encode($currentDescription, JSON_UNESCAPED_UNICODE);
- $complaintSuggestion->fill($request->except(['id', 'description']));
- $complaintSuggestion->save();
+        // Update the ComplaintSuggestion fields
+        $complaintSuggestion->description = json_encode($currentDescription, JSON_UNESCAPED_UNICODE);
+        $complaintSuggestion->fill($request->except(['id', 'description']));
+        $complaintSuggestion->save();
 
- // Return a success message
- return response()->json(['message' => 'ComplaintSuggestion updated successfully'], 200);
-}
+        // Return a success message
+        return response()->json(['message' => 'ComplaintSuggestion updated successfully'], 200);
+    }
 }
