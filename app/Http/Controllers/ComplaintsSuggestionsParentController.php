@@ -190,7 +190,7 @@ class ComplaintsSuggestionsParentController extends Controller
 
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
-            'id' => 'required|exists:complaint_suggestions,id',
+            'id' => 'required|exists:complaints_suggestions,id',
             'description.message_type' => 'nullable|string',
             'description.message' => 'nullable|string',
             'description.read' => 'nullable|boolean',
