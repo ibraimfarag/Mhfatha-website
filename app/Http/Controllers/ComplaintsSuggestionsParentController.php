@@ -64,6 +64,12 @@ class ComplaintsSuggestionsParentController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
+
+        $parent_id = null;
+        if ($request->has('option_id')) {
+            $parent_id = ComplaintsSuggestionsOption::where('id', $request->option_id)
+                ->value('parent_id');
+        }
         $description = $request->input('description', []);
         // Set default values if not provided
   $description['message_type'] = $description['message_type'] ?? 'client';
@@ -96,7 +102,7 @@ class ComplaintsSuggestionsParentController extends Controller
         // Create a new ComplaintsSuggestions instance and save it
         $complaintsSuggestions = new ComplaintSuggestion([
             'option_id' => $request->option_id,
-            'parent_id' => $request->parent_id,
+            'parent_id' => $parent_id,
             'user_id' => $userId, // Assign the user ID
             'store_id' => $request->store_id,
             'discount_id' => $request->discount_id,
@@ -149,5 +155,21 @@ class ComplaintsSuggestionsParentController extends Controller
         return response()->json($options, 200);
     }
 
+     /**
+     * Get all ComplaintSuggestions for the authenticated user.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAllUserComplaintSuggestions()
+    {
+        // Fetch the authenticated user's ID
+        $userId = Auth::id();
+
+        // Retrieve ComplaintSuggestions for the authenticated user
+        $complaintSuggestions = ComplaintSuggestion::where('user_id', $userId)->get();
+
+        // Return the response
+        return response()->json($complaintSuggestions, 200);
+    }
 
 }
