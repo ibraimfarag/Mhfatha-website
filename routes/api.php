@@ -65,6 +65,7 @@ Route::middleware('auth:api')->group(
         Route::prefix('supporting/')->group(function () {
             Route::post('/get-resons', [ComplaintsSuggestionsParentController::class, 'getComplaintsSuggestionsOptions']);
             Route::post('/create', [ComplaintsSuggestionsParentController::class, 'store']);
+            Route::post('/get', [ComplaintsSuggestionsParentController::class, 'getAllUserComplaintSuggestions']);
         });
 
         Route::post('/update-device-info', [UserController::class, 'updateDeviceInfo']);

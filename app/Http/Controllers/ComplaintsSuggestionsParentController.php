@@ -72,30 +72,30 @@ class ComplaintsSuggestionsParentController extends Controller
         }
         $description = $request->input('description', []);
         // Set default values if not provided
-  $description['message_type'] = $description['message_type'] ?? 'client';
-  $description['date'] = now()->toDateTimeString();
-  $description['read'] =  0;
+        $description['message_type'] = $description['message_type'] ?? 'client';
+        $description['date'] = now()->toDateTimeString();
+        $description['read'] =  0;
 
-  $description['message_type'] = $description['message_type'] ?? 'client';
-  $description['date'] = $description['date'] ?? now()->toDateTimeString();
-  $description['read'] = $description['read'] ?? 0; // Set 'read' to 0 if null
+        $description['message_type'] = $description['message_type'] ?? 'client';
+        $description['date'] = $description['date'] ?? now()->toDateTimeString();
+        $description['read'] = $description['read'] ?? 0; // Set 'read' to 0 if null
 
-  // Handle file upload for description.attached
-    // Handle file upload for description.attached
-    $attachedFiles = [];
-    if ($request->hasFile('description.attached')) {
-        foreach ($request->file('description.attached') as $file) {
-            $folderPath = public_path('FrontEnd/assets/images/supporting/' . $ticketNumber);
-            // Create directory if it doesn't exist
-            if (!File::exists($folderPath)) {
-                File::makeDirectory($folderPath, 0777, true, true);
+        // Handle file upload for description.attached
+        // Handle file upload for description.attached
+        $attachedFiles = [];
+        if ($request->hasFile('description.attached')) {
+            foreach ($request->file('description.attached') as $file) {
+                $folderPath = public_path('FrontEnd/assets/images/supporting/' . $ticketNumber);
+                // Create directory if it doesn't exist
+                if (!File::exists($folderPath)) {
+                    File::makeDirectory($folderPath, 0777, true, true);
+                }
+                $imageName = $ticketNumber . '-' . now()->format('YmdHis') . '-' . $file->getClientOriginalName();
+                $file->move($folderPath, $imageName);
+                $attachedFiles[] = 'FrontEnd/assets/images/supporting/' . $ticketNumber . '/' . $imageName;
             }
-            $imageName = $ticketNumber . '-' . now()->format('YmdHis') . '-' . $file->getClientOriginalName();
-            $file->move($folderPath, $imageName);
-            $attachedFiles[] = 'FrontEnd/assets/images/supporting/' . $ticketNumber . '/' . $imageName;
         }
-    }
-    $description['attached'] = $attachedFiles;
+        $description['attached'] = $attachedFiles;
 
         // Encode the description as JSON
         $descriptionJson = json_encode($description, JSON_UNESCAPED_UNICODE);
@@ -116,12 +116,12 @@ class ComplaintsSuggestionsParentController extends Controller
 
         $complaintsSuggestions->save();
 
-      // Return the response based on the lang input
-    if ($request->lang === 'ar') {
-        return response()->json(['message' => 'لقد تم تسجيل الطلب بنجاح برقم ' ,'ticketNumber' => $ticketNumber], 201);
-    } else {
-        return response()->json(['message' => 'Complaints/Suggestions created successfully with ticket number ' ,'ticketNumber' => $ticketNumber], 201);
-    }
+        // Return the response based on the lang input
+        if ($request->lang === 'ar') {
+            return response()->json(['message' => 'لقد تم تسجيل الطلب بنجاح برقم ', 'ticketNumber' => $ticketNumber], 201);
+        } else {
+            return response()->json(['message' => 'Complaints/Suggestions created successfully with ticket number ', 'ticketNumber' => $ticketNumber], 201);
+        }
     }
 
     public function getComplaintsSuggestionsOptions(Request $request)
@@ -145,7 +145,7 @@ class ComplaintsSuggestionsParentController extends Controller
                 break;
 
 
-                default:
+            default:
                 $options = ComplaintsSuggestionsOption::all();
                 break;
         }
@@ -155,7 +155,7 @@ class ComplaintsSuggestionsParentController extends Controller
         return response()->json($options, 200);
     }
 
-     /**
+    /**
      * Get all ComplaintSuggestions for the authenticated user.
      *
      * @return \Illuminate\Http\JsonResponse
@@ -163,7 +163,7 @@ class ComplaintsSuggestionsParentController extends Controller
     public function getAllUserComplaintSuggestions()
     {
         // Fetch the authenticated user's ID
-        $userId = Auth::id();
+        $userId = Auth::user()->id;
 
         // Retrieve ComplaintSuggestions for the authenticated user
         $complaintSuggestions = ComplaintSuggestion::where('user_id', $userId)->get();
@@ -171,5 +171,4 @@ class ComplaintsSuggestionsParentController extends Controller
         // Return the response
         return response()->json($complaintSuggestions, 200);
     }
-
 }
