@@ -219,7 +219,7 @@ class ComplaintsSuggestionsParentController extends Controller
         $currentDescription = json_decode($complaintSuggestion->description, true);
 
         // Merge the new values with the current description
-        $newDescription = Arr::merge($currentDescription, $request->input('description', []));
+        $newDescription = array_merge($currentDescription, $request->input('description', []));
 
         // Apply specific updates based on message_type
         switch ($newDescription['message_type'] ?? null) {
