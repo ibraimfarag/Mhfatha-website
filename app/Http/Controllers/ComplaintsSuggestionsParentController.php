@@ -183,6 +183,7 @@ class ComplaintsSuggestionsParentController extends Controller
     {
         // Fetch the authenticated user's ID
         $userId = Auth::user()->id;
+        $lang = $request->input('lang', 'en'); // Default to 'en' if 'lang' is not provided
 
         // Extract the ID from the request data
         $id = $request->input('id');
@@ -264,7 +265,11 @@ class ComplaintsSuggestionsParentController extends Controller
         $complaintSuggestion->fill($request->except(['id', 'description']));
         $complaintSuggestion->save();
 
+        // Response messages
+        $successMessage = $lang == 'ar' ? 'تم تحديث الشكوى بنجاح' : 'ComplaintSuggestion updated successfully';
+        $unauthorizedMessage = $lang == 'ar' ? 'غير مصرح' : 'Unauthorized';
+
         // Return a success message
-        return response()->json(['message' => 'ComplaintSuggestion updated successfully', 'ticketNumber' => $ticketNumber, 'complaintSuggestion' => $complaintSuggestion], 200);
+        return response()->json(['message' => $successMessage, 'ticketNumber' => $ticketNumber, 'complaintSuggestion' => $complaintSuggestion], 200);
     }
 }
