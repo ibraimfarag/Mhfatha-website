@@ -146,7 +146,7 @@ class ComplaintsSuggestionsParentController extends Controller
 
 
             default:
-                $options = ComplaintsSuggestionsOption::all();
+                $options = ComplaintsSuggestionsOption::where('parent_id', '!=', '2')->get();
                 break;
         }
 
