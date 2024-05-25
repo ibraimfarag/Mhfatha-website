@@ -160,17 +160,43 @@ class ComplaintsSuggestionsParentController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getAllUserComplaintSuggestions()
+    public function getAllUserComplaintSuggestions(Request $request)
     {
         // Fetch the authenticated user's ID
         $userId = Auth::user()->id;
-
-        // Retrieve ComplaintSuggestions for the authenticated user
-        $complaintSuggestions = ComplaintSuggestion::where('user_id', $userId)->get();
-
+        
+        // Get the criteria and postId from the request
+        $criteria = $request->input('criteria');
+        $postId = $request->input('postId');
+    
+        switch ($criteria) {
+            case 'id':
+                // Get the specific complaint suggestion by ID
+                $complaintSuggestions = ComplaintSuggestion::where('user_id', $userId)
+                                                            ->where('id', $postId)
+                                                            ->first();
+                break;
+                
+            case 'all':
+                // Retrieve all complaint suggestions
+                $complaintSuggestions = ComplaintSuggestion::all();
+                break;
+                
+            case 'user':
+                // Retrieve complaint suggestions for the authenticated user
+                $complaintSuggestions = ComplaintSuggestion::where('user_id', $userId)->get();
+                break;
+    
+            default:
+                // Return all complaint suggestions if criteria is not specified
+                $complaintSuggestions = ComplaintSuggestion::all();
+                break;
+        }
+    
         // Return the response
         return response()->json($complaintSuggestions, 200);
     }
+    
 
     /**
      * Update a ComplaintSuggestion entry using JSON data.
