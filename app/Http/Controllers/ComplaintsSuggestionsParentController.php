@@ -213,6 +213,7 @@ class ComplaintsSuggestionsParentController extends Controller
 
         // Extract the ID from the request data
         $id = $request->input('id');
+        $criteria = $request->input('criteria'); // Default to 'update' if 'criteria' is not provided
 
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
@@ -241,6 +242,17 @@ class ComplaintsSuggestionsParentController extends Controller
         //     return response()->json(['error' => 'Unauthorized'], 401);
         // }
 
+
+
+
+        switch ($criteria) {
+
+            case 'fetch':
+                // Return the fetched complaint suggestion
+                return response()->json([ 'ticketNumber' => $ticketNumber, 'complaintSuggestion' => $complaintSuggestion], 200);
+    
+
+            case 'update':
         // Get the current description from the database
         $currentDescription = json_decode($complaintSuggestion->description, true);
 
@@ -297,5 +309,6 @@ class ComplaintsSuggestionsParentController extends Controller
 
         // Return a success message
         return response()->json(['message' => $successMessage, 'ticketNumber' => $ticketNumber, 'complaintSuggestion' => $complaintSuggestion], 200);
+    }
     }
 }
