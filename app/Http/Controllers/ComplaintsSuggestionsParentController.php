@@ -72,30 +72,26 @@ class ComplaintsSuggestionsParentController extends Controller
                 ->value('parent_id');
         }
         $description = $request->input('description', []);
-      
- // Process each description entry
- foreach ($description as $key => $desc) { // Highlighted line
-    // Set default values if not provided
-    $description[$key]['message_type'] = 'client'; // Highlighted line
-    $description[$key]['date'] = $desc['date'] ?? now()->toDateTimeString(); // Highlighted line
-    $description[$key]['read'] = $desc['read'] ?? 0; // Set 'read' to 0 if null // Highlighted line
+        // Set default values if not provided
+        $description['message_type'] = $description['message_type'] ?? 'client';
+        $description['date'] = now()->toDateTimeString();
+        $description['read'] =  0;
 
-    // Handle file upload for description.attached
-    $attachedFiles = [];
-    if (isset($desc['attached']) && $request->hasFile("description.$key.attached")) { // Highlighted line
-        foreach ($request->file("description.$key.attached") as $file) { // Highlighted line
-            $folderPath = public_path('FrontEnd/assets/images/supporting/' . $ticketNumber);
-            // Create directory if it doesn't exist
-            if (!File::exists($folderPath)) {
-                File::makeDirectory($folderPath, 0777, true, true);
+        // Handle file upload for description.attached
+        $attachedFiles = [];
+        if ($request->hasFile('description.attached')) {
+            foreach ($request->file('description.attached') as $file) {
+                $folderPath = public_path('FrontEnd/assets/images/supporting/' . $ticketNumber);
+                // Create directory if it doesn't exist
+                if (!File::exists($folderPath)) {
+                    File::makeDirectory($folderPath, 0777, true, true);
+                }
+                $imageName = $ticketNumber . '-' . now()->format('YmdHis') . '-' . $file->getClientOriginalName();
+                $file->move($folderPath, $imageName);
+                $attachedFiles[] = 'FrontEnd/assets/images/supporting/' . $ticketNumber . '/' . $imageName;
             }
-            $imageName = $ticketNumber . '-' . now()->format('YmdHis') . '-' . $file->getClientOriginalName();
-            $file->move($folderPath, $imageName);
-            $attachedFiles[] = 'FrontEnd/assets/images/supporting/' . $ticketNumber . '/' . $imageName;
         }
-    }
-    $description[$key]['attached'] = $attachedFiles; // Highlighted line
-}
+        $description['attached'] = $attachedFiles;
 
         // Encode the description as JSON
         $descriptionJson = json_encode($description, JSON_UNESCAPED_UNICODE);
