@@ -204,11 +204,11 @@ class ComplaintsSuggestionsParentController extends Controller
         // Fetch the authenticated user's ID
         $userId = Auth::user()->id;
         $lang = $request->input('lang', 'en'); // Default to 'en' if 'lang' is not provided
-
+    
         // Extract the ID from the request data
         $id = $request->input('id');
-        $criteria = $request->input('criteria'); // Default to 'update' if 'criteria' is not provided
-
+        $criteria = $request->input('criteria', 'update'); // Default to 'update' if 'criteria' is not provided
+    
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
             'id' => 'required|exists:complaints_suggestions,id',
@@ -221,91 +221,84 @@ class ComplaintsSuggestionsParentController extends Controller
             'attachments' => 'nullable|string',
             'additional_phone' => 'nullable|string',
         ]);
-
+    
         // If validation fails, return the errors
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
-
+    
         // Fetch the ComplaintSuggestion to update
-        $complaintSuggestion = ComplaintSuggestion::Where('id', $id)->first();
+        $complaintSuggestion = ComplaintSuggestion::findOrFail($id);
         $ticketNumber = $complaintSuggestion->ticket_number;
-
-        // Ensure that the authenticated user owns the ComplaintSuggestion
-        // if ($complaintSuggestion->user_id != $userId) {
-        //     return response()->json(['error' => 'Unauthorized'], 401);
-        // }
-
-
-
-
+    
         switch ($criteria) {
-
             case 'fetch':
                 // Return the fetched complaint suggestion
-                return response()->json([ 'ticketNumber' => $ticketNumber, 'complaintSuggestion' => $complaintSuggestion], 200);
+                return response()->json(['ticketNumber' => $ticketNumber, 'complaintSuggestion' => $complaintSuggestion], 200);
+                break;
     
-
             case 'update':
-        // Get the current description from the database
-        $currentDescription = json_decode($complaintSuggestion->description, true);
-
-
-        // Apply specific updates based on message_type
-        switch ($newDescription['message_type'] ?? null) {
-            case 'client':
-            default:
-
-                // Update message_type to 'support'
-                $newDescription['message_type'] = 'client';
-                break;
-            case 'support':
-                // Update message_type to 'support'
-                $newDescription['message_type'] = 'support';
-                break;
-        }
-
-        // Merge the new values with the current description
-        $newDescription = $request->input('description', []);
-        $newDescription['message_type'] = $newDescription['message_type'] ?? 'client';
-        $newDescription['message'] = $newDescription['message'] ?? ''; // Ensure message is included
-        $newDescription['date'] = $newDescription['date'] ?? now()->toDateTimeString();
-        $newDescription['read'] = $newDescription['read'] ?? 0;
-
-
-        $attachedFiles = [];
-
-        if ($request->hasFile('description.attached')) {
-            foreach ($request->file('description.attached') as $file) {
-                $folderPath = public_path('FrontEnd/assets/images/supporting/' . $ticketNumber);
-                // Create directory if it doesn't exist
-                if (!File::exists($folderPath)) {
-                    File::makeDirectory($folderPath, 0777, true, true);
+                // Get the current description from the database
+                $currentDescription = json_decode($complaintSuggestion->description, true);
+    
+                // Apply specific updates based on message_type
+                switch ($request->input('description.message_type')) {
+                    case 'support':
+                        // Update message_type to 'support'
+                        $newDescription['message_type'] = 'support';
+                        break;
+                    default:
+                        // Update message_type to 'client'
+                        $newDescription['message_type'] = 'client';
+                        break;
                 }
-                $imageName = $ticketNumber . '-' . now()->format('YmdHis') . '-' . $file->getClientOriginalName();
-                $file->move($folderPath, $imageName);
-                $attachedFiles[] = 'FrontEnd/assets/images/supporting/' . $ticketNumber . '/' . $imageName;
-            }
+    
+                // Merge the new values with the current description
+                $newDescription = $request->input('description', []);
+                $newDescription['message'] = $newDescription['message'] ?? ''; // Ensure message is included
+                $newDescription['date'] = $newDescription['date'] ?? now()->toDateTimeString();
+                $newDescription['read'] = $newDescription['read'] ?? 0;
+    
+                $attachedFiles = [];
+    
+                if ($request->hasFile('description.attached')) {
+                    foreach ($request->file('description.attached') as $file) {
+                        $folderPath = public_path('FrontEnd/assets/images/supporting/' . $ticketNumber);
+                        // Create directory if it doesn't exist
+                        if (!File::exists($folderPath)) {
+                            File::makeDirectory($folderPath, 0777, true, true);
+                        }
+                        $imageName = $ticketNumber . '-' . now()->format('YmdHis') . '-' . $file->getClientOriginalName();
+                        $file->move($folderPath, $imageName);
+                        $attachedFiles[] = 'FrontEnd/assets/images/supporting/' . $ticketNumber . '/' . $imageName;
+                    }
+                }
+    
+                $newDescription['attached'] = $attachedFiles;
+    
+                // Append the new description to the existing array of descriptions
+                $currentDescription[] = $newDescription;
+    
+                // Update the ComplaintSuggestion fields
+                $complaintSuggestion->description = json_encode($currentDescription, JSON_UNESCAPED_UNICODE);
+                $complaintSuggestion->fill($request->except(['id', 'description']));
+                $complaintSuggestion->save();
+    
+                // Response messages
+                $successMessage = $lang == 'ar' ? 'تم تحديث الشكوى بنجاح' : 'ComplaintSuggestion updated successfully';
+                $unauthorizedMessage = $lang == 'ar' ? 'غير مصرح' : 'Unauthorized';
+    
+                // Return a success message
+                return response()->json(['message' => $successMessage, 'ticketNumber' => $ticketNumber, 'complaintSuggestion' => $complaintSuggestion], 200);
+                break;
+    
+            default:
+                // Handle invalid criteria
+                return response()->json(['error' => 'Invalid criteria'], 400);
+                break;
         }
-
-        $newDescription['attached'] = $attachedFiles;
-        // Append the new description to the existing array of descriptions
-        $currentDescription[] = $newDescription;
-
-        // Update the ComplaintSuggestion fields
-        $complaintSuggestion->description = json_encode($currentDescription, JSON_UNESCAPED_UNICODE);
-        $complaintSuggestion->fill($request->except(['id', 'description']));
-        $complaintSuggestion->save();
-
-        // Response messages
-        $successMessage = $lang == 'ar' ? 'تم تحديث الشكوى بنجاح' : 'ComplaintSuggestion updated successfully';
-        $unauthorizedMessage = $lang == 'ar' ? 'غير مصرح' : 'Unauthorized';
-
-        // Return a success message
-        return response()->json(['message' => $successMessage, 'ticketNumber' => $ticketNumber, 'complaintSuggestion' => $complaintSuggestion], 200);
     }
-    }
-
+    
 
     public function changeStatus(Request $request)
 {
