@@ -178,8 +178,9 @@ class ComplaintsSuggestionsParentController extends Controller
                 break;
                 
             case 'all':
+                default:
                 // Retrieve all complaint suggestions
-                $complaintSuggestions = ComplaintSuggestion::get();
+                // $complaintSuggestions = ComplaintSuggestion::get();
                 break;
                 
             case 'user':
@@ -187,10 +188,7 @@ class ComplaintsSuggestionsParentController extends Controller
                 $complaintSuggestions = ComplaintSuggestion::where('user_id', $userId)->get();
                 break;
     
-            default:
-                // Return all complaint suggestions if criteria is not specified
-                $complaintSuggestions = ComplaintSuggestion::get();
-                break;
+        
         }
     
         // Return the response
