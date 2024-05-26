@@ -74,10 +74,10 @@ class ComplaintsSuggestionsParentController extends Controller
     }
     $description = $request->input('description', []);
     $messages = [];
-
-    // Loop through each description item and format it with numerical indices
+  // Create the description array with the "messages" key
+  $formattedDescription = ['messages' => []];
     foreach ($description as $index => $desc) {
-        $messages[] = [
+        $formattedDescription['messages'][$index] = [
             'message_type' => $desc['message_type'] ?? 'client',
             'message' => $desc['message'] ?? '',
             'date' => $desc['date'] ?? now()->toDateTimeString(),
@@ -85,10 +85,9 @@ class ComplaintsSuggestionsParentController extends Controller
             'attached' => $desc['attached'] ?? [],
         ];
     }
+    
 
-    // Create the description array with the "messages" key
-    $formattedDescription = ['messages' => $messages];
-
+  
     // Encode the formatted description as JSON
     $descriptionJson = json_encode($formattedDescription, JSON_UNESCAPED_UNICODE);
     // Create a new ComplaintsSuggestions instance and save it
@@ -110,10 +109,10 @@ class ComplaintsSuggestionsParentController extends Controller
 
     // Return the response based on the lang input
     if ($request->lang === 'ar') {
-        return response()->json(['message' => 'لقد تم تسجيل الطلب بنجاح برقم ', 'messages' => $messages], 201);
-    } else {
-        return response()->json(['message' => 'Complaints/Suggestions created successfully with ticket number ', 'messages' => $messages], 201);
-    }
+        return response()->json(['message' => 'لقد تم تسجيل الطلب بنجاح برقم ', 'ticketNumber' => $ticketNumber], 201);
+      } else {
+        return response()->json(['message' => 'Complaints/Suggestions created successfully with ticket number ', 'ticketNumber' => $ticketNumber], 201);
+      }
 }
 
     
