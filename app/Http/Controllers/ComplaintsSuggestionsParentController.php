@@ -243,7 +243,8 @@ class ComplaintsSuggestionsParentController extends Controller
             case 'update':
                 // Get the current description from the database
                 $currentDescription = json_decode($complaintSuggestion->description, true);
-    
+                $newDescriptionIndex = count($currentDescription);
+
                 // Apply specific updates based on message_type
                 switch ($request->input('description.message_type')) {
                     case 'support':
@@ -280,7 +281,7 @@ class ComplaintsSuggestionsParentController extends Controller
                 $newDescription['attached'] = $attachedFiles;
     
                 // Append the new description to the existing array of descriptions
-                $currentDescription = $newDescription;
+                $currentDescription[$newDescriptionIndex] = $newDescription;
     
                 // Update the ComplaintSuggestion fields
                 $complaintSuggestion->description = json_encode($currentDescription, JSON_UNESCAPED_UNICODE);
