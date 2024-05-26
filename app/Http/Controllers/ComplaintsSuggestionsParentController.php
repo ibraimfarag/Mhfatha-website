@@ -360,7 +360,7 @@ class ComplaintsSuggestionsParentController extends Controller
     }
 
     // Return a success message
-    return response()->json(['message' => $successMessage, 'ticketNumber' => $ticketNumber, 'complaintSuggestion' => $complaintSuggestion], 200);
+    return response()->json(['message' => $successMessage], 200);
 }
 
 }
