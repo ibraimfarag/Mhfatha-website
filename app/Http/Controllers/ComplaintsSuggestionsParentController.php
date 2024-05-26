@@ -32,84 +32,87 @@ use Illuminate\Support\Arr;
 
 
 class ComplaintsSuggestionsParentController extends Controller
-{public function store(Request $request)
-    {
-        // Fetch the authenticated user's ID
-        $userId = Auth::user()->id;
-        $isVendor = Auth::user()->is_vendor;
-    
-        // Generate a random ticket number
-        $ticketNumber = 'MH-' . str_pad(mt_rand(0, 99999), 5, '0', STR_PAD_LEFT);
-    
-        // Validate the incoming request data
-        $validator = Validator::make($request->all(), [
-            'option_id' => 'nullable|exists:complaints_suggestions_option,id',
-            'parent_id' => 'nullable|exists:complaints_suggestions_parent,id',
-            'store_id' => 'nullable|exists:stores,id',
-            'discount_id' => 'nullable|exists:discounts,id',
-            'is_vendor' => 'nullable|boolean',
-            'description' => 'nullable|array', // Ensure description is an array
-            'description.*.message_type' => 'nullable|string',
-            'description.*.message' => 'nullable|string',
-            'description.*.read' => 'nullable|boolean', // Add read as a boolean
-            'description.*.date' => 'nullable|string',
-            'description.*.attached' => 'nullable|array',
-            'status' => 'nullable|in:read,unread,under processer,closed',
-            'attachments' => 'nullable|string',
-            'additional_phone' => 'nullable|string',
-            'lang' => 'nullable|in:en,ar', // Validate lang input
-        ]);
-    
-        // If validation fails, return the errors
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
-        }
-        $status = 'under processer';
-        $parent_id = null;
-        if ($request->has('option_id')) {
-            $parent_id = ComplaintsSuggestionsOption::where('id', $request->option_id)
-                ->value('parent_id');
-        }
-        $description = $request->input('description', []);
-        $formattedDescriptions = [];
-    
-        // Loop through each description item and format it
-        foreach ($description as $desc) {
-            $formattedDescriptions[] = [
-                'message_type' => $desc['message_type'] ?? 'client',
-                'message' => $desc['message'] ?? '',
-                'date' => $desc['date'] ?? now()->toDateTimeString(),
-                'read' => $desc['read'] ?? 0,
-                'attached' => $desc['attached'] ?? [],
-            ];
-        }
-    
-        // Encode the formatted descriptions as JSON
-        $descriptionJson = json_encode($formattedDescriptions, JSON_UNESCAPED_UNICODE);
-        // Create a new ComplaintsSuggestions instance and save it
-        $complaintsSuggestions = new ComplaintSuggestion([
-            'option_id' => $request->option_id,
-            'parent_id' => $parent_id,
-            'user_id' => $userId, // Assign the user ID
-            'store_id' => $request->store_id,
-            'discount_id' => $request->discount_id,
-            'is_vendor' => $isVendor,
-            'description' => $descriptionJson, // Save the description as JSON
-            'status' => $status,
-            'ticket_number' => $ticketNumber, // Assign the generated ticket number
-            'attachments' => $request->attachments,
-            'additional_phone' => $request->additional_phone,
-        ]);
-    
-        $complaintsSuggestions->save();
-    
-        // Return the response based on the lang input
-        if ($request->lang === 'ar') {
-            return response()->json(['message' => 'لقد تم تسجيل الطلب بنجاح برقم ', 'ticketNumber' => $ticketNumber], 201);
-        } else {
-            return response()->json(['message' => 'Complaints/Suggestions created successfully with ticket number ', 'ticketNumber' => $ticketNumber], 201);
-        }
+{
+
+    public function store(Request $request)
+{
+    // Fetch the authenticated user's ID
+    $userId = Auth::user()->id;
+    $isVendor = Auth::user()->is_vendor;
+
+    // Generate a random ticket number
+    $ticketNumber = 'MH-' . str_pad(mt_rand(0, 99999), 5, '0', STR_PAD_LEFT);
+
+    // Validate the incoming request data
+    $validator = Validator::make($request->all(), [
+        'option_id' => 'nullable|exists:complaints_suggestions_option,id',
+        'parent_id' => 'nullable|exists:complaints_suggestions_parent,id',
+        'store_id' => 'nullable|exists:stores,id',
+        'discount_id' => 'nullable|exists:discounts,id',
+        'is_vendor' => 'nullable|boolean',
+        'description' => 'nullable|array', // Ensure description is an array
+        'description.*.message_type' => 'nullable|string',
+        'description.*.message' => 'nullable|string',
+        'description.*.read' => 'nullable|boolean', // Add read as a boolean
+        'description.*.date' => 'nullable|string',
+        'description.*.attached' => 'nullable|array',
+        'status' => 'nullable|in:read,unread,under processer,closed',
+        'attachments' => 'nullable|string',
+        'additional_phone' => 'nullable|string',
+        'lang' => 'nullable|in:en,ar', // Validate lang input
+    ]);
+
+    // If validation fails, return the errors
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 400);
     }
+    $status = 'under processer';
+    $parent_id = null;
+    if ($request->has('option_id')) {
+        $parent_id = ComplaintsSuggestionsOption::where('id', $request->option_id)
+            ->value('parent_id');
+    }
+    $description = $request->input('description', []);
+    $formattedDescriptions = [];
+
+    // Loop through each description item and format it
+    foreach ($description as $index => $desc) {
+        $formattedDescriptions[$index] = [
+            'message_type' => $desc['message_type'] ?? 'client',
+            'message' => $desc['message'] ?? '',
+            'date' => $desc['date'] ?? now()->toDateTimeString(),
+            'read' => $desc['read'] ?? 0,
+            'attached' => $desc['attached'] ?? [],
+        ];
+    }
+
+    // Encode the formatted descriptions as JSON
+    $descriptionJson = json_encode($formattedDescriptions, JSON_UNESCAPED_UNICODE);
+    // Create a new ComplaintsSuggestions instance and save it
+    $complaintsSuggestions = new ComplaintSuggestion([
+        'option_id' => $request->option_id,
+        'parent_id' => $parent_id,
+        'user_id' => $userId, // Assign the user ID
+        'store_id' => $request->store_id,
+        'discount_id' => $request->discount_id,
+        'is_vendor' => $isVendor,
+        'description' => $descriptionJson, // Save the description as JSON
+        'status' => $status,
+        'ticket_number' => $ticketNumber, // Assign the generated ticket number
+        'attachments' => $request->attachments,
+        'additional_phone' => $request->additional_phone,
+    ]);
+
+    $complaintsSuggestions->save();
+
+    // Return the response based on the lang input
+    if ($request->lang === 'ar') {
+        return response()->json(['message' => 'لقد تم تسجيل الطلب بنجاح برقم ', $formattedDescriptions], 201);
+    } else {
+        return response()->json(['message' => 'Complaints/Suggestions created successfully with ticket number ', $formattedDescriptions], 201);
+    }
+}
+
     
 
     public function getComplaintsSuggestionsOptions(Request $request)
