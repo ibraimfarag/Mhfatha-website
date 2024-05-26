@@ -94,7 +94,7 @@ class ComplaintsSuggestionsParentController extends Controller
         $description['attached'] = $attachedFiles;
 
         // Encode the description as JSON
-        $descriptionJson = json_encode(["0" => $description], JSON_UNESCAPED_UNICODE);
+        $descriptionJson = json_encode($description, JSON_UNESCAPED_UNICODE);
         // Create a new ComplaintsSuggestions instance and save it
         $complaintsSuggestions = new ComplaintSuggestion([
             'option_id' => $request->option_id,
