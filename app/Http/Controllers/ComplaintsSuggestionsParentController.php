@@ -104,7 +104,7 @@ class ComplaintsSuggestionsParentController extends Controller
             'store_id' => $request->store_id,
             'discount_id' => $request->discount_id,
             'is_vendor' => $isVendor,
-            'description' => $description, // Save the description as JSON
+            'description' => $descriptionJson, // Save the description as JSON
             'status' => $status,
             'ticket_number' => $ticketNumber, // Assign the generated ticket number
             'attachments' => $request->attachments,
@@ -280,7 +280,7 @@ class ComplaintsSuggestionsParentController extends Controller
                 $newDescription['attached'] = $attachedFiles;
     
                 // Append the new description to the existing array of descriptions
-                $currentDescription[] = $newDescription;
+                $currentDescription = $newDescription;
     
                 // Update the ComplaintSuggestion fields
                 $complaintSuggestion->description = json_encode($currentDescription, JSON_UNESCAPED_UNICODE);
