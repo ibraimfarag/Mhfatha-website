@@ -309,4 +309,58 @@ class ComplaintsSuggestionsParentController extends Controller
         return response()->json(['message' => $successMessage, 'ticketNumber' => $ticketNumber, 'complaintSuggestion' => $complaintSuggestion], 200);
     }
     }
+
+
+    public function changeStatus(Request $request)
+{
+    // Fetch the authenticated user's ID
+    $lang = $request->input('lang', 'en'); // Default to 'en' if 'lang' is not provided
+
+    // Extract the ID from the request data
+    $id = $request->input('id');
+    $newStatus = $request->input('status');
+
+    // Validate the incoming request data
+    $validator = Validator::make($request->all(), [
+        'id' => 'required|exists:complaints_suggestions,id',
+        'status' => 'required|in:read,unread,under processer,closed',
+    ]);
+
+    // If validation fails, return the errors
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 400);
+    }
+
+    // Fetch the ComplaintSuggestion to update
+    $complaintSuggestion = ComplaintSuggestion::where('id', $id)->first();
+    $ticketNumber = $complaintSuggestion->ticket_number;
+
+    // Ensure that the authenticated user owns the ComplaintSuggestion
+    // if ($complaintSuggestion->user_id != $userId) {
+    //     return response()->json(['error' => 'Unauthorized'], 401);
+    // }
+
+    // Update the status based on the new status provided
+    switch ($newStatus) {
+        case 'read':
+        case 'unread':
+        case 'under processer':
+        case 'closed':
+            // Update the status
+            $complaintSuggestion->status = $newStatus;
+            $complaintSuggestion->save();
+
+            // Response messages
+            $successMessage = $lang == 'ar' ? 'تم تحديث حالة الشكوى بنجاح' : 'ComplaintSuggestion status updated successfully';
+            break;
+
+        default:
+            // If the provided status is not valid
+            return response()->json(['error' => 'Invalid status provided'], 400);
+    }
+
+    // Return a success message
+    return response()->json(['message' => $successMessage, 'ticketNumber' => $ticketNumber, 'complaintSuggestion' => $complaintSuggestion], 200);
+}
+
 }
