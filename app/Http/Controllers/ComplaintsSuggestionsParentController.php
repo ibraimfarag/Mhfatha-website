@@ -76,7 +76,7 @@ class ComplaintsSuggestionsParentController extends Controller
  // Process each description entry
  foreach ($description as $key => $desc) { // Highlighted line
     // Set default values if not provided
-    $description[$key]['message_type'] = $desc['message_type'] ?? 'client'; // Highlighted line
+    $description[$key]['message_type'] = 'client'; // Highlighted line
     $description[$key]['date'] = $desc['date'] ?? now()->toDateTimeString(); // Highlighted line
     $description[$key]['read'] = $desc['read'] ?? 0; // Set 'read' to 0 if null // Highlighted line
 
