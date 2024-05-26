@@ -180,7 +180,7 @@ class ComplaintsSuggestionsParentController extends Controller
             case 'all':
                 default:
                 // Retrieve all complaint suggestions
-                // $complaintSuggestions = ComplaintSuggestion::get();
+                $complaintSuggestions = ComplaintSuggestion::get();
                 break;
                 
             case 'user':
