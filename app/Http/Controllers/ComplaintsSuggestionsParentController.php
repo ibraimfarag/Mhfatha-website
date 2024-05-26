@@ -95,7 +95,7 @@ class ComplaintsSuggestionsParentController extends Controller
         $description['attached'] = $attachedFiles;
 
         // Encode the description as JSON
-        $descriptionJson[] = json_encode($description, JSON_UNESCAPED_UNICODE);
+        $descriptionJson []=$description;
         // Create a new ComplaintsSuggestions instance and save it
         $complaintsSuggestions = new ComplaintSuggestion([
             'option_id' => $request->option_id,
@@ -104,7 +104,7 @@ class ComplaintsSuggestionsParentController extends Controller
             'store_id' => $request->store_id,
             'discount_id' => $request->discount_id,
             'is_vendor' => $isVendor,
-            'description' => $descriptionJson, // Save the description as JSON
+            'description' => json_encode($descriptionJson, JSON_UNESCAPED_UNICODE), // Save the description as JSON
             'status' => $status,
             'ticket_number' => $ticketNumber, // Assign the generated ticket number
             'attachments' => $request->attachments,
@@ -243,8 +243,7 @@ class ComplaintsSuggestionsParentController extends Controller
             case 'update':
                 // Get the current description from the database
                 $currentDescription = json_decode($complaintSuggestion->description, true);
-                $newDescriptionIndex = count($currentDescription);
-
+    
                 // Apply specific updates based on message_type
                 switch ($request->input('description.message_type')) {
                     case 'support':
@@ -281,7 +280,7 @@ class ComplaintsSuggestionsParentController extends Controller
                 $newDescription['attached'] = $attachedFiles;
     
                 // Append the new description to the existing array of descriptions
-                $currentDescription[$newDescriptionIndex] = $newDescription;
+                $currentDescription[] = $newDescription;
     
                 // Update the ComplaintSuggestion fields
                 $complaintSuggestion->description = json_encode($currentDescription, JSON_UNESCAPED_UNICODE);
