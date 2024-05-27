@@ -74,10 +74,10 @@ class ComplaintsSuggestionsParentController extends Controller
         }
         $description = [];
         // Set default values if not provided
-        $description['message_type'] = $description['message_type'] ?? 'client';
+        $description['message_type'] = $request->input('description.message_type', 'client');
+        $description['message'] = $request->input('description.message', '');
         $description['date'] = now()->toDateTimeString();
-        $description['read'] =  0;
-
+        $description['read'] = $request->input('description.read', 0);
         // Handle file upload for description.attached
         $attachedFiles = [];
         if ($request->hasFile('description.attached')) {
