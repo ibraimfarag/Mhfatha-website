@@ -54,9 +54,19 @@ Route::get('/time-and-date', [WebsiteManagerController::class, 'getTimeAndDate']
 
 Route::post('/TermsAndConditions', [TermsAndConditionsPolicyController::class, 'getTermsAndConditions']);
 
+
+
+Route::post('/nearby', [StoreController::class, 'nearbyApi']);
+Route::post('/store', [StoreController::class, 'storeInfoApi']);
+Route::post('/stores/search-by-name', [StoreController::class, 'searchByNameApi']);
+Route::post('/filter-stores', [StoreController::class, 'filterStoresApi']);
+
+
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+
 
 Route::middleware('auth:api')->group(
     function () {
@@ -75,13 +85,10 @@ Route::middleware('auth:api')->group(
         Route::post('/auth/changepassword', [UserController::class, 'changePassword']);
         Route::post('/auth/update', [UserController::class, 'updateProfileWithOtp']);
         Route::post('/auth/updateAuthUserStatus', [UserController::class, 'updateAuthUserStatus']);
-        Route::post('/nearby', [StoreController::class, 'nearbyApi']);
-        Route::post('/store', [StoreController::class, 'storeInfoApi']);
-        Route::post('/stores/search-by-name', [StoreController::class, 'searchByNameApi']);
+
         Route::post('/store-qr', [StoreController::class, 'decryptQrCode']);
         Route::post('/discounts-post', [UserDiscountController::class, 'postUserDiscount']);
         Route::post('/user-discounts', [UserDiscountController::class, 'getAllUserDiscounts']);
-        Route::post('/filter-stores', [StoreController::class, 'filterStoresApi']);
 
 
         // /* --------------------------------- vendor --------------------------------- */
