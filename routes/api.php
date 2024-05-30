@@ -61,6 +61,7 @@ Route::post('/store', [StoreController::class, 'storeInfoApi']);
 Route::post('/stores/search-by-name', [StoreController::class, 'searchByNameApi']);
 Route::post('/filter-stores', [StoreController::class, 'filterStoresApi']);
 
+Route::get('/contact-us', [WebsiteManagerController::class, 'manageContacts']);
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
@@ -70,7 +71,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::middleware('auth:api')->group(
     function () {
-        Route::get('/contact-us', [WebsiteManagerController::class, 'manageContacts']);
 
         Route::prefix('supporting/')->group(function () {
             Route::post('/get-resons', [ComplaintsSuggestionsParentController::class, 'getComplaintsSuggestionsOptions']);
