@@ -53,7 +53,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/update-profile', [UserController::class, 'update_profile'])->name('profile-update');
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::get('/password/change', [PasswordController::class, 'showChangePasswordForm'])->name('password.change');
+    Route::get('/password/change', [PasswordController::class, 'showChangePasswordForm'])->name('password.change_form');
     Route::post('/password/change', [PasswordController::class, 'changePassword'])->name('password.change');
 
     Route::get('/discounts/home', [UserDiscountController::class, 'view'])->name('discount.view');
