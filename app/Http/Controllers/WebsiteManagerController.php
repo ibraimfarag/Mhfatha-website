@@ -414,9 +414,9 @@ class WebsiteManagerController extends Controller
         Artisan::call('optimize');
         
         // Reset OPcache if available
-        if (function_exists('opcache_reset')) {
-            opcache_reset();
-        }
+        // if (function_exists('opcache_reset')) {
+        //     opcache_reset();
+        // }
         
         return response()->json(['message' => 'Performance optimized and caches cleared successfully']);
     }
