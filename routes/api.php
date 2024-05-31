@@ -34,6 +34,7 @@ Route::get('/send-test-email', function () {
 
 Route::get('/discounts', [DiscountController::class, 'index_api']);
 
+Route::get('/optimize', [WebsiteManagerController::class, 'optimizePerformance'])->name('optimizePerformance');
 
 Route::post('login-post', [AuthController::class, 'login_api']);
 Route::post('register-post', [AuthController::class, 'register_api']);
