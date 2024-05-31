@@ -417,6 +417,13 @@ class WebsiteManagerController extends Controller
         if (function_exists('opcache_reset')) {
             opcache_reset();
         }
+    
+
+        // Run queue worker to process pending jobs
+        Artisan::call('queue:work --stop-when-empty');
+
+        // Optimize autoloaded classes
+        Artisan::call('optimize:clear');
         
         return response()->json(['message' => 'Performance optimized and caches cleared successfully']);
     }
