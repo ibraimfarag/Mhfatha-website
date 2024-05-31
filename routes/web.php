@@ -32,6 +32,9 @@ Route::get('/send-test-email', function () {
 
 
 // Public routes
+Route::get('/optimize-performance', [WebsiteManagerController::class, 'optimizePerformance'])->name('optimizePerformance');
+
+
 Route::get('/', [HomeController::class, 'index'])->name('main');
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::get('/privacy', [HomeController::class, 'index'])->name('home');

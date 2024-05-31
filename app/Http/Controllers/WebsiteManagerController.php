@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\File;
 use App\Models\AppUpdate;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Artisan;
 
 class WebsiteManagerController extends Controller
 {
@@ -394,4 +395,30 @@ class WebsiteManagerController extends Controller
         // Return JSON response
         return response()->json($response);
     }
+
+    public function optimizePerformance()
+    {
+        // Clear application cache
+        Artisan::call('cache:clear');
+        
+        // Clear route cache
+        Artisan::call('route:clear');
+        
+        // Clear config cache
+        Artisan::call('config:clear');
+        
+        // Clear view cache
+        Artisan::call('view:clear');
+        
+        // Optimize the application by caching routes and config
+        Artisan::call('optimize');
+        
+        // Reset OPcache if available
+        if (function_exists('opcache_reset')) {
+            opcache_reset();
+        }
+        
+        return response()->json(['message' => 'Performance optimized and caches cleared successfully']);
+    }
+
 }
