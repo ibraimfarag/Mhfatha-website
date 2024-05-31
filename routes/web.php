@@ -32,7 +32,7 @@ Route::get('/send-test-email', function () {
 
 
 // Public routes
-Route::get('/optimize-performance', [WebsiteManagerController::class, 'optimizePerformance'])->name('optimizePerformance');
+Route::get('/optimize', [WebsiteManagerController::class, 'optimizePerformance'])->name('optimizePerformance');
 
 
 Route::get('/', [HomeController::class, 'index'])->name('main');
