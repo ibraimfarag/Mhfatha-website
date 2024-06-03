@@ -18,9 +18,9 @@ class ThroughputLogger
         $endTime = microtime(true);
         $processingTime = $endTime - $startTime;
 
-        Log::info("Request to {$request->method()} {$request->fullUrl()} processed in {$processingTime} seconds.");
+        // Log::channel('api_throughput')->info("Request to {$request->method()} {$request->fullUrl()} processed in {$processingTime} seconds.");
         if (Str::startsWith($request->path(), 'api')) {
-            Log::info("API Request to {$request->method()} {$request->fullUrl()} processed in {$processingTime} seconds.");
+            Log::channel('api_throughput')->info("API Request to {$request->method()} {$request->fullUrl()} processed in {$processingTime} seconds.");
         }
         return $response;
     }

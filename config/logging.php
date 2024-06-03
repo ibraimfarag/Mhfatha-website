@@ -61,6 +61,12 @@ return [
             'path' => storage_path('logs/laravel.log'),
             'level' => 'debug',
         ],
+        
+        'api_throughput' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/api_throughput.log'),
+            'level' => 'info',
+        ],
 
         'daily' => [
             'driver' => 'daily',
