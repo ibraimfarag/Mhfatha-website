@@ -58,8 +58,10 @@ Route::post('/TermsAndConditions', [TermsAndConditionsPolicyController::class, '
 
 
 Route::post('/nearby', [StoreController::class, 'nearbyApi']);
-Route::post('/getNearbyStores', [StoreController::class, 'getNearbyStores']);
-Route::post('/store', [StoreController::class, 'storeInfoApi']);
+Route::post('/getNearbyStores', [
+    'middleware' => 'gzip',
+    'uses' => [StoreController::class, 'getNearbyStores']
+]);Route::post('/store', [StoreController::class, 'storeInfoApi']);
 Route::post('/stores/search-by-name', [StoreController::class, 'searchByNameApi']);
 Route::post('/filter-stores', [StoreController::class, 'filterStoresApi']);
 
