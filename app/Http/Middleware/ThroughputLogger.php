@@ -23,7 +23,7 @@ class ThroughputLogger
         $clientIp = $request->ip(); // Get client IP address
 
         if (Str::startsWith($request->path(), 'api')) {
-            Log::info("API Request to {$request->method()} {$request->fullUrl()} processed in {$processingTime} seconds. Requested Bytes: {$requestBytes}, Client IP: {$clientIp}");
+            Log::channel('api_throughput')->info("API Request to {$request->method()} {$request->fullUrl()} processed in {$processingTime} seconds. Requested Bytes: {$requestBytes}, Client IP: {$clientIp}");
         }
 
         return $response;
