@@ -81,7 +81,7 @@ class Handler extends ExceptionHandler
         $logger = Log::channel('api');
         $logger->error($exception->getMessage(), $logData);
         try {
-            Mail::to('ib.farag@gmail.com')->send(new \App\Mail\ExceptionOccurred($exception));
+            // Mail::to('ib.farag@gmail.com')->send(new \App\Mail\ExceptionOccurred($exception));
         } catch (\Exception $mailException) {
             // Handle mail sending error
             $logger->error('Failed to send exception email', ['error' => $mailException->getMessage()]);
