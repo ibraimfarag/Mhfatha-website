@@ -531,6 +531,82 @@ class StoreController extends Controller
         // return response()->json(['nearbyStores' => $nearbyStores]);
         return response()->json(['filteredStores' => $filteredStores]);
     }
+    public function getNearbyStores(Request $request)
+{
+    $lang = $request->input('lang');
+
+    if ($lang && in_array($lang, ['en', 'ar'])) {
+        App::setLocale($lang);
+    }
+
+    // Get the user's location from the request (assuming you're passing it from the front end)
+    $userLatitude = $request->input('user_latitude');
+    $userLongitude = $request->input('user_longitude');
+    $websiteManager = WebsiteManager::first();
+    $distance = $websiteManager->map_distance;
+
+    // Calculate nearby stores (example using Eloquent)
+    $radius = $distance; // Set the radius in kilometers
+    $nearbyStores = Store::select('*')
+        ->selectRaw(
+            '( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) ) *
+        cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) *
+        sin( radians( latitude ) ) ) ) AS distance',
+            [$userLatitude, $userLongitude, $userLatitude]
+        )
+        ->having('distance', '<', $radius)
+        ->where('verifcation', 1)
+        ->where('is_bann', 0)
+        ->where('is_deleted', 0)
+        ->orderBy('distance')
+        ->get();
+
+    // Convert distance to a more readable format
+    foreach ($nearbyStores as $store) {
+        if ($store->distance < 1.0) {
+            $store->distance = number_format($store->distance * 1000, 1, '.', '') . ' ' . ($lang === 'ar' ? 'م' : 'm');
+        } else {
+            $store->distance = number_format($store->distance, 1, '.', '') . ' ' . ($lang === 'ar' ? 'كم' : 'km');
+        }
+    }
+
+    $filteredStores = $nearbyStores->map(function ($store) {
+        $category = $store->category;
+        $region = Region::find($store->region);
+
+        return [
+            'id' => $store->id,
+            'name' => $store->name,
+            'photo' => $store->photo,
+            'distance' => $store->distance,
+            'work_days' => $store->work_days,
+            'city' => $store->city,
+            'region' => $store->region,
+            'latitude' => $store->latitude,
+            'longitude' => $store->longitude,
+            'location' => $store->location,
+            'phone' => $store->phone,
+            'status' => $store->status,
+            'discounts' => $store->discounts->where('discounts_status', 'working')->where('is_deleted', 0),
+            'category_name_ar' => optional($category)->category_name_ar,
+            'category_name_en' => optional($category)->category_name_en,
+            'region_name_ar' => optional($region)->region_ar,
+            'region_name_en' => optional($region)->region_en,
+            'region_name' => ($region),
+            'category_name' => ($category)
+        ];
+    });
+
+    // Convert the filteredStores array to a JSON string
+    $jsonResponse = json_encode(['filteredStores' => $filteredStores]);
+
+    // Encode the JSON string to base64
+    $base64Response = base64_encode($jsonResponse);
+
+    // Return the base64 encoded string in the response
+    return response()->json(['data' => $base64Response]);
+}
+
     public function storeInfoApi(Request $request)
     {
         $storeId = $request->json('id');
