@@ -22,6 +22,8 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\ThroughputLogger::class,
+        \App\Http\Middleware\LogOAuthRequests::class,
+
 
     ];
 
@@ -48,6 +50,7 @@ class Kernel extends HttpKernel
             // 'throttle:60,1',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\ThroughputLogger::class,
+            \App\Http\Middleware\LogOAuthRequests::class,
 
         ],
     ];
@@ -72,6 +75,8 @@ class Kernel extends HttpKernel
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
         'vendor' => \App\Http\Middleware\VendorMiddleware::class,
         'user' => \App\Http\Middleware\UserMiddleware::class,
+        'log.oauth' => \App\Http\Middleware\LogOAuthRequests::class,
+
 
     ];
 }

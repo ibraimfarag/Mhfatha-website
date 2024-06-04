@@ -37,7 +37,7 @@ return [
     'channels' => [
         'api' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/api.log'),
+            'path' => storage_path('logs/'. now()->format('Y-m-d-H-i-s') .'-api.log'),
             'level' => 'error',
             'days' => 14,
             'tap' => [App\Logging\JsonFormatter::class],
@@ -58,7 +58,7 @@ return [
 
         'single' => [
             'driver' => 'single',
-            'path' => storage_path('logs/laravel.log'),
+            'path' => storage_path('logs/'. now()->format('Y-m-d-H-i-s') .'laravel.log'),
             'level' => 'debug',
         ],
         
@@ -68,9 +68,15 @@ return [
             'level' => 'info',
         ],
 
+        'oauth' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/'. now()->format('Y-m-d-H-i-s') .'oauth.log'),
+            'level' => 'debug',
+        ],
+
         'daily' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/laravel.log'),
+            'path' => storage_path('logs/'. now()->format('Y-m-d-H-i-s') .'laravel.log'),
             'level' => 'debug',
             'days' => 14,
         ],
@@ -118,7 +124,7 @@ return [
         ],
 
         'emergency' => [
-            'path' => storage_path('logs/laravel.log'),
+            'path' => storage_path('logs/'. now()->format('Y-m-d-H-i-s') .'laravel.log'),
         ],
     ],
 
