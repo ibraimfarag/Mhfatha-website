@@ -277,7 +277,7 @@
            
             <div class="images-container">
               <a href="#">  <img src="{{ asset('/FrontEnd/assets/images/downloadButton/googleplay.png') }}" height="50" alt="Google Play">  </a>
-              <a href="#">  <img src="{{ asset('/FrontEnd/assets/images/downloadButton/appstore.png') }}" height="50" alt="App Store"></a>
+              <a href="https://apps.apple.com/us/app/mhfatha/id6475014076">  <img src="{{ asset('/FrontEnd/assets/images/downloadButton/appstore.png') }}" height="50" alt="App Store"></a>
             </div>
           </div>
 
