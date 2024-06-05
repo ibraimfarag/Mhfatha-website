@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\App;
 
 use Illuminate\Http\Request;
 use App\Models\Terms;
@@ -98,5 +99,41 @@ class TermsAndConditionsPolicyController extends Controller
 
         return response()->json(['message' => $response]);
     }
+
+    public function getTermsAndConditionsfront(Request $request)
+    {
+        $lang = $request->input('lang') ?? 'en'; // Default to English if no language is specified
+    
+        if (in_array($lang, ['en', 'ar'])) {
+            App::setLocale($lang);
+        }
+    
+        // Fetch terms and conditions for 'user' and 'vendor'
+        $userTerms = Terms::where('type', 'user')->first();
+        $vendorTerms = Terms::where('type', 'vendor')->first();
+    
+        // Parse JSON content if terms are found
+        $userArabicContent = $userTerms ? json_decode($userTerms->arabic_content, true) : null;
+        $userEnglishContent = $userTerms ? json_decode($userTerms->english_content, true) : null;
+        $vendorArabicContent = $vendorTerms ? json_decode($vendorTerms->arabic_content, true) : null;
+        $vendorEnglishContent = $vendorTerms ? json_decode($vendorTerms->english_content, true) : null;
+        // dd([
+        //     'userArabicContent' => $userArabicContent,
+        //     'userEnglishContent' => $userEnglishContent,
+        //     'vendorArabicContent' => $vendorArabicContent,
+        //     'vendorEnglishContent' => $vendorEnglishContent,
+        //     'lang' => $lang,
+        // ]);
+        // Pass the parsed content to the view
+        return view('FrontEnd.PolicyAndTerms.index', [
+            'user_arabic_content' => $userArabicContent,
+            'user_english_content' => $userEnglishContent,
+            'vendor_arabic_content' => $vendorArabicContent,
+            'vendor_english_content' => $vendorEnglishContent,
+            'lang' => $lang // Include language variable for other uses in the view
+        ]);
+    }
+    
+        
 
 }

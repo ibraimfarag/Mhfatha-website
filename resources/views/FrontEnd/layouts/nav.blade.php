@@ -18,8 +18,12 @@
           <li><a class="nav-link scrollto" href="{{ route('home', ['lang' => app()->getLocale()])}}#about">{{ app()->getLocale() === 'ar' ? 'من نحن' : 'About us' }} </a></li>
           <li><a class="nav-link scrollto" href="{{ route('home', ['lang' => app()->getLocale()])}}#meza">{{ app()->getLocale() === 'ar' ? 'مميزاتنا' : 'Advantages' }}</a></li>
           <li><a class="nav-link scrollto" href="{{ route('home', ['lang' => app()->getLocale()])}}#app">{{ app()->getLocale() === 'ar' ? 'التطبيق' : 'App' }}</a></li>
-          <li><a class="nav-link scrollto" href="{{ route('home', ['lang' => app()->getLocale()])}}#portfolio">{{ app()->getLocale() === 'ar' ? 'السياسة والشروط' : 'Policy and terms' }}</a></li>
-          <li><a class="nav-link scrollto" href="{{ route('home', ['lang' => app()->getLocale()])}}#contact">{{ app()->getLocale() === 'ar' ? 'اتصل بنا' : 'contact us' }} </a></li>
+          <li>
+            <a class="nav-link scrollto" href="{{ route('privacy', ['lang' => app()->getLocale()]) }}#privacy">
+                {{ app()->getLocale() === 'ar' ? 'السياسة والشروط' : 'Policy and terms' }}
+            </a>
+        </li>
+                  <li><a class="nav-link scrollto" href="{{ route('home', ['lang' => app()->getLocale()])}}#contact">{{ app()->getLocale() === 'ar' ? 'اتصل بنا' : 'contact us' }} </a></li>
         </ul>
         <i class="bi bi-list mobile-nav-toggle d-none"></i>
       </nav><!-- .navbar -->

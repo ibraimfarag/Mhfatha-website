@@ -10,6 +10,7 @@ use App\Http\Controllers\UserDiscountController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\WebsiteManagerController;
+use App\Http\Controllers\TermsAndConditionsPolicyController;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TestEmail;
 /*
@@ -34,7 +35,7 @@ Route::get('/send-test-email', function () {
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('main');
 Route::get('/home', [HomeController::class, 'index'])->name('home');
-Route::get('/privacy', [HomeController::class, 'index'])->name('privacy');
+Route::get('/privacy', [TermsAndConditionsPolicyController::class, 'getTermsAndConditionsfront'])->name('privacy');
 Route::get('/terms', [HomeController::class, 'index'])->name('terms');
 Route::get('/switch-language', [LanguageController::class, 'switchLanguage'])->name('switchLanguage');
 
