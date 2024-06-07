@@ -12,6 +12,7 @@ use App\Http\Controllers\WebsiteManagerController;
 use App\Http\Controllers\RequestsController;
 use App\Http\Controllers\TermsAndConditionsPolicyController;
 use App\Http\Controllers\ComplaintsSuggestionsParentController;
+use App\Http\Controllers\DeviceRedirectController;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TestEmail;
 
@@ -31,6 +32,8 @@ Route::get('/send-test-email', function () {
     return 'Email has been sent!';
 });
 
+Route::get('/redirect', [DeviceRedirectController::class, 'redirectToAppStore']);
+Route::get('/redirect-counts', [DeviceRedirectController::class, 'getRedirectCounts']);
 
 Route::get('/discounts', [DiscountController::class, 'index_api']);
 
