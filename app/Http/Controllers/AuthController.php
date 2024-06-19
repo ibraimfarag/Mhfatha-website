@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 use Illuminate\Support\Facades\Artisan;
+use Twilio\Rest\Client;
 
 
 class AuthController extends Controller
@@ -344,56 +345,102 @@ class AuthController extends Controller
      * @param string $messageContent The content of the message.
      * @return string The response from the Facebook Graph API.
      */
+    // public static function sendWhatsAppMessage($lang, $recipientNumber, $messageContent)
+    // {
+    //     $accessToken = 'EAANDSztKdFQBOyD2vkZAKM5VIdz6JGeaMsZAqRxD6WShrKghUri8we90AmrktDEJRNJnZBNldhBOLpHTszvC2bZBRM72AGqfEi4LOyWCQKX6SboASzz4Cx82SpvLIjZAeXx21RtOcNnymON5DsC2ZAyj2ZBSit9EufQKm6s4nU5ReOLZALbCVo4sVDtdETvecZBBt';
+    //     $graphApiUrl = 'https://graph.facebook.com/v18.0/183130461559224/messages';
+
+    //     $postData = [
+    //         "messaging_product" => "whatsapp",
+    //         "recipient_type" => "individual",
+    //         "to" => $recipientNumber,
+    //         "type" => "template",
+    //         "template" => [
+    //             "name" => "otppassword",
+    //             "language" => [
+    //                 "code" => $lang
+    //                 // "code" => "en_US"
+    //             ],
+    //             "components" => [
+    //                 [
+    //                     "type" => "body",
+    //                     "parameters" => [
+    //                         [
+    //                             "type" => "text",
+    //                             "text" => $messageContent
+    //                         ]
+    //                     ]
+    //                 ],
+    //                 [
+    //                     "type" => "button",
+    //                     "sub_type" => "url",
+    //                     "index" => "0",
+    //                     "parameters" => [
+    //                         [
+    //                             "type" => "text",
+    //                             "text" => $messageContent
+    //                         ]
+    //                     ]
+    //                 ]
+
+
+    //             ]
+    //         ]
+    //     ];
+
+    //     $response = Http::withHeaders([
+    //         'Content-Type' => 'application/json',
+    //         'Authorization' => 'Bearer ' . $accessToken
+    //     ])->post($graphApiUrl, $postData);
+
+    //     return $response->json();
+    // }
+
+
+
+
+
+
     public static function sendWhatsAppMessage($lang, $recipientNumber, $messageContent)
     {
-        $accessToken = 'EAANDSztKdFQBOyD2vkZAKM5VIdz6JGeaMsZAqRxD6WShrKghUri8we90AmrktDEJRNJnZBNldhBOLpHTszvC2bZBRM72AGqfEi4LOyWCQKX6SboASzz4Cx82SpvLIjZAeXx21RtOcNnymON5DsC2ZAyj2ZBSit9EufQKm6s4nU5ReOLZALbCVo4sVDtdETvecZBBt';
-        $graphApiUrl = 'https://graph.facebook.com/v18.0/183130461559224/messages';
-
-        $postData = [
-            "messaging_product" => "whatsapp",
-            "recipient_type" => "individual",
-            "to" => $recipientNumber,
-            "type" => "template",
-            "template" => [
-                "name" => "otppassword",
-                "language" => [
-                    "code" => $lang
-                    // "code" => "en_US"
-                ],
-                "components" => [
-                    [
-                        "type" => "body",
-                        "parameters" => [
-                            [
-                                "type" => "text",
-                                "text" => $messageContent
-                            ]
-                        ]
-                    ],
-                    [
-                        "type" => "button",
-                        "sub_type" => "url",
-                        "index" => "0",
-                        "parameters" => [
-                            [
-                                "type" => "text",
-                                "text" => $messageContent
-                            ]
-                        ]
-                    ]
-
-
-                ]
-            ]
-        ];
-
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer ' . $accessToken
-        ])->post($graphApiUrl, $postData);
-
-        return $response->json();
+        $response = self::sendSMS($recipientNumber, $messageContent);
+        return $response;
     }
+    
+    private static function sendSMS($recipientNumber, $messageContent)
+    {
+        // Your Twilio credentials
+        $sid = env('TWILIO_SID');
+        $token = env('TWILIO_TOKEN');
+        $fromPhoneNumber = env('TWILIO_FROM');
+    
+        // Create a Twilio client
+        $twilio = new Client($sid, $token);
+    
+        // Send an SMS message
+        $message = $twilio->messages
+            ->create(
+                $recipientNumber, // The recipient's phone number
+                [
+                    "from" => $fromPhoneNumber,
+                    "body" => $messageContent
+                ]
+            );
+    
+        return $message->sid; // Return message SID for confirmation
+    }
+    
+
+
+
+
+
+
+
+
+
+
+
 
      /**
      * Clear all caches.
