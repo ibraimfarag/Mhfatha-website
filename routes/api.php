@@ -41,6 +41,20 @@ Route::get('/optimize', [WebsiteManagerController::class, 'optimizePerformance']
 
 Route::post('login-post', [AuthController::class, 'login_api']);
 Route::post('register-post', [AuthController::class, 'register_api']);
+
+
+Route::post('/send-whatsapp-message', function () {
+    $lang = request('lang');
+    $recipientNumber = request('recipientNumber');
+    $messageContent = request('messageContent');
+
+    $response = App\Http\Controllers\AuthController::sendWhatsAppMessage($lang, $recipientNumber, $messageContent);
+    return response()->json(['status' => 'success', 'response' => $response]);
+});
+
+
+
+
 Route::get('clear', [AuthController::class, 'clearCache']);
 Route::post('validateToken', [AuthController::class, 'validateToken']);
 Route::post('/registerregions', [UserController::class, 'getRegionsAndCitiesApi']);
