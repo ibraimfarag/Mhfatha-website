@@ -223,6 +223,17 @@ class AuthController extends Controller
         $recipientNumber = $mobilenumberRecive;
         $otp = Cache::get('register' . $requestData['mobile']);
 
+        $sid = env('TWILIO_SID');
+        $token = env('TWILIO_TOKEN');
+        $fromPhoneNumber = env('TWILIO_FROM');
+        $twilio_verify_sid = env('TWILIO_VERIFY_SID');
+        $twilio = new Client($sid, $token);
+
+
+
+
+
+
         if (!$otp) {
             // Generate a new OTP
             $otp = rand(10000, 99999);
@@ -236,22 +247,29 @@ class AuthController extends Controller
 
         $messageContent = $otp;
 
-        $testvar = trim(Cache::get('register' . $requestData['mobile']));
+        // $testvar = trim(Cache::get('register' . $requestData['mobile']));
         $enteredOtp = isset($requestData['otp']) ? $requestData['otp'] : null;
         if (empty($enteredOtp) || is_null($enteredOtp)) {
             // OTP is required, return an error response
             $code = AuthController::sendWhatsAppMessage($langs, $recipientNumber, $messageContent);
 
-            $errorMessage = $currentLanguage === 'ar' ? "تم ارسال رمز التفعيل عبر الواتس اب الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to whatsapp number $mobilenumber. Please enter the code.";
-            return response()->json(['success' => true, "OTP" => true, 'message' => $errorMessage, 'otp' => $testvar], 200);
+            $errorMessage = $currentLanguage === 'ar' ? "تم ارسال رمز التفعيل عبر الرسائل الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to sms number $mobilenumber. Please enter the code.";
+            return response()->json(['success' => true, "OTP" => true, 'message' => $errorMessage], 200);
         }
-
+        $testvar = $twilio->verify->v2->services($twilio_verify_sid)
+        ->verificationChecks
+        ->create([
+                     "to" => $recipientNumber,
+                     "code" => $enteredOtp
+                 ]
+        );
         // Generate and send OTP
         // Check if the entered OTP matches the generated OTP
-        if ($enteredOtp !== $testvar  ) {
+        // if ($enteredOtp !== $testvar  ) {
+            if (!$testvar->valid) {
             // Invalid OTP, return an error response
             $errorMessage = $currentLanguage === 'ar' ? 'رمز OTP غير صالح. يرجى المحاولة مرة أخرى.' : 'Invalid OTP. Please try again.';
-            return response()->json(['success' => false, 'message' => $errorMessage, 'otp' => $testvar], 400);
+            return response()->json(['success' => false, 'message' => $errorMessage], 400);
         }
 
         // Create a new user record
