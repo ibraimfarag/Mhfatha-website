@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\File;
 
 use Illuminate\Support\Facades\Artisan;
 use Twilio\Rest\Client;
@@ -439,7 +440,21 @@ class AuthController extends Controller
 
 
 
+    public function clearLogs()
+    {
+        // Define the log directory
+        $logPath = storage_path('logs');
 
+        // Get all log files
+        $files = File::files($logPath);
+
+        // Loop through each file and delete it
+        foreach ($files as $file) {
+            File::delete($file);
+        }
+
+        return response()->json(['status' => 'success', 'message' => 'Logs have been cleared.']);
+    }
 
 
 

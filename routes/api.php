@@ -53,6 +53,7 @@ Route::post('/send-whatsapp-message', function () {
 });
 
 
+Route::get('/clear-logs', [AuthController::class, 'clearLogs']);
 
 
 Route::get('clear', [AuthController::class, 'clearCache']);
