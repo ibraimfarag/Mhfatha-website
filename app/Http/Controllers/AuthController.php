@@ -219,7 +219,7 @@ class AuthController extends Controller
 
         $mobilenumber = '(+966)' . $requestData['mobile'];
         $mobilenumberAR = $requestData['mobile'] . '(966+)';
-        $mobilenumberRecive = '+966' . $requestData['mobile'];
+        $mobilenumberRecive =  $requestData['mobile'];
         $recipientNumber = $mobilenumberRecive;
         $otp = Cache::get('register' . $requestData['mobile']);
 
