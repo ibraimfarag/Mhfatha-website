@@ -428,17 +428,10 @@ class AuthController extends Controller
         //         ]
         //     );
 
-       $verification= $twilio->messages->create(
-            $recipientNumber, // The recipient's phone number
-            [
-                "from" => $fromPhoneNumber,
-                "body" => $messageContent
-            ]
-        );
     
-        // $verification = $twilio->verify->v2->services($twilio_verify_sid)
-        // ->verifications
-        // ->create($recipientNumber, $channel);
+        $verification = $twilio->verify->v2->services($twilio_verify_sid)
+        ->verifications
+        ->create($recipientNumber, $channel);
 
     return $verification->sid; // Return the verification SID for confirmation
     
