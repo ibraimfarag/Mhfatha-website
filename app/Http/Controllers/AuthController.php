@@ -418,14 +418,20 @@ class AuthController extends Controller
         $twilio = new Client($sid, $token);
     
         // Send an SMS message
-        $message = $twilio->messages
-            ->create(
-                $recipientNumber, // The recipient's phone number
-                [
-                    "from" => $fromPhoneNumber,
-                    "body" => $messageContent
-                ]
-            );
+        // $message = $twilio->messages
+        //     ->create(
+        //         $recipientNumber, // The recipient's phone number
+        //         [
+        //             "from" => $fromPhoneNumber,
+        //             "body" => $messageContent
+        //         ]
+        //     );
+    
+        $message =  $twilio->verify->v2->services($sid)
+        ->verificationChecks
+        ->create(['code' => $messageContent, 
+        'to' => $fromPhoneNumber
+    ]);
     
         return $message->sid; // Return message SID for confirmation
     }
