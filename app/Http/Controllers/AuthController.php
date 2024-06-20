@@ -413,7 +413,7 @@ class AuthController extends Controller
         $sid = env('TWILIO_SID');
         $token = env('TWILIO_TOKEN');
         $fromPhoneNumber = env('TWILIO_FROM');
-    
+        $twilio_verify_sid = env('TWILIO_VERIFY_SID');
         // Create a Twilio client
         $twilio = new Client($sid, $token);
     
@@ -427,7 +427,7 @@ class AuthController extends Controller
         //         ]
         //     );
     
-        $message =  $twilio->verify->v2->services($sid)
+        $message =  $twilio->verify->v2->services($twilio_verify_sid)
         ->verificationChecks
         ->create(['code' => $messageContent, 
         'to' => $fromPhoneNumber
