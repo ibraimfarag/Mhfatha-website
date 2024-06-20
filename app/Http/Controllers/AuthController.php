@@ -408,7 +408,7 @@ class AuthController extends Controller
         return $response;
     }
     
-    private static function sendSMS($recipientNumber, $messageContent)
+    private static function sendSMS($recipientNumber, $messageContent,$channel = 'sms')
     {
         // Your Twilio credentials
         $sid = env('TWILIO_SID');
@@ -428,15 +428,13 @@ class AuthController extends Controller
         //         ]
         //     );
     
-        $message =  $twilio->verify->v2->services($twilio_verify_sid)
+        $verification = $twilio->verify->v2->services($twilio_verify_sid)
         ->verifications
-        ->create( 
-        $messageContent,
-        $fromPhoneNumber
-                );
+        ->create($recipientNumber, $channel);
+
+    return $verification->sid; // Return the verification SID for confirmation
     
-        return $message->sid; // Return message SID for confirmation
-    }
+}
     
 
 
