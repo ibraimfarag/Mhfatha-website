@@ -22,6 +22,7 @@ use App\Models\Terms;
 use App\Models\Request as Requests;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Twilio\Rest\Client;
 
 
 class UserController extends Controller
@@ -639,6 +640,12 @@ class UserController extends Controller
 
 
 
+        $sid = env('TWILIO_SID');
+        $token = env('TWILIO_TOKEN');
+        $fromPhoneNumber = env('TWILIO_FROM');
+        $twilio_verify_sid = env('TWILIO_VERIFY_SID');
+        $twilio = new Client($sid, $token);
+
 
 
 
@@ -672,6 +679,9 @@ class UserController extends Controller
                 Cache::put('updateProfileWithOtp_' . $user->id, $otp, 300);
             }
 
+
+         
+
             // Set $lang based on the user's language
             $lang = ($userLanguage === 'ar') ? 'en_US' : 'en_US';
 
@@ -691,16 +701,28 @@ class UserController extends Controller
                 // Invalid or missing OTP, return an error response
                 $code = AuthController::sendWhatsAppMessage($lang, $recipientNumber, $messageContent);
 
-                $errorMessage = $lang === 'ar' ? ' تم إرسال رمز إلى رقم واتس اب' . $request->input('mobile') . '. الرجاء إدخال الرمز.' : 'We have sent OTP code to whatsapp number ' . $request->input('mobile') . '. Please enter the code.';
+                $errorMessage = $lang === 'ar' ? ' تم إرسال رمز إلى رقم ' . $request->input('mobile') . '. الرجاء إدخال الرمز.' : 'We have sent OTP code to number ' . $request->input('mobile') . '. Please enter the code.';
                 return response()->json(['error' => $errorMessage, "OTP" => true, "Success" => true], 200);
             }
+
+            $testvar = $twilio->verify->v2->services($twilio_verify_sid)
+            ->verificationChecks
+            ->create([
+                         "to" => $mobilenumberRecive,
+                         "code" => $enteredOtp
+                     ]
+            );
+
+
             // Verify the entered OTP with the stored one
-            if ($enteredOtp != $otp) {
+            // if ($enteredOtp != $otp) {
+                if (!$testvar->valid) {
                 // Invalid OTP, return an error response
                 $errorMessage = $lang === 'ar' ? 'رمز OTP غير صالح. يرجى المحاولة مرة أخرى.' : 'Invalid OTP. Please try again.';
                 return response()->json(['error' => $errorMessage], 422);
             }
-            if ($enteredOtp = $otp) {
+            // if ($enteredOtp = $otp) {
+                if ($testvar->valid) {
                 $user->mobile = $request->input('mobile');
 
                 // return response()->json(['error' => 'Invalid OTP. Please try again.'], 422);
@@ -820,6 +842,17 @@ class UserController extends Controller
         }
 
 
+
+        
+
+        $sid = env('TWILIO_SID');
+        $token = env('TWILIO_TOKEN');
+        $fromPhoneNumber = env('TWILIO_FROM');
+        $twilio_verify_sid = env('TWILIO_VERIFY_SID');
+        $twilio = new Client($sid, $token);
+
+
+
         $user = User::where('email', $emailOrMobile)
             ->orWhere('mobile', $emailOrMobile)
             ->first();
@@ -862,17 +895,25 @@ class UserController extends Controller
         if (empty($otp) || is_null($otp)) {
             // Invalid or missing OTP, return an error response
             $code = AuthController::sendWhatsAppMessage($langs, $recipientNumber, $messageContent);
-            $errorMessage = $lang === 'ar' ? "تم ارسال رمز التفعيل عبر الواتس اب الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to whatsapp number $mobilenumber. Please enter the code.";
+            $errorMessage = $lang === 'ar' ? "تم ارسال رمز التفعيل عبر الرسائل الي رقم $mobilenumberAR من فضلك ادخل كود التفعيل " : "We have sent OTP code to sms number $mobilenumber. Please enter the code.";
             return response()->json(['success' => true, 'step' => 2, 'message' => $errorMessage,], 200);
         }
+        $testvar = $twilio->verify->v2->services($twilio_verify_sid)
+        ->verificationChecks
+        ->create([
+                     "to" => $recipientNumber,
+                     "code" => $otp
+                 ]
+        );
 
-
-        if ($otp != $storedOtp) {
+        // if ($otp != $storedOtp) {
+            if (!$testvar->valid) {
             // Incorrect OTP, return an error response
             // dd($storedOtp,$otp);
             $errorMessage = $lang === 'ar' ? ' غير صحيح otp كود' : 'incorrect OTP code, please check and try again ';
             return response()->json(['error' => $errorMessage, "OTP" => true, "Success" => true, $storedOtp, $otp], 200);
         }
+
 
 
         // Step 3: Check if new password is empty

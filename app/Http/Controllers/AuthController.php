@@ -182,7 +182,7 @@ class AuthController extends Controller
             'gender' => 'nullable',
             'birthday' => 'nullable',
             'region' => 'required',
-            // 'mobile' => 'required|digits:10| unique:users',
+            'mobile' => 'required|digits:10| unique:users',
             'email' => 'required|email|unique:users',
             'is_vendor' => 'required',
             'password' => 'required|min:8|confirmed',
@@ -219,7 +219,7 @@ class AuthController extends Controller
 
         $mobilenumber = '(+966)' . $requestData['mobile'];
         $mobilenumberAR = $requestData['mobile'] . '(966+)';
-        $mobilenumberRecive =  $requestData['mobile'];
+        $mobilenumberRecive = '+966' . $requestData['mobile'];
         $recipientNumber = $mobilenumberRecive;
         $otp = Cache::get('register' . $requestData['mobile']);
 
