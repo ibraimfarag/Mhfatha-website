@@ -429,10 +429,11 @@ class AuthController extends Controller
         //     );
     
         $message =  $twilio->verify->v2->services($twilio_verify_sid)
-        ->verificationChecks
-        ->create(['code' => $messageContent, 
-        'to' => $fromPhoneNumber
-    ]);
+        ->verifications
+        ->create( 
+        $messageContent,
+        $fromPhoneNumber
+                );
     
         return $message->sid; // Return message SID for confirmation
     }
