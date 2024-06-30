@@ -1506,6 +1506,7 @@ class StoreController extends Controller
                     'message' => 'Invalid query.',
                 ], 400);
         }
+        $store->save();
 
         // Return a success response
         return response()->json([
