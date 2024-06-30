@@ -1480,7 +1480,7 @@ class StoreController extends Controller
                 'message' => 'Store not found.',
             ], 404);
         }
-
+        dd($store);
         // Perform the operation based on the query
         switch ($query) {
             case 'delete':
