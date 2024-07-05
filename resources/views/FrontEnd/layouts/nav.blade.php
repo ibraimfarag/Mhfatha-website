@@ -35,7 +35,7 @@
         
 
           <ul>
-  
+{{--   
   
             @if (Auth::check())
             <li><a class="nav-link " href="{{ route('dashboard_user', ['lang' => app()->getLocale()]) }}#dashboard_user">                {{ app()->getLocale() === 'ar' ? 'مرحبا' : 'hello' }}
@@ -53,7 +53,7 @@
                 {{ app()->getLocale() === 'ar' ? 'التسجيل' : 'register' }}
             </a></li>
             <span>|</span>
-        @endif
+        @endif --}}
             @if (App::getLocale() == 'en')
             <li><a class="nav-link" href="{{ route(request()->route()->getName(), ['lang' => 'ar']) }}">عربي</a></li>
         @elseif (App::getLocale() == 'ar')
