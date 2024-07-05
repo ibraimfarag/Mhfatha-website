@@ -12,7 +12,7 @@
 
     <!-- Reading keywords from file -->
     @php
-        $keywordsFile = asset('/FrontEnd/assets/keywords.txt');
+        $keywordsFile = public_path('/FrontEnd/assets/keywords.txt');
         $site_meta_keywords = file_exists($keywordsFile) ? file_get_contents($keywordsFile) : '';
     @endphp
     <meta name="keywords" content="{{ $site_meta_keywords }}">
